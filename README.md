@@ -30,12 +30,12 @@ Roadmap
 This started as a means of learning some basic socket fun and python threading.
 Next up for this:
 
--Code cleanup. Things can probably be reworked and written better.
--More notifiers.
--Better security (make the secret string actually secret)
--Remember the devices on the network to avoid the "found a new heartbeat" spam
+- Code cleanup. Things can probably be reworked and written better.
+- More notifiers.
+- Better security (make the secret string actually secret)
+- Remember the devices on the network to avoid the "found a new heartbeat" spam
  when starting the monitor
--Potentially, more features (but seriously, dead simple can be nice)
+- Potentially, more features (but seriously, dead simple can be nice)
 
 License
 ============
