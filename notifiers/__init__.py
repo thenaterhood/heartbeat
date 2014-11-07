@@ -12,7 +12,7 @@ class NotifyWorker(threading.Thread):
         threading.Thread
     """
 
-    def __init__(self, host, event):
+    def __init__(self, event):
         """
         constructor
 
@@ -20,7 +20,6 @@ class NotifyWorker(threading.Thread):
             string host:  the hostname of the system to notify for
             Event   event: the event details (message and title)
         """
-        self.host = host
         self.event = event
 
     def run(self):
@@ -30,9 +29,9 @@ class Event:
     """
     An event to notify of. Contains a title, message, and timestamp
     """
-    __slots__ = ('title', 'message', 'timestamp')
+    __slots__ = ('title', 'message', 'timestamp', 'host')
 
-    def __init__(self, title, message):
+    def __init__(self, title, message, host = "localhost"):
         """
         Constructor
 
@@ -43,18 +42,45 @@ class Event:
         self.title = title
         self.message = message
         self.timestamp = datetime.datetime.now()
+        self.host = host
 
-def send_notification(notifiers, host, event):
+class Notification(threading.Thread):
     """
-    Sends a notification to each configured
-    notifier passed in for the given host
-    and event.
+    A class that holds a list of notifiers and allows them to
+    all be kicked off in succession
+    """
 
-    Params:
-        array  notifiers: the notifiers to sent a notification through
-        string host:      the hostname the notification applies to
-        dict   event:     the event (contains a message and title)
-    """
-    for n in notifiers:
-        notify = n(host, event)
-        notify.run()
+    def __init__(self, notifiers):
+        """
+        Constructor
+
+        Params:
+            list notifiers: the configured notifiers to push to
+        """
+        self.notifiers = notifiers
+        super().__init__()
+
+    def push(self, event):
+        """
+        Starts the thread to push notifications
+
+        Params:
+            Event event: The event to notify of
+        """
+        self.event = event
+        self.run()
+
+    def run(self):
+        """
+        Sends a notification to each configured
+        notifier passed in for the given host
+        and event.
+
+        Params:
+            array  notifiers: the notifiers to sent a notification through
+            string host:      the hostname the notification applies to
+            dict   event:     the event (contains a message and title)
+        """
+        for n in self.notifiers:
+            notify = n(self.event)
+            notify.run()

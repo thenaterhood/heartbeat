@@ -3,17 +3,19 @@ from notifiers import NotifyWorker
 from datetime import datetime
 
 API_KEYS = [
+    '6h5Xp8qVQhoprnE3QPeqdSFyow78WJ9A',
 ]
 
 class pushbullet(NotifyWorker):
 
     __slots__ = ('api_key', 'message', 'title')
 
-    def __init__(self, host, event):
+    def __init__(self, event):
+        host = event.host
         self.title = event.title + ": " + host
         date = datetime.now()
         self.message = host + ": " + event.message + " at " + event.timestamp.strftime("%H:%M:%S %m/%d/%y")
-        super(pushbullet, self).__init__(host, event)
+        super(pushbullet, self).__init__(event)
 
     def run(self):
         for key in API_KEYS:

@@ -6,8 +6,8 @@ import operator
 from network import NetworkInfo
 from network import SocketListener
 from network import SocketBroadcaster
-from notifiers import send_notification
 from notifiers import Event
+from notifiers import Notification
 
 class Heartbeat(threading.Thread):
     """
@@ -72,6 +72,7 @@ class Monitor(threading.Thread):
         self.known_hosts = []
         self.secret = bytes(secret.encode("UTF-8"))
         self.notifiers = notifiers
+        self.notifier = Notification(notifiers)
         self.listener = SocketListener(port, self.receive)
 
         super().__init__()
@@ -109,8 +110,8 @@ class Monitor(threading.Thread):
             string host: the host the broadcast originated from
         """
         if (host not in self.known_hosts.keys()):
-            event = Event("New Heartbeat", "New heartbeat discovered")
-            send_notification(self.notifiers, host, event)
+            event = Event("New Heartbeat", "New heartbeat discovered", host)
+            self.notifier.push(event)
 
         self.known_hosts.write(host, datetime.datetime.now())
 
@@ -124,8 +125,8 @@ class Monitor(threading.Thread):
         i = 0
         while ( i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=60) ):
             print( "Removing flatlined host: ", sorted_hosts[i][0] )
-            event = Event("Flatlined Host", "Host flatlined (heartbeat lost)")
-            send_notification(self.notifiers, sorted_hosts[i][0], event)
+            event = Event("Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
+            self.notifier.push(event)
             self.known_hosts.remove(sorted_hosts[i][0])
             i += 1
 
