@@ -98,4 +98,7 @@ class SocketBroadcaster():
 
 if __name__ == '__main__':
     netinfo = NetworkInfo()
-    print(netinfo.ip_lan)
+    print("Network info for the local system:")
+    print("Local IP address (if determinable): " + netinfo.ip_lan)
+    print("Local fqdn: " + netinfo.fqdn)
+    print("Local hostname: " + netinfo.hostname)
