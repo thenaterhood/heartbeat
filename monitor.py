@@ -1,11 +1,11 @@
-from modules import Monitor
+from modules import HeartMonitor
 from modules import Heartbeat
 import settings
 import sys
 
 if __name__ == "__main__":
     try:
-        listener = Monitor(settings.PORT, settings.SECRET_KEY, settings.NOTIFIERS)
+        listener = HeartMonitor(settings.PORT, settings.SECRET_KEY, settings.NOTIFIERS)
         listener.daemon = True
         listener.start()
         print("Monitor started. Use ctrl+c to stop.")

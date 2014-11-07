@@ -51,7 +51,7 @@ class Heartbeat(threading.Thread):
           self._beat()
           sleep(5 * randint(1,5) )
 
-class Monitor(threading.Thread):
+class HeartMonitor(threading.Thread):
     """
     A monitor class to listen for and handle the known heartbeats on the
     network.
