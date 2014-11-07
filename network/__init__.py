@@ -17,35 +17,16 @@ class NetworkInfo():
         self.fqdn = socket.getfqdn()
 
     def get_local_ip(self):
-        def udp_listening_server():
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.bind(('<broadcast>', 8888))
-            s.setblocking(0)
-            while True:
-                result = select.select([s],[],[])
-                msg, address = result[0][0].recvfrom(1024)
-                msg = str(msg, 'UTF-8')
-                if msg == 'What is my LAN IP address?':
-                    break
-            queue.put(address)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout( 5 )
+        try:
+            s.connect(("google.com",80))
+            ip = s.getsockname()[0]
+            s.close()
+        except:
+            ip = "0.0.0.0"
 
-        queue = Queue()
-        thread = threading.Thread(target=udp_listening_server)
-        thread.queue = queue
-        thread.start()
-        s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s2.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        waiting = True
-        while waiting:
-            s2.sendto(bytes('Whats my LAN IP', 'UTF-8'), ('<broadcast>', 8888))
-            try:
-                address = queue.get(False)
-            except Empty:
-                pass
-            else:
-                waiting = False
-        return address[0]
-
+        return ip
 
 class SocketListener(threading.Thread):
     """
