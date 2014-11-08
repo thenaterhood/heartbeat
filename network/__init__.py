@@ -17,6 +17,12 @@ class NetworkInfo():
         self.fqdn = socket.getfqdn()
 
     def get_local_ip(self):
+        """
+        Grabs the local IP of the system
+
+        Returns:
+            string ip: the ip address
+        """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.settimeout( 5 )
         try:

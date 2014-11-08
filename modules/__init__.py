@@ -202,24 +202,46 @@ class LockingDictionary():
 INTERVAL = 50
 
 class HWMonitor(threading.Thread):
+    """
+    Monitoring class handling running multiple monitors on
+    an interval
+    """
 
     def __init__(self, hwmonitors, notifiers):
+        """
+        Constructor
+
+        Params:
+            array[MonitorWorker] hwmonitors: an array of HardwareWorker
+                instances
+            array[NotifyWorker]  notifiers:  an array of notifiers
+        """
         self.hwmonitors = hwmonitors
         self.notifier = Notification(notifiers)
         super(HWMonitor, self).__init__()
 
     def run(self):
+        """
+        Run method, generally called from the parent start()
+        """
         while (True):
             self.scan()
             sleep(INTERVAL)
 
     def scan(self):
+        """
+        Runs each monitor thread and waits for it to complete
+        """
         for m in self.hwmonitors:
             monitor = m(self.notify)
             monitor.start()
             monitor.join(1000)
 
     def notify(self, event):
+        """
+        A callback method for monitors to call to. Currently just a
+        wrapper for the notifier.push
+        """
         self.notifier.push(event)
 
 

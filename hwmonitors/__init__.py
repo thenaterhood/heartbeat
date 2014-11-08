@@ -13,6 +13,9 @@ class MonitorWorker(threading.Thread):
         super(MonitorWorker, self).__init__()
 
     def run(self):
+        """
+        Runs the thing. Usually called from the parent start()
+        """
         raise NotImplementedError("This method is not implemented.")
 
 
