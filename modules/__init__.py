@@ -73,8 +73,27 @@ class HeartMonitor(threading.Thread):
         self.notifiers = notifiers
         self.notifier = Notification(notifiers)
         self.listener = SocketListener(port, self.receive)
+        self.cachefile = '/dev/null'
 
         super(HeartMonitor, self).__init__()
+
+    def saveCache(self):
+        """
+        Saves the cache out to disk
+        """
+        hosts = self.known_hosts.keys()
+        fileHandle = open(self.cachefile, 'w')
+        for h in hosts:
+            fileHandle.write(h)
+        fileHandle.close()
+
+    def loadCache(self):
+        """
+        Loads the cache from file
+        """
+        for h in open(self.cachefile, 'r'):
+            self.known_hosts.write(h, datetime.datetime.now())
+
 
     def _bcastIsOwn( self, host ):
         """
@@ -86,7 +105,7 @@ class HeartMonitor(threading.Thread):
             boolean: whether the broadcast originated from ourselves
         """
         netinfo = NetworkInfo()
-        return host == netinfo.fqdn
+        return host != netinfo.fqdn
 
     def receive(self, data, addr):
         """
@@ -127,11 +146,14 @@ class HeartMonitor(threading.Thread):
             self.known_hosts.remove(sorted_hosts[i][0])
             i += 1
 
+        self.saveCache()
+
     def run(self):
         """
         Runs the monitor. Usually called by the parent start()
         """
         self.known_hosts = LockingDictionary()
+        self.loadCache()
         self.listener.start()
 
         while True:
