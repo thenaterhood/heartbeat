@@ -24,7 +24,7 @@ class SMARTMonitor(MonitorWorker):
 
         if (foundProblem):
             net = NetworkInfo()
-            event = Event("Smart Alert", problemDrive, net.fqdn)
+            event = Event("SMART Alert", problemDrive, net.fqdn)
             self.callback(event)
 
     def _call_smartctl(self, drive):
