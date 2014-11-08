@@ -21,6 +21,7 @@ class NotifyWorker(threading.Thread):
             Event   event: the event details (message and title)
         """
         self.event = event
+        super(NotifyWorker, self).__init__()
 
     def run(self):
         raise NotImplementedError

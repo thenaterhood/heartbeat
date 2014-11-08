@@ -75,7 +75,7 @@ class HeartMonitor(threading.Thread):
         self.notifier = Notification(notifiers)
         self.listener = SocketListener(port, self.receive)
 
-        super().__init__()
+        super(HeartMonitor, self).__init__()
 
     def _bcastIsOwn( self, host ):
         """
@@ -198,3 +198,30 @@ class LockingDictionary():
         """
         return self._dictionary.items()
 
+
+INTERVAL = 50
+
+class HWMonitor(threading.Thread):
+
+    def __init__(self, hwmonitors, notifiers):
+        self.hwmonitors = hwmonitors
+        self.notifier = Notification(notifiers)
+        super(HWMonitor, self).__init__()
+
+    def run(self):
+        while (True):
+            self.scan()
+            sleep(INTERVAL)
+
+    def scan(self):
+        for m in self.hwmonitors:
+            monitor = m(self.notify)
+            monitor.start()
+            monitor.join(1000)
+
+    def notify(self, event):
+        self.notifier.push(event)
+
+
+if __name__ == "__main__":
+    pass
