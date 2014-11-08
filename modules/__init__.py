@@ -41,7 +41,6 @@ class Heartbeat(threading.Thread):
         netinfo = NetworkInfo()
         data = self.secret+bytes(netinfo.fqdn.encode("UTF-8"))
         self.bcaster.push(data)
-        print("beat")
 
     def run(self):
         """
@@ -121,10 +120,8 @@ class HeartMonitor(threading.Thread):
         been heard for a while, then dumps them.
         """
         sorted_hosts = sorted(self.known_hosts.items(), key=operator.itemgetter(1))
-        print( self.known_hosts )
         i = 0
         while ( i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=60) ):
-            print( "Removing flatlined host: ", sorted_hosts[i][0] )
             event = Event("Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
             self.notifier.push(event)
             self.known_hosts.remove(sorted_hosts[i][0])
