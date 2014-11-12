@@ -217,9 +217,6 @@ class LockingDictionary():
         """
         return self._dictionary.items()
 
-
-INTERVAL = 50
-
 class HWMonitor(threading.Thread):
     """
     Monitoring class handling running multiple monitors on
@@ -245,7 +242,7 @@ class HWMonitor(threading.Thread):
         """
         while (True):
             self.scan()
-            sleep(INTERVAL)
+            sleep(60)
 
     def scan(self):
         """
