@@ -1,6 +1,7 @@
 import select
 import socket
 import threading
+import urllib.request
 from queue import Queue, Empty
 
 class NetworkInfo():
@@ -13,6 +14,7 @@ class NetworkInfo():
         Constructor
         """
         self.ip_lan = self.get_local_ip()
+        self.ip_wan = self.get_public_ip()
         self.hostname = socket.gethostname()
         self.fqdn = socket.getfqdn()
 
@@ -31,6 +33,21 @@ class NetworkInfo():
             s.close()
         except:
             ip = "0.0.0.0"
+
+        return ip
+
+    def get_public_ip(self):
+        """
+        Grabs the public IP of the network
+
+        Returns:
+            string ip: the public ip address
+        """
+        try:
+            filehandle = urllib.request.urlopen('http://icanhazip.com', timeout=5)
+            ip = filehandle.readlines()[0].decode('UTF-8').strip()
+        except:
+            ip = '0.0.0.0'
 
         return ip
 
