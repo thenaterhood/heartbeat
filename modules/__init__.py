@@ -1,4 +1,5 @@
 from time import sleep
+import os
 import threading
 from random import randint
 import datetime
@@ -8,6 +9,7 @@ from network import SocketListener
 from network import SocketBroadcaster
 from notifiers import Event
 from notifiers import Notification
+from settings import HEARTBEAT_CACHE_DIR
 
 class Heartbeat(threading.Thread):
     """
@@ -91,8 +93,9 @@ class HeartMonitor(threading.Thread):
         """
         Loads the cache from file
         """
-        for h in open(self.cachefile, 'r'):
-            self.known_hosts.write(h, datetime.datetime.now())
+        if (os.path.isfile(self.cachefile)):
+            for h in open(self.cachefile, 'r'):
+                self.known_hosts.write(h, datetime.datetime.now())
 
 
     def _bcastIsOwn( self, host ):
@@ -217,6 +220,12 @@ class LockingDictionary():
         """
         return self._dictionary.items()
 
+    def exists(self, key):
+        """
+        Returns whether a key is in the dictionary
+        """
+        return (key in self._dictionary)
+
 class HWMonitor(threading.Thread):
     """
     Monitoring class handling running multiple monitors on
@@ -234,6 +243,7 @@ class HWMonitor(threading.Thread):
         """
         self.hwmonitors = hwmonitors
         self.notifier = Notification(notifiers)
+        self.alertLog = LockingDictionary()
         super(HWMonitor, self).__init__()
 
     def run(self):
@@ -258,7 +268,16 @@ class HWMonitor(threading.Thread):
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        self.notifier.push(event)
+        if (self.alertLog.exists(event.title)):
+            lastSeen = self.alertLog.read(event.title)
+            if (datetime.datetime.now() - lastSeen > datetime.timedelta(hours = 2)):
+                self.alertLog.write(event.title, event.timestamp)
+                self.notifier.push(event)
+            else:
+                return
+        else:
+            self.alertLog.write(event.title, event.timestamp)
+            self.notifier.push(event)
 
 
 if __name__ == "__main__":

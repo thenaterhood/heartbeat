@@ -17,7 +17,7 @@ if __name__ == "__main__":
         if (settings.MONITOR):
             monitor = HeartMonitor(settings.PORT, settings.SECRET_KEY, settings.NOTIFIERS)
             monitor.daemon = True
-            monitor.cachefile = settings.HEARTBEAT_CACHE
+            monitor.cachefile = settings.HEARTBEAT_CACHE_DIR + "/heartbeats"
             monitor.start()
             print("Monitor started. Hit ctrl+c to stop.")
             main_threads['heartmonitor'] = monitor
