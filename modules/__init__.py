@@ -108,7 +108,7 @@ class HeartMonitor(threading.Thread):
             boolean: whether the broadcast originated from ourselves
         """
         netinfo = NetworkInfo()
-        return host != netinfo.fqdn
+        return host == netinfo.fqdn
 
     def receive(self, data, addr):
         """
