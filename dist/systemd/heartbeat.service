@@ -3,7 +3,7 @@ Description=Heartbeat
 After=network.target
 
 [Service]
-ExecStart=
+ExecStart=heartbeat
 Restart=always
 
 [Install]
