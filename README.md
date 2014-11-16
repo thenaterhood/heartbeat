@@ -12,7 +12,11 @@ Network broadcast packets.
 
 Setup
 ============
-Configure a port and secret string in the settings.py file. This is used
+If you're on ArchLinux, a pkgbuild is provided with the occasional package
+in the releases under the releases tab here on Github.
+
+Once installed, configure a port and secret string in the settings.py file or
+in the /etc/heartbeat.conf depending on your install. This is used
 for the monitor to identify heartbeats so that multiple heartbeats can be
 on the same network with different monitors.
 
@@ -35,8 +39,7 @@ notifiers directory with some brief instructions and put in a pull if you
 feel inclined to share.
 
 Using a notifier:
-* Import it at the top of the settings.py file
-* Add it to the NOTIFIERS array
+* Add it to the NOTIFIERS array, without the heartbeat.notifiers path prefix
 
 Hardware Monitors
 ============
@@ -45,8 +48,7 @@ added hardware monitors. They use the same notification framework as
 heartbeat for new/flatlined hosts.
 
 Using a hardware monitor:
-* Import it at the top of the settings.py file
-* Add it to the HW_MONITORS array
+* Add it to the HW_MONITORS array, without the heartbeat.hwmonitors path prefix
 
 Roadmap
 ============
@@ -57,7 +59,7 @@ Next up for this:
 - More notifiers.
 - Better security (make the secret string actually secret)
 - Remember the devices on the network to avoid the "found a new heartbeat" spam
- when starting the monitor
+ when starting the monitor - DONE!
 - Potentially, more features (but seriously, dead simple can be nice)
 
 License
