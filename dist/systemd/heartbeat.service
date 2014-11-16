@@ -1,0 +1,10 @@
+[Unit]
+Description=Heartbeat
+After=network.target
+
+[Service]
+ExecStart=
+Restart=always
+
+[Install]
+Alias=heartbeat.service

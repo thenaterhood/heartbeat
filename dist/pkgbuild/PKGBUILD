@@ -1,0 +1,58 @@
+# This is an example PKGBUILD file. Use this as a start to creating your own,
+# and remove these comments. For more information, see 'man PKGBUILD'.
+# NOTE: Please fill out the license field for your package! If it is unknown,
+# then please put 'unknown'.
+
+# Maintainer: Nate Levesque <public@thenaterhood.com>
+pkgname=heartbeat
+pkgver=0.1
+pkgrel=1
+epoch=
+pkgdesc=""
+arch=('i686' 'x86_64')
+url=""
+license=('BSD')
+groups=("python")
+depends=()
+makedepends=("unzip")
+checkdepends=()
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=("https://github.com/thenaterhood/heartbeat/archive/master.zip")
+noextract=("master.zip")
+md5sums=('230a375e2c26ef3ecede53e8c9977864') #generate with 'makepkg -g'
+
+prepare() {
+        unzip $srcdir/master.zip
+	cd $srcdir/heartbeat-master
+}
+
+build() {
+	#cd "$srcdir/$pkgname-$pkgver"
+	#./configure --prefix=/usr
+	#make
+        cd $srcdir/heartbeat-master
+        mkdir -p /tmp/build-heartbeat
+        python3 setup.py install --prefix=/tmp/build-heartbeat
+        mkdir -p /tmp/build-heartbeat/bin
+        echo -e "#!/usr/bin/env sh\npython3 /usr/lib/python3.4/site-packages/heartbeat/heartbeat.py" > /tmp/build-heartbeat/bin/heartbeat
+        chmod +x /tmp/build-heartbeat/bin/heartbeat
+}
+
+check() {
+	#cd "$srcdir/$pkgname-$pkgver"
+	#make -k check
+        echo "No check"
+}
+
+package() {
+	#cd "$srcdir/$pkgname-$pkgver"
+	#make DESTDIR="$pkgdir/" install
+        mv /tmp/build-heartbeat/* $pkgdir
+}
