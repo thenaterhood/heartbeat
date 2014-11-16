@@ -1,42 +1,35 @@
-from heartbeat.notifiers import pushbullet
-from heartbeat.notifiers import stdout
-from heartbeat.notifiers import dweetio
-from heartbeat.hwmonitors import smartctl
+import configparser
+import importlib
 
-# The secret identifying key for this particular monitor/heartbeat.
-# Use the same key for all the heartbeats monitored by the same monitor
-SECRET_KEY = '3477'
+config = configparser.ConfigParser()
+config.read('/etc/heartbeat.conf')
 
-# The port to use for sending and receiving packets
-PORT = 21999
+SECRET_KEY = config['basic']['secret_key']
+PORT = int(config['basic']['port'])
+NOTIFIERS = []
+HW_MONITORS = []
+HEARTBEAT_CACHE_DIR = config['basic']['cache_dir']
+
+for key, value in config.items("notifiers"):
+    modulepath = "heartbeat.notifiers." + ".".join(value.split(".")[:-1])
+    module = importlib.import_module(modulepath)
+    NOTIFIERS.append(getattr(module, value.split(".")[-1]))
+
+for key, value in config.items("hwmonitors"):
+    modulepath = "heartbeat.hwmonitors." + ".".join(value.split(".")[:-1])
+    module = importlib.import_module(modulepath)
+    HW_MONITORS.append(getattr(module, value.split(".")[-1]))
 
 # Set to true if this device should have a heartbeat
-HEARTBEAT = True
-
-# Where to keep a cache of all the active heartbeats so
-# they don't need to be rediscovered between program sessions
-# (prevents "Found New Heartbeat" spam on startup
-HEARTBEAT_CACHE_DIR = '/home/nate/.cache'
+HEARTBEAT = config['services']['heartbeat']
 
 # Set to true if this device is monitoring. Note that the
 # device can have both a heartbeat and a monitor, though
 # it will ignore its own heartbeat
-MONITOR = True
-
-# The notifiers for when a new heartbeat is discovered or when a host
-# flatlines. Must also be imported.
-NOTIFIERS = [
-    pushbullet.pushbullet,
-    stdout.PrintOutput,
-    dweetio.dweet
-]
+MONITOR = config['services']['monitor']
 
 # Set this to true to enable hardware monitoring using
 # the monitors configured below. This will use the same
 # notifiers, which accept an Event object. These need
 # to be imported similar to the notifiers
-ENABLE_HWMON = True
-
-HW_MONITORS = [
-    smartctl.SMARTMonitor
-]
+ENABLE_HWMON = config['services']['hwmonitor']

@@ -26,7 +26,7 @@ install=
 changelog=
 source=("https://github.com/thenaterhood/heartbeat/archive/master.zip")
 noextract=("master.zip")
-md5sums=('5a8c3d540a94d1fb257b3e6449e59ff4') #generate with 'makepkg -g'
+md5sums=('52e9a795c5a8fabe2cd84f2ceb822524') #generate with 'makepkg -g'
 
 prepare() {
         unzip $srcdir/master.zip
@@ -42,8 +42,9 @@ build() {
         mkdir -p $builddir
         python3 setup.py install --prefix=$builddir
         mkdir -p $builddir/bin
-        cp $srcdir/heartbeat-master/dist/_bin/heartbeat $builddir/bin/heartbeat
-        chmod +x $builddir/bin/heartbeat
+        cp -r $srcdir/heartbeat-master/dist/_etc $builddir/etc
+        cp -r $srcdir/heartbeat-master/dist/_bin $builddir/bin
+        chmod +x $builddir/bin/*
 
         mkdir -p $builddir/etc/systemd/system
         cp $srcdir/heartbeat-master/dist/systemd/heartbeat.service $builddir/etc/systemd/system/
