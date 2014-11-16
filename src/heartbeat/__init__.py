@@ -31,13 +31,3 @@ def main():
     for t in main_threads:
         main_threads[t].join()
 
-if __name__ == "__main__":
-    try:
-        main()
-    except (KeyboardInterrupt):
-        print("Caught ctrl+c, shutting down Heartbeat...")
-        if (settings.MONITOR):
-            main_threads['heartmonitor'].saveCache()
-        sys.exit(0)
-
-
