@@ -26,7 +26,7 @@ install=
 changelog=
 source=("https://github.com/thenaterhood/heartbeat/archive/master.zip")
 noextract=("master.zip")
-md5sums=('94060e4327ea6a8351443d28747c8d82') #generate with 'makepkg -g'
+md5sums=('40b3922dbd5dbd06cd914f592d239507') #generate with 'makepkg -g'
 
 prepare() {
         unzip $srcdir/master.zip

@@ -1,4 +1,4 @@
-from notifiers import NotifyWorker
+from heartbeat.notifiers import NotifyWorker
 from datetime import datetime
 
 class PrintOutput(NotifyWorker):
