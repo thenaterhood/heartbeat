@@ -4,7 +4,7 @@ from modules import HWMonitor
 import settings
 import sys
 
-if __name__ == "__main__":
+def main():
     try:
         main_threads = dict()
         if (settings.HEARTBEAT):
@@ -37,3 +37,6 @@ if __name__ == "__main__":
         if (settings.MONITOR):
             main_threads['heartmonitor'].saveCache()
         sys.exit(0)
+
+if __name__ == "__main__":
+    main()
