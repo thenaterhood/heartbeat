@@ -1,6 +1,6 @@
 from heartbeat.notifiers import NotifyWorker
 from datetime import datetime
-from network import NetworkInfo
+from heartbeat.network import NetworkInfo
 import urllib.parse
 import urllib.request
 
