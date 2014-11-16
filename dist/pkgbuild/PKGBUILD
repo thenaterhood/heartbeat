@@ -6,7 +6,7 @@
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
 pkgver=0.1
-pkgrel=1
+pkgrel=2
 epoch=
 pkgdesc=""
 arch=('i686' 'x86_64')
@@ -26,11 +26,12 @@ install=
 changelog=
 source=("https://github.com/thenaterhood/heartbeat/archive/master.zip")
 noextract=("master.zip")
-md5sums=('52e9a795c5a8fabe2cd84f2ceb822524') #generate with 'makepkg -g'
+md5sums=('dc1bb5f91c81188a5074e46a2ae9ec30') #generate with 'makepkg -g'
 
 prepare() {
         unzip $srcdir/master.zip
 	cd $srcdir/heartbeat-master
+        rm -rf /tmp/build-heartbeat
 }
 
 build() {
@@ -41,7 +42,7 @@ build() {
         cd $srcdir/heartbeat-master
         mkdir -p $builddir
         python3 setup.py install --prefix=$builddir
-        mkdir -p $builddir/bin
+
         cp -r $srcdir/heartbeat-master/dist/_etc $builddir/etc
         cp -r $srcdir/heartbeat-master/dist/_bin $builddir/bin
         chmod +x $builddir/bin/*
