@@ -1,7 +1,7 @@
-from notifiers import pushbullet
-from notifiers import stdout
-from notifiers import dweetio
-from hwmonitors import smartctl
+from heartbeat.notifiers import pushbullet
+from heartbeat.notifiers import stdout
+from heartbeat.notifiers import dweetio
+from heartbeat.hwmonitors import smartctl
 
 # The secret identifying key for this particular monitor/heartbeat.
 # Use the same key for all the heartbeats monitored by the same monitor
