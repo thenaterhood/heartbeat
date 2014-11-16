@@ -4,12 +4,12 @@ import threading
 from random import randint
 import datetime
 import operator
-from network import NetworkInfo
-from network import SocketListener
-from network import SocketBroadcaster
-from notifiers import Event
-from notifiers import Notification
-from settings import HEARTBEAT_CACHE_DIR
+from heartbeat.network import NetworkInfo
+from heartbeat.network import SocketListener
+from heartbeat.network import SocketBroadcaster
+from heartbeat.notifiers import Event
+from heartbeat.notifiers import Notification
+from heartbeat.settings import HEARTBEAT_CACHE_DIR
 
 class Heartbeat(threading.Thread):
     """

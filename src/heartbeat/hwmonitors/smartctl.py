@@ -1,6 +1,6 @@
-from hwmonitors import MonitorWorker
-from notifiers import Event
-from network import NetworkInfo
+from heartbeat.hwmonitors import MonitorWorker
+from heartbeat.notifiers import Event
+from heartbeat.network import NetworkInfo
 import subprocess
 
 CHECK_DRIVES = [

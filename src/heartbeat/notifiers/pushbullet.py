@@ -1,5 +1,5 @@
 from pushbullet import PushBullet
-from notifiers import NotifyWorker
+from heartbeat.notifiers import NotifyWorker
 from datetime import datetime
 
 API_KEYS = [

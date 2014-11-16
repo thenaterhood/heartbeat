@@ -1,7 +1,7 @@
-from modules import Heartbeat
-from modules import HeartMonitor
-from modules import HWMonitor
-import settings
+from heartbeat.modules import Heartbeat
+from heartbeat.modules import HeartMonitor
+from heartbeat.modules import HWMonitor
+import heartbeat.settings
 import sys
 
 def main():
