@@ -3,7 +3,7 @@ from heartbeat.notifiers import NotifyWorker
 from datetime import datetime
 
 API_KEYS = [
-    'Xbgeg5x0pSup5OH9lzK9MKcjQ3ughNT1',
+    'YourApiKey',
 ]
 
 class pushbullet(NotifyWorker):
