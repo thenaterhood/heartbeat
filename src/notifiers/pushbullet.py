@@ -3,7 +3,7 @@ from notifiers import NotifyWorker
 from datetime import datetime
 
 API_KEYS = [
-    '6h5Xp8qVQhoprnE3QPeqdSFyow78WJ9A',
+    'Xbgeg5x0pSup5OH9lzK9MKcjQ3ughNT1',
 ]
 
 class pushbullet(NotifyWorker):
