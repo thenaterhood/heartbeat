@@ -37,12 +37,16 @@ build() {
 	#cd "$srcdir/$pkgname-$pkgver"
 	#./configure --prefix=/usr
 	#make
+        builddir=/tmp/build-heartbeat
         cd $srcdir/heartbeat-master
-        mkdir -p /tmp/build-heartbeat
-        python3 setup.py install --prefix=/tmp/build-heartbeat
-        mkdir -p /tmp/build-heartbeat/bin
-        echo -e "#!/usr/bin/env sh\npython3 /usr/lib/python3.4/site-packages/heartbeat/heartbeat.py" > /tmp/build-heartbeat/bin/heartbeat
-        chmod +x /tmp/build-heartbeat/bin/heartbeat
+        mkdir -p $builddir
+        python3 setup.py install --prefix=$builddir
+        mkdir -p $builddir/bin
+        cp $srcdir/heartbeat-master/dist/_bin/heartbeat $builddir/bin/heartbeat
+        chmod +x $builddir/bin/heartbeat
+
+        mkdir -p $builddir/etc/systemd/system
+        cp $srcdir/heartbeat-master/dist/systemd/heartbeat.service $builddir/etc/systemd/system/
 }
 
 check() {
