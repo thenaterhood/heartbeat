@@ -1,6 +1,7 @@
 import queue
 import threading
 import datetime
+import json
 
 class NotifyWorker(threading.Thread):
     """
@@ -32,7 +33,7 @@ class Event:
     """
     __slots__ = ('title', 'message', 'timestamp', 'host')
 
-    def __init__(self, title, message, host = "localhost"):
+    def __init__(self, title = '', message = '', host = "localhost"):
         """
         Constructor
 
@@ -44,6 +45,21 @@ class Event:
         self.message = message
         self.timestamp = datetime.datetime.now()
         self.host = host
+
+    def to_json(self):
+        dictionary = dict()
+        dictionary['title'] = self.title
+        dictionary['message'] = self.message
+        dictionary['host'] = self.host
+
+        return json.dumps(dictionary)
+
+    def load_json(self, jsonString):
+        dictionary = json.loads(jsonString)
+
+        self.title = dictionary['title']
+        self.message = dictionary['message']
+        self.host = dictionary['host']
 
 class Notification(threading.Thread):
     """
