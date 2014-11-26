@@ -325,11 +325,12 @@ class HistamineNode(threading.Thread):
             binary data: the undecoded data from the broadcast
             binary addr:
         """
-        if data.startswith(self.secret) and not self._bcastIsOwn( data[len(self.secret):].decode("UTF-8") ):
+        if data.startswith(self.secret):
             eventJson = data[len(self.secret):].decode("UTF-8")
             event = Event()
             event.load_json(eventJson)
-            self.notifier.push(event)
+            if (not self._bcastIsOwn(event.host)):
+                self.notifier.push(event)
 
     def run(self):
         """
