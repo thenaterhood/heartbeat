@@ -279,7 +279,7 @@ class HWMonitor(threading.Thread):
             self.alertLog.write(event.title, event.timestamp)
             self.notifier.push(event)
 
-class MonitorNode(threading.Thread):
+class HistamineNode(threading.Thread):
     """
     A monitor class to listen for and handle events received from devices
     using the HeartbeatServer monitor.

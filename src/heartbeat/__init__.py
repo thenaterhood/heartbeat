@@ -1,7 +1,7 @@
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import HeartMonitor
 from heartbeat.modules import HWMonitor
-from heartbeat.modules import MonitorNode
+from heartbeat.modules import HistamineNode
 import heartbeat.settings
 import sys
 
@@ -30,7 +30,7 @@ def main():
         main_threads['hwmon'] = hwmon
 
     if (settings.ENABLE_HISTAMINE):
-        hwserver = MonitorNode('', settings.SECRET_KEY, settings.NOTIFIERS)
+        hwserver = HistamineNode('', settings.SECRET_KEY, settings.NOTIFIERS)
         hwserver.daemon = True
         hwserver.start()
         print("Hardware monitoring server started")
