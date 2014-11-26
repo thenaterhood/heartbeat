@@ -302,7 +302,7 @@ class HistamineNode(threading.Thread):
         self.notifier = Notification(notifiers)
         self.listener = SocketListener(22000, self.receive)
 
-        super(HeartMonitor, self).__init__()
+        super(HistamineNode, self).__init__()
 
     def _bcastIsOwn( self, host ):
         """
