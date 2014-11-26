@@ -38,6 +38,13 @@ Right now only pushbullet. More will be a thing. Make one? drop it in the
 notifiers directory with some brief instructions and put in a pull if you
 feel inclined to share.
 
+While heartbeat can be used in a decentralized way by configuring notifiers
+for each individual node, it can also be used with a central monitoring node.
+To use heartbeat with a central node, enable the Histamine notifier in
+the settings (histamine.Histamine) and enable histamine in the server settings.
+Histamine will broadcast notification events from a node which will be
+received by any histamine server on the network using a matching secret key.
+
 Using a notifier:
 * Add it to the NOTIFIERS array, without the heartbeat.notifiers path prefix
 
