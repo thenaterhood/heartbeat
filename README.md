@@ -44,6 +44,7 @@ To use heartbeat with a central node, enable the Histamine notifier in
 the settings (histamine.Histamine) and enable histamine in the server settings.
 Histamine will broadcast notification events from a node which will be
 received by any histamine server on the network using a matching secret key.
+Histamine nodes will forward the notification to all the configured notifiers.
 
 Using a notifier:
 * Add it to the NOTIFIERS array, without the heartbeat.notifiers path prefix
