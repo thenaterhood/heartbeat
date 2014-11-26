@@ -29,7 +29,7 @@ def main():
         print("Hardware monitoring started. Hit ctrl+c to stop.")
         main_threads['hwmon'] = hwmon
 
-    if (settings.ENABLE_NODE):
+    if (settings.ENABLE_HISTAMINE):
         hwserver = MonitorNode('', settings.SECRET_KEY, settings.NOTIFIERS)
         hwserver.daemon = True
         hwserver.start()
