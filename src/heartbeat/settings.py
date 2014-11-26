@@ -33,3 +33,5 @@ MONITOR = config['services']['monitor']
 # notifiers, which accept an Event object. These need
 # to be imported similar to the notifiers
 ENABLE_HWMON = config['services']['hwmonitor']
+
+ENABLE_HISTAMINE = config['services']['histamine']

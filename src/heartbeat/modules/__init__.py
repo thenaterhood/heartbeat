@@ -279,6 +279,67 @@ class HWMonitor(threading.Thread):
             self.alertLog.write(event.title, event.timestamp)
             self.notifier.push(event)
 
+class MonitorNode(threading.Thread):
+    """
+    A monitor class to listen for and handle events received from devices
+    using the HeartbeatServer monitor.
+    """
+    def __init__(self, port, secret, notifiers):
+        """
+        constructor
+
+        Params:
+            int port: the port to listen on. Must match that of the heartbeats this
+               is intended to watch
+            string secret: a secret string to identify the heartbeat. Must match
+               that of the heartbeats this is intended to watch
+            array notifiers: an array of notifier classes to call to send
+                notifications of events
+        """
+        self.port = port
+        self.secret = bytes(secret.encode("UTF-8"))
+        self.notifiers = notifiers
+        self.notifier = Notification(notifiers)
+        self.listener = SocketListener(22000, self.receive)
+
+        super(HeartMonitor, self).__init__()
+
+    def _bcastIsOwn( self, host ):
+        """
+        Determines if a received broadcast is from the same machine
+
+        Params:
+            string host: the host the broadcast originated from (fqdn)
+        Returns:
+            boolean: whether the broadcast originated from ourselves
+        """
+        netinfo = NetworkInfo()
+        return host == netinfo.fqdn
+
+    def receive(self, data, addr):
+        """
+        Receives the data and address from a broadcast. Used for the
+        SocketListener to call back to when it receives something.
+
+        Params:
+            binary data: the undecoded data from the broadcast
+            binary addr:
+        """
+        if data.startswith(self.secret) and not self._bcastIsOwn( data[len(self.secret):].decode("UTF-8") ):
+            eventJson = data[len(self.secret):].decode("UTF-8")
+            event = Event()
+            event.load_json(eventJson)
+            self.notifier.push(event)
+
+    def run(self):
+        """
+        Runs the monitor. Usually called by the parent start()
+        """
+        self.listener.start()
+
+        while True:
+            sleep(40)
+
 
 if __name__ == "__main__":
     pass

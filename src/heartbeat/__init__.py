@@ -1,6 +1,7 @@
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import HeartMonitor
 from heartbeat.modules import HWMonitor
+from heartbeat.modules import MonitorNode
 import heartbeat.settings
 import sys
 
@@ -27,6 +28,13 @@ def main():
         hwmon.start()
         print("Hardware monitoring started. Hit ctrl+c to stop.")
         main_threads['hwmon'] = hwmon
+
+    if (settings.ENABLE_NODE):
+        hwserver = MonitorNode('', settings.SECRET_KEY, settings.NOTIFIERS)
+        hwserver.daemon = True
+        hwserver.start()
+        print("Hardware monitoring server started")
+        main_threads['hwmonserv'] = hwserver
 
     for t in main_threads:
         main_threads[t].join()
