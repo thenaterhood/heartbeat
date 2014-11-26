@@ -34,9 +34,9 @@ by using unique ports or secret keys.
 
 Notifiers
 ============
-Right now only pushbullet. More will be a thing. Make one? drop it in the
-notifiers directory with some brief instructions and put in a pull if you
-feel inclined to share.
+Right now only pushbullet, dweetio and the builtin histamine. More will be a
+thing eventually. Make one? drop it in the notifiers directory with some brief
+instructions and put in a pull if you feel inclined to share.
 
 While heartbeat can be used in a decentralized way by configuring notifiers
 for each individual node, it can also be used with a central monitoring node.
