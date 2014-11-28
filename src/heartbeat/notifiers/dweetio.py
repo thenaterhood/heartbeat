@@ -7,6 +7,7 @@ import urllib.request
 net = NetworkInfo()
 community_name = net.ip_wan
 
+
 class dweet(NotifyWorker):
 
     __slots__ = ('message', 'title', 'host')
@@ -16,7 +17,8 @@ class dweet(NotifyWorker):
         self.host = event.host
         self.title = event.title + ": " + host
         date = datetime.now()
-        self.message = host + ": " + event.message + " at " + event.timestamp.strftime("%H:%M:%S %m/%d/%y")
+        self.message = host + ": " + event.message + " at " + \
+            event.timestamp.strftime("%H:%M:%S %m/%d/%y")
         super(dweet, self).__init__(event)
 
     def run(self):
@@ -26,7 +28,7 @@ class dweet(NotifyWorker):
         name = community_name + '.' + self.host
 
         try:
-            full_url = 'https://dweet.io/dweet/for/'+name+'?'+payload_url
+            full_url = 'https://dweet.io/dweet/for/' + name + '?' + payload_url
             urllib.request.urlopen(full_url, timeout=5)
 
         except:

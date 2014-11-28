@@ -11,6 +11,7 @@ CHECK_DRIVES = [
     '/dev/sde'
 ]
 
+
 class SMARTMonitor(MonitorWorker):
 
     def run(self):
@@ -29,8 +30,8 @@ class SMARTMonitor(MonitorWorker):
 
     def _call_smartctl(self, drive):
         try:
-            smartctl_out = subprocess.check_output(['smartctl', '--health', drive])
+            smartctl_out = subprocess.check_output(
+                ['smartctl', '--health', drive])
             return ('PASSED' in str(smartctl_out))
         except:
             return False
-

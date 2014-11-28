@@ -10,7 +10,9 @@ from heartbeat.network import SocketBroadcaster
 from heartbeat.notifiers import Event
 from heartbeat.notifiers import Notification
 
+
 class Heartbeat(threading.Thread):
+
     """
     Defines a heartbeat thread which will send a broadcast
     over the network every given interval (plus a small random margin
@@ -40,7 +42,7 @@ class Heartbeat(threading.Thread):
         Broadcasts a single beat
         """
         netinfo = NetworkInfo()
-        data = self.secret+bytes(netinfo.fqdn.encode("UTF-8"))
+        data = self.secret + bytes(netinfo.fqdn.encode("UTF-8"))
         self.bcaster.push(data)
 
     def run(self):
@@ -48,23 +50,26 @@ class Heartbeat(threading.Thread):
         Runs the heartbeat (typically started by the thread start() call)
         """
         while 1:
-          self._beat()
-          sleep(5 * randint(1,5) )
+            self._beat()
+            sleep(5 * randint(1, 5))
+
 
 class HeartMonitor(threading.Thread):
+
     """
     A monitor class to listen for and handle the known heartbeats on the
     network.
     """
+
     def __init__(self, port, secret, notifiers):
         """
         constructor
 
         Params:
-            int port: the port to listen on. Must match that of the heartbeats this
-               is intended to watch
-            string secret: a secret string to identify the heartbeat. Must match
-               that of the heartbeats this is intended to watch
+            int port: the port to listen on. Must match that of the heartbeats
+               this is intended to watch
+            string secret: a secret string to identify the heartbeat. Must
+               match that of the heartbeats this is intended to watch
             array notifiers: an array of notifier classes to call to send
                 notifications of events
         """
@@ -96,8 +101,7 @@ class HeartMonitor(threading.Thread):
             for h in open(self.cachefile, 'r'):
                 self.known_hosts.write(h, datetime.datetime.now())
 
-
-    def _bcastIsOwn( self, host ):
+    def _bcastIsOwn(self, host):
         """
         Determines if a received broadcast is from the same machine
 
@@ -118,7 +122,7 @@ class HeartMonitor(threading.Thread):
             binary data: the undecoded data from the broadcast
             binary addr:
         """
-        if data.startswith(self.secret) and not self._bcastIsOwn( data[len(self.secret):].decode("UTF-8") ):
+        if data.startswith(self.secret) and not self._bcastIsOwn(data[len(self.secret):].decode("UTF-8")):
             host = data[len(self.secret):].decode("UTF-8")
             self._log_host(host)
 
@@ -140,10 +144,12 @@ class HeartMonitor(threading.Thread):
         Cleans up the known heartbeats and notifies of any that haven't
         been heard for a while, then dumps them.
         """
-        sorted_hosts = sorted(self.known_hosts.items(), key=operator.itemgetter(1))
+        sorted_hosts = sorted(
+            self.known_hosts.items(), key=operator.itemgetter(1))
         i = 0
-        while ( i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=60) ):
-            event = Event("Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
+        while (i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=60)):
+            event = Event(
+                "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
             self.notifier.push(event)
             self.known_hosts.remove(sorted_hosts[i][0])
             i += 1
@@ -162,7 +168,9 @@ class HeartMonitor(threading.Thread):
             sleep(40)
             self._cleanup_hosts()
 
+
 class LockingDictionary():
+
     """
     A thread-safe wrapper for a dictionary with locking
     """
@@ -225,7 +233,9 @@ class LockingDictionary():
         """
         return (key in self._dictionary)
 
+
 class HWMonitor(threading.Thread):
+
     """
     Monitoring class handling running multiple monitors on
     an interval
@@ -269,7 +279,7 @@ class HWMonitor(threading.Thread):
         """
         if (self.alertLog.exists(event.title)):
             lastSeen = self.alertLog.read(event.title)
-            if (datetime.datetime.now() - lastSeen > datetime.timedelta(hours = 2)):
+            if (datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2)):
                 self.alertLog.write(event.title, event.timestamp)
                 self.notifier.push(event)
             else:
@@ -278,20 +288,23 @@ class HWMonitor(threading.Thread):
             self.alertLog.write(event.title, event.timestamp)
             self.notifier.push(event)
 
+
 class HistamineNode(threading.Thread):
+
     """
     A monitor class to listen for and handle events received from devices
     using the HeartbeatServer monitor.
     """
+
     def __init__(self, port, secret, notifiers):
         """
         constructor
 
         Params:
-            int port: the port to listen on. Must match that of the heartbeats this
-               is intended to watch
-            string secret: a secret string to identify the heartbeat. Must match
-               that of the heartbeats this is intended to watch
+            int port: the port to listen on. Must match that of the heartbeats
+               this is intended to watch
+            string secret: a secret string to identify the heartbeat. Must
+               match that of the heartbeats this is intended to watch
             array notifiers: an array of notifier classes to call to send
                 notifications of events
         """
@@ -303,7 +316,7 @@ class HistamineNode(threading.Thread):
 
         super(HistamineNode, self).__init__()
 
-    def _bcastIsOwn( self, host ):
+    def _bcastIsOwn(self, host):
         """
         Determines if a received broadcast is from the same machine
 

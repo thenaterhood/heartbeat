@@ -1,11 +1,12 @@
 import importlib
 import yaml
 
+
 class Configuration():
 
     __slots__ = ('config', 'notifiers', 'hwmonitors')
 
-    def __init__(self, configFile = '/etc/heartbeat.yml'):
+    def __init__(self, configFile='/etc/heartbeat.yml'):
         stream = open(configFile, 'r')
         self.config = yaml.load(stream)
         stream.close()

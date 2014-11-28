@@ -1,6 +1,7 @@
 from heartbeat.notifiers import NotifyWorker
 from datetime import datetime
 
+
 class PrintOutput(NotifyWorker):
 
     __slots__ = ('message', 'title')
@@ -9,7 +10,8 @@ class PrintOutput(NotifyWorker):
         host = event.host
         self.title = event.title + ": " + host
         date = datetime.now()
-        self.message = host + ": " + event.message + " at " + event.timestamp.strftime("%H:%M:%S %m/%d/%y")
+        self.message = host + ": " + event.message + " at " + \
+            event.timestamp.strftime("%H:%M:%S %m/%d/%y")
         super(PrintOutput, self).__init__(event)
 
     def run(self):

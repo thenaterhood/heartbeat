@@ -1,6 +1,8 @@
 import threading
 
+
 class MonitorWorker(threading.Thread):
+
     def __init__(self, callback):
         """
         Constructor
@@ -17,5 +19,3 @@ class MonitorWorker(threading.Thread):
         Runs the thing. Usually called from the parent start()
         """
         raise NotImplementedError("This method is not implemented.")
-
-

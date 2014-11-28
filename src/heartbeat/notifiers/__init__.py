@@ -3,7 +3,9 @@ import threading
 import datetime
 import json
 
+
 class NotifyWorker(threading.Thread):
+
     """
     A notify worker thread for notifiers to extend.
     Defines a common interface and a thread so that
@@ -27,13 +29,15 @@ class NotifyWorker(threading.Thread):
     def run(self):
         raise NotImplementedError
 
+
 class Event:
+
     """
     An event to notify of. Contains a title, message, and timestamp
     """
     __slots__ = ('title', 'message', 'timestamp', 'host')
 
-    def __init__(self, title = '', message = '', host = "localhost"):
+    def __init__(self, title='', message='', host="localhost"):
         """
         Constructor
 
@@ -61,7 +65,9 @@ class Event:
         self.message = dictionary['message']
         self.host = dictionary['host']
 
+
 class Notification(threading.Thread):
+
     """
     A class that holds a list of notifiers and allows them to
     all be kicked off in succession

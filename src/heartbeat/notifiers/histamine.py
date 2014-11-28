@@ -5,7 +5,9 @@ from heartbeat.network import SocketBroadcaster
 
 PORT = 22000
 
+
 class Histamine(NotifyWorker):
+
     """
     Calls up and sends hardware events to a monitoring server
     """
@@ -16,7 +18,8 @@ class Histamine(NotifyWorker):
         host = event.host
         self.title = event.title + ": " + host
         date = datetime.now()
-        self.message = host + ": " + event.message + " at " + event.timestamp.strftime("%H:%M:%S %m/%d/%y")
+        self.message = host + ": " + event.message + " at " + \
+            event.timestamp.strftime("%H:%M:%S %m/%d/%y")
         super(Histamine, self).__init__(event)
 
     def run(self):

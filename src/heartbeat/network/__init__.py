@@ -4,7 +4,9 @@ import threading
 import urllib.request
 from queue import Queue, Empty
 
+
 class NetworkInfo():
+
     """
     Contains network data
     """
@@ -26,9 +28,9 @@ class NetworkInfo():
             string ip: the ip address
         """
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout( 5 )
+        s.settimeout(5)
         try:
-            s.connect(("google.com",80))
+            s.connect(("google.com", 80))
             ip = s.getsockname()[0]
             s.close()
         except:
@@ -44,14 +46,17 @@ class NetworkInfo():
             string ip: the public ip address
         """
         try:
-            filehandle = urllib.request.urlopen('http://icanhazip.com', timeout=5)
+            filehandle = urllib.request.urlopen(
+                'http://icanhazip.com', timeout=5)
             ip = filehandle.readlines()[0].decode('UTF-8').strip()
         except:
             ip = '0.0.0.0'
 
         return ip
 
+
 class SocketListener(threading.Thread):
+
     """
     Listens on a socket and calls back when
     data is received.
@@ -59,7 +64,7 @@ class SocketListener(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, port, callback, daemon = True):
+    def __init__(self, port, callback, daemon=True):
         """
         Constructor
 
@@ -74,7 +79,7 @@ class SocketListener(threading.Thread):
         listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         listen.bind(('', self.port))
         self.listen_socket = listen
-        super().__init__(daemon = daemon)
+        super().__init__(daemon=daemon)
 
     def _listen(self):
         """
@@ -90,7 +95,9 @@ class SocketListener(threading.Thread):
         while True:
             self._listen()
 
+
 class SocketBroadcaster():
+
     """
     Sends a broadcast packet containing data on a given port
     """
