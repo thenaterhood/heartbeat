@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 import heartbeat
+from heartbeat.settings import Configuration
 
 if __name__ == "__main__":
+    settings = Configuration()
     try:
         heartbeat.main()
     except (KeyboardInterrupt):
         print("Caught ctrl+c, shutting down Heartbeat...")
-        if (settings.MONITOR):
+        if (settings.config['enable_monitor']):
             main_threads['heartmonitor'].saveCache()
         sys.exit(0)

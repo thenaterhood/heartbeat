@@ -1,7 +1,6 @@
-[basic]
 # The secret identifying key for this particular monitor/heartbeat.
 # Use the same key for all heartbeats monitored by the same monitor
-secret_key: 3477
+secret_key: heartbeat3477
 # The port to use for sending and receiving packets. Same deal as above
 port: 21999
 # Directory to store cache files in for data that should persist between
@@ -10,23 +9,24 @@ cache_dir: /home/nate/.cache
 
 # The notifiers for when a new heartbeat is discovered, a heartbeat flatlines,
 # or a hardware monitor produces an alert
-[notifiers]
-n1: pushbullet.pushbullet
-n2: stdout.PrintOutput
-n3: dweetio.dweet
+notifiers:
+    - pushbullet.pushbullet
+    - stdout.PrintOutput
+    - dweetio.dweet
+# Add this to send notifications to histamine nodes on the network
+#   - histamine.Histamine
 
-[hwmonitors]
+monitors:
 # Configure the hardware monitors to run
-hw1: smartctl.SMARTMonitor
+    - smartctl.SMARTMonitor
 
-[services]
 # If this device should have a heartbeat
-heartbeat: yes
+enable_heartbeat: yes
 # If this device should run a monitoring service
-monitor: yes
+enable_monitor: yes
 # If the hardware monitoring should be enabled
-hwmonitor: yes
+enable_hwmonitor: yes
 # Enable remote monitoring of events from devices configured to broadcast
 # events. Configure histamine as a notifier (histamine.Histamine) to broadcast
 # events.
-histamine: yes
+enable_histamine: yes

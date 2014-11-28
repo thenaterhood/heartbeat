@@ -1,6 +1,6 @@
 from heartbeat.notifiers import NotifyWorker
 from datetime import datetime
-import heartbeat.settings
+from heartbeat.settings import Configuration
 from heartbeat.network import SocketBroadcaster
 
 PORT = 22000
@@ -20,6 +20,7 @@ class Histamine(NotifyWorker):
         super(Histamine, self).__init__(event)
 
     def run(self):
+        settings = Configuration()
         broadcaster = SocketBroadcaster(PORT)
-        data = heartbeat.settings.SECRET_KEY + self.event.to_json()
+        data = settings.config['secret_key'] + self.event.to_json()
         broadcaster.push(bytes(data.encode("UTF-8")))

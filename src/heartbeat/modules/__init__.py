@@ -9,7 +9,6 @@ from heartbeat.network import SocketListener
 from heartbeat.network import SocketBroadcaster
 from heartbeat.notifiers import Event
 from heartbeat.notifiers import Notification
-from heartbeat.settings import HEARTBEAT_CACHE_DIR
 
 class Heartbeat(threading.Thread):
     """

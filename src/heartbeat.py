@@ -7,6 +7,4 @@ if __name__ == "__main__":
         heartbeat.main()
     except (KeyboardInterrupt):
         print("Caught ctrl+c, shutting down Heartbeat...")
-        if (settings.MONITOR):
-            main_threads['heartmonitor'].saveCache()
         sys.exit(0)

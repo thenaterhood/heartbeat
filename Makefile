@@ -9,5 +9,6 @@ install:
 	mkdir -p $(INSTALL_PATH)/etc
 	cp -r dist/_bin/* $(INSTALL_PATH)/bin
 	cp -r dist/_etc/* $(INSTALL_PATH)/etc
+	chmod +x $(INSTALL_PATH)/bin/startheart
 	@echo "A record of installed files is in installed_files."
 
