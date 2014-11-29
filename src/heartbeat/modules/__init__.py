@@ -34,8 +34,15 @@ class Heartbeat(threading.Thread):
         self.interval = interval
         self.secret = bytes(secret.encode("UTF-8"))
         self.bcaster = SocketBroadcaster(self.port)
+        self.shutdown = False
 
         super().__init__()
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        pass
 
     def _beat(self):
         """
@@ -49,9 +56,11 @@ class Heartbeat(threading.Thread):
         """
         Runs the heartbeat (typically started by the thread start() call)
         """
-        while 1:
+        while not self.shutdown:
             self._beat()
             sleep(5 * randint(1, 5))
+
+        self.terminate()
 
 
 class HeartMonitor(threading.Thread):
@@ -80,8 +89,15 @@ class HeartMonitor(threading.Thread):
         self.notifier = Notification(notifiers)
         self.listener = SocketListener(port, self.receive)
         self.cachefile = '/dev/null'
+        self.shutdown = False
 
         super(HeartMonitor, self).__init__()
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        self.saveCache()
 
     def saveCache(self):
         """
@@ -164,9 +180,11 @@ class HeartMonitor(threading.Thread):
         self.loadCache()
         self.listener.start()
 
-        while True:
+        while not self.shutdown:
             sleep(40)
             self._cleanup_hosts()
+
+        self.terminate()
 
 
 class LockingDictionary():
@@ -253,15 +271,18 @@ class HWMonitor(threading.Thread):
         self.hwmonitors = hwmonitors
         self.notifier = Notification(notifiers)
         self.alertLog = LockingDictionary()
+        self.shutdown = False
         super(HWMonitor, self).__init__()
 
     def run(self):
         """
         Run method, generally called from the parent start()
         """
-        while (True):
+        while not self.shutdown:
             self.scan()
             sleep(60)
+
+        self.terminate()
 
     def scan(self):
         """
@@ -271,6 +292,12 @@ class HWMonitor(threading.Thread):
             monitor = m(self.notify)
             monitor.start()
             monitor.join(1000)
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        pass
 
     def notify(self, event):
         """
@@ -313,6 +340,7 @@ class HistamineNode(threading.Thread):
         self.notifiers = notifiers
         self.notifier = Notification(notifiers)
         self.listener = SocketListener(22000, self.receive)
+        self.shutdown = False
 
         super(HistamineNode, self).__init__()
 
@@ -344,14 +372,22 @@ class HistamineNode(threading.Thread):
             if (not self._bcastIsOwn(event.host)):
                 self.notifier.push(event)
 
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        pass
+
     def run(self):
         """
         Runs the monitor. Usually called by the parent start()
         """
         self.listener.start()
 
-        while True:
+        while not self.shutdown:
             sleep(40)
+
+        self.terminate()
 
 
 if __name__ == "__main__":
