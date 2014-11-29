@@ -4,10 +4,14 @@ from heartbeat.modules import HWMonitor
 from heartbeat.modules import HistamineNode
 from heartbeat.settings import Configuration
 import sys
+import threading
+import time
 
 
-def main():
-    main_threads = dict()
+def main(main_threads=None):
+    if (main_threads == None):
+        main_threads = dict()
+
     settings = Configuration(load_modules=True)
 
     if (settings.config['enable_heartbeat']):
@@ -42,5 +46,6 @@ def main():
         print("Hardware monitoring server started")
         main_threads['hwmonserv'] = hwserver
 
-    for t in main_threads:
-        main_threads[t].join()
+    while threading.active_count() > 0:
+        time.sleep(0.1)
+
