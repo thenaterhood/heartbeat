@@ -1,23 +1,22 @@
 from heartbeat.hwmonitors import MonitorWorker
 from heartbeat.notifiers import Event
 from heartbeat.network import NetworkInfo
+from heartbeat.settings import Configuration
 import subprocess
-
-CHECK_DRIVES = [
-    '/dev/sda',
-    '/dev/sdb',
-    '/dev/sdc',
-    '/dev/sdd',
-    '/dev/sde'
-]
 
 
 class SMARTMonitor(MonitorWorker):
 
+    def __init__(self, callback):
+        settings = Configuration()
+        self.check_drives = settings.config['heartbeat.hwmonitors.smartctl']['drives']
+        super(SMARTMonitor, self).__init__(callback)
+
     def run(self):
         foundProblem = False
         problemDrive = "Problem in "
-        for d in CHECK_DRIVES:
+
+        for d in self.check_drives:
             result = self._call_smartctl(d)
             if (not result):
                 foundProblem = True

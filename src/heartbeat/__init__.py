@@ -8,7 +8,7 @@ import sys
 
 def main():
     main_threads = dict()
-    settings = Configuration()
+    settings = Configuration(load_modules=True)
 
     if (settings.config['enable_heartbeat']):
         server = Heartbeat(
