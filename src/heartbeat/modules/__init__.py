@@ -273,7 +273,6 @@ class HWMonitor(threading.Thread):
         self.eventTime = LockingDictionary()
         self.eventFrom = LockingDictionary()
         self.shutdown = False
-        self.repeat = repeat
         super(HWMonitor, self).__init__()
 
     def run(self):
