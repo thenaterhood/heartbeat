@@ -24,7 +24,7 @@ class Configuration():
             module = importlib.import_module(modulepath)
             self.notifiers.append(getattr(module, n.split(".")[-1]))
 
-            return self.notifiers
+        return self.notifiers
 
     def load_hwmonitors(self):
         for m in self.config['monitors']:
@@ -32,4 +32,4 @@ class Configuration():
             module = importlib.import_module(modulepath)
             self.hwmonitors.append(getattr(module, m.split(".")[-1]))
 
-            return self.hwmonitors
+        return self.hwmonitors
