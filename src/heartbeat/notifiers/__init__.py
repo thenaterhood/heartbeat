@@ -2,6 +2,7 @@ import queue
 import threading
 import datetime
 import json
+import inspect
 
 
 class NotifyWorker(threading.Thread):
@@ -35,7 +36,7 @@ class Event:
     """
     An event to notify of. Contains a title, message, and timestamp
     """
-    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time')
+    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source')
 
     def __init__(self, title='', message='', host="localhost"):
         """
@@ -50,6 +51,8 @@ class Event:
         self.timestamp = datetime.datetime.now()
         self.host = host
         self.one_time = False
+        stack = inspect.stack()
+        self.source = str(stack[1][0].f_locals["self"].__class__)
 
     def to_json(self):
         dictionary = dict()
@@ -57,6 +60,7 @@ class Event:
         dictionary['message'] = self.message
         dictionary['host'] = self.host
         dictionary['one_time'] = self.one_time
+        dictionary['source'] = self.source
 
         return json.dumps(dictionary)
 
@@ -67,7 +71,7 @@ class Event:
         self.message = dictionary['message']
         self.host = dictionary['host']
         self.one_time = dictionary['one_time']
-
+        self.source = dictionary['source']
 
 class Notification(threading.Thread):
 

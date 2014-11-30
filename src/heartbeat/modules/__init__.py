@@ -259,7 +259,7 @@ class HWMonitor(threading.Thread):
     an interval
     """
 
-    def __init__(self, hwmonitors, notifiers, repeat=False):
+    def __init__(self, hwmonitors, notifiers):
         """
         Constructor
 
@@ -270,7 +270,8 @@ class HWMonitor(threading.Thread):
         """
         self.hwmonitors = hwmonitors
         self.notifier = Notification(notifiers)
-        self.alertLog = LockingDictionary()
+        self.eventTime = LockingDictionary()
+        self.eventFrom = LockingDictionary()
         self.shutdown = False
         self.repeat = repeat
         super(HWMonitor, self).__init__()
@@ -290,7 +291,7 @@ class HWMonitor(threading.Thread):
         Runs each monitor thread and waits for it to complete
         """
         for m in self.hwmonitors:
-            monitor = m(self.notify)
+            monitor = m(self.receive_event)
             monitor.start()
             monitor.join(10)
 
@@ -301,20 +302,24 @@ class HWMonitor(threading.Thread):
         pass
 
     def notify(self, event):
+        self.eventTime.write(event.title, event.timestamp)
+        self.eventFrom.write(event.source, event.title)
+        self.notifier.push(event)
+
+    def receive_event(self, event):
         """
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        if (self.alertLog.exists(event.title)):
+        if (self.eventTime.exists(event.title)):
             lastSeen = self.alertLog.read(event.title)
-            if (not event.one_time and datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2)):
-                self.alertLog.write(event.title, event.timestamp)
-                self.notifier.push(event)
+            delayPassed = (datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2))
+            if (not event.one_time and delayPassed):
+                self.notify(event)
             else:
                 return
         else:
-            self.alertLog.write(event.title, event.timestamp)
-            self.notifier.push(event)
+            self.notify(event)
 
 
 class HistamineNode(threading.Thread):
