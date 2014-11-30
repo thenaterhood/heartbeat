@@ -13,6 +13,7 @@ class LANIp(MonitorWorker):
 
         event = Event(
             "New LAN IP", "LAN IP address is now " + net.ip_lan, net.fqdn)
+        event.one_time = True
 
         self.callback(event)
 
@@ -26,4 +27,6 @@ class WANIp(MonitorWorker):
         net = NetworkInfo()
         event = Event(
             "New WAN IP", "WAN IP address is now " + net.ip_wan, net.fqdn)
+        event.one_time = True
+
         self.callback(event)

@@ -305,9 +305,9 @@ class HWMonitor(threading.Thread):
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        if (self.alertLog.exists(event.title) and self.repeat):
+        if (self.alertLog.exists(event.title)):
             lastSeen = self.alertLog.read(event.title)
-            if (datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2)):
+            if (not event.one_time and datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2)):
                 self.alertLog.write(event.title, event.timestamp)
                 self.notifier.push(event)
             else:

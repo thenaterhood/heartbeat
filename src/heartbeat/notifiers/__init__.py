@@ -35,7 +35,7 @@ class Event:
     """
     An event to notify of. Contains a title, message, and timestamp
     """
-    __slots__ = ('title', 'message', 'timestamp', 'host')
+    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time')
 
     def __init__(self, title='', message='', host="localhost"):
         """
@@ -49,12 +49,14 @@ class Event:
         self.message = message
         self.timestamp = datetime.datetime.now()
         self.host = host
+        self.one_time = False
 
     def to_json(self):
         dictionary = dict()
         dictionary['title'] = self.title
         dictionary['message'] = self.message
         dictionary['host'] = self.host
+        dictionary['one_time'] = self.one_time
 
         return json.dumps(dictionary)
 
@@ -64,6 +66,7 @@ class Event:
         self.title = dictionary['title']
         self.message = dictionary['message']
         self.host = dictionary['host']
+        self.one_time = dictionary['one_time']
 
 
 class Notification(threading.Thread):
