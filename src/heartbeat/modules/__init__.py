@@ -259,7 +259,7 @@ class HWMonitor(threading.Thread):
     an interval
     """
 
-    def __init__(self, hwmonitors, notifiers):
+    def __init__(self, hwmonitors, notifiers, repeat=False):
         """
         Constructor
 
@@ -272,6 +272,7 @@ class HWMonitor(threading.Thread):
         self.notifier = Notification(notifiers)
         self.alertLog = LockingDictionary()
         self.shutdown = False
+        self.repeat = repeat
         super(HWMonitor, self).__init__()
 
     def run(self):
@@ -291,7 +292,7 @@ class HWMonitor(threading.Thread):
         for m in self.hwmonitors:
             monitor = m(self.notify)
             monitor.start()
-            monitor.join(1000)
+            monitor.join(10)
 
     def terminate(self):
         """
@@ -304,7 +305,7 @@ class HWMonitor(threading.Thread):
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        if (self.alertLog.exists(event.title)):
+        if (self.alertLog.exists(event.title) and self.repeat):
             lastSeen = self.alertLog.read(event.title)
             if (datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2)):
                 self.alertLog.write(event.title, event.timestamp)
