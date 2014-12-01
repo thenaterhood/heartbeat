@@ -115,7 +115,7 @@ class HeartMonitor(threading.Thread):
         """
         if (os.path.isfile(self.cachefile)):
             for h in open(self.cachefile, 'r'):
-                self.known_hosts.write(h, datetime.datetime.now())
+                self.known_hosts.write(h.strip(), datetime.datetime.now())
 
     def _bcastIsOwn(self, host):
         """
