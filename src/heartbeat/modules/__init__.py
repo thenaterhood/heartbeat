@@ -311,7 +311,7 @@ class HWMonitor(threading.Thread):
         wrapper for the notifier.push
         """
         if (self.eventTime.exists(event.title)):
-            lastSeen = self.alertLog.read(event.title)
+            lastSeen = self.eventTime.read(event.title)
             delayPassed = (datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2))
             if (not event.one_time and delayPassed):
                 self.notify(event)
