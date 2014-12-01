@@ -79,7 +79,7 @@ class SocketListener(threading.Thread):
         listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         listen.bind(('', self.port))
         self.listen_socket = listen
-        super().__init__(daemon=daemon)
+        super(SocketListener, self).__init__(daemon=daemon)
 
     def _listen(self):
         """
