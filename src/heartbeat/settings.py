@@ -19,6 +19,8 @@ class Configuration():
             self.load_hwmonitors()
 
     def load_notifiers(self):
+        if (self.config['notifiers'] is None):
+            return []
         for n in self.config['notifiers']:
             modulepath = "heartbeat.notifiers." + ".".join(n.split(".")[:-1])
             module = importlib.import_module(modulepath)
@@ -27,6 +29,8 @@ class Configuration():
         return self.notifiers
 
     def load_hwmonitors(self):
+        if (self.config['monitors'] is None):
+            return []
         for m in self.config['monitors']:
             modulepath = "heartbeat.hwmonitors." + ".".join(m.split(".")[:-1])
             module = importlib.import_module(modulepath)

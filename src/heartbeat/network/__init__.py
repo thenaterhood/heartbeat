@@ -73,13 +73,14 @@ class SocketListener(threading.Thread):
             Function callback: The function to call when data is received
             bool     daemon:   Whether to run as a daemon thread
         """
+        super(SocketListener, self).__init__()
+        self.daemon = daemon
         self.port = port
         self.callback = callback
 
         listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         listen.bind(('', self.port))
         self.listen_socket = listen
-        super(SocketListener, self).__init__(daemon=daemon)
 
     def _listen(self):
         """
