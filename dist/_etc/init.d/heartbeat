@@ -1,0 +1,46 @@
+#!/bin/sh
+# Start/stop the heartbeat daemon
+#
+### BEGIN INIT INFO
+# Provides: heartbeat
+# Required-Start: $network
+# Required-Stop:
+# Should-Start:
+# Should-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop:
+# Short-Description: Heartbeat daemon
+# Description:
+### END INIT INFO
+
+starthb(){
+    if [ -e /tmp/heartbeat.pid ]; then
+        echo "/tmp/heartbeat.pid exists."
+        echo "Kill heartbeat or delete the pidfile if it's not running"
+    else
+        exec /bin/startheart >/dev/null & echo $! > /tmp/heartbeat.pid
+    fi
+}
+
+stophb(){
+    if [ -e /tmp/heartbeat.pid ]; then
+        pid=`cat /tmp/heartbeat.pid`
+        kill $pid
+        rm -f /tmp/heartbeat.pid
+    else
+        echo "No PID file exists, heartbeat may not be running"
+    fi
+}
+
+case "$1" in
+    start)
+    starthb
+    ;;
+    stop)
+    stophb
+    ;;
+    restart)
+    stophb
+    starthb
+    ;;
+esac
