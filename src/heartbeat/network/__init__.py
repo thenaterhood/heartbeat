@@ -120,16 +120,21 @@ class SocketBroadcaster():
 
         Params:
             binary data: Encoded data to send
+        Returns:
+            boolean: true on success, false on failure
         """
+        success = False
         bcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         bcast.bind(('', 0))
         bcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         try:
             bcast.sendto(data, ('<broadcast>', self._port))
+            success = True
             bcast.shutdown(1)
         except:
             pass
         bcast.close()
+        return success
 
 if __name__ == '__main__':
     netinfo = NetworkInfo()
