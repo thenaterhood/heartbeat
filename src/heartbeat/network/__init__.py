@@ -124,8 +124,8 @@ class SocketBroadcaster():
         bcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         bcast.bind(('', 0))
         bcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        bcast.sendto(data, ('<broadcast>', self._port))
         try:
+            bcast.sendto(data, ('<broadcast>', self._port))
             bcast.shutdown(1)
         except:
             pass
