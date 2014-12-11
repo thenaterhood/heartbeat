@@ -112,11 +112,7 @@ class SocketBroadcaster():
         Params:
             int port: The port to broadcast on
         """
-        bcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        bcast.bind(('', 0))
-        bcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         self._port = port
-        self._bcast_socket = bcast
 
     def push(self, data):
         """
@@ -125,7 +121,15 @@ class SocketBroadcaster():
         Params:
             binary data: Encoded data to send
         """
-        self._bcast_socket.sendto(data, ('<broadcast>', self._port))
+        bcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        bcast.bind(('', 0))
+        bcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        bcast.sendto(data, ('<broadcast>', self._port))
+        try:
+            bcast.shutdown(1)
+        except:
+            pass
+        bcast.close()
 
 if __name__ == '__main__':
     netinfo = NetworkInfo()
