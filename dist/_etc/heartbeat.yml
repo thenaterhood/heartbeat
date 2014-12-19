@@ -18,18 +18,18 @@ notifiers:
 
 monitors:
 # Configure the hardware monitors to run
-    - smartctl.SMARTMonitor
+# heartbeat monitoring is also configured in this section, add
+# heartmonitor.HeartMonitor
+    - heartbeat.HeartMonitor
+# Uncomment this line to receive Histamine notifications (Events broadcasted
+# from other nodes using Histamine as a notifier. This will receive them
+# and push them through the local notification handler
+#    - heartbeat.HistamineNode
 
 # If this device should have a heartbeat
 enable_heartbeat: yes
-# If this device should run a monitoring service
-enable_monitor: yes
 # If the hardware monitoring should be enabled
 enable_hwmonitor: yes
-# Enable remote monitoring of events from devices configured to broadcast
-# events. Configure histamine as a notifier (histamine.Histamine) to broadcast
-# events.
-enable_histamine: yes
 
 # === Add Settings for notifiers in this section ===
 heartbeat.notifiers.pushbullet:

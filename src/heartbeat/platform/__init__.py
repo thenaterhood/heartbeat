@@ -28,6 +28,9 @@ class Event:
         stack = inspect.stack()
         self.source = str(stack[1][0].f_locals["self"].__class__)
 
+    def __hash__(self):
+        return hash((self.title, self.message, self.source, self.host))
+
     def to_json(self):
         dictionary = dict()
         dictionary['title'] = self.title
