@@ -11,6 +11,7 @@ class Monitor():
                 discovers something of note, or just feels lonely
         """
         self.callback = callback
+        self.realtime = False
 
     def run(self):
         """

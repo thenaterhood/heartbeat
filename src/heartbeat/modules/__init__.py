@@ -268,19 +268,30 @@ class MonitorHandler(threading.Thread):
             NotificationHandler notifyHandler:  notification handler
         """
         self.hwmonitors = []
+        self.rtMonitors = []
+        realtimeMonitors = 0
         for m in hwmonitors:
-            self.hwmonitors.append(m(self.receive_event))
+            monitor = m(self.receive_event)
+            if monitor.realtime:
+                realtimeMonitors += 1
+                self.rtMonitors.append(monitor)
+            else:
+                self.hwmonitors.append(monitor)
+
         self.notifier = notifyHandler
         self.eventTime = LockingDictionary()
         self.eventFrom = LockingDictionary()
         self.shutdown = False
-        self.threadpool = Threadpool(5)
+        self.threadpool = Threadpool(5 + realtimeMonitors)
         super(MonitorHandler, self).__init__()
 
     def run(self):
         """
         Run method, generally called from the parent start()
         """
+        for m in self.rtMonitors:
+            self.threadpool.add(m.run)
+
         while not self.shutdown:
             self.scan()
             sleep(60)
