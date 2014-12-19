@@ -1,8 +1,8 @@
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import HeartMonitor
-from heartbeat.modules import HWMonitor
+from heartbeat.modules import MonitorHandler
 from heartbeat.modules import HistamineNode
-from heartbeat.settings import Configuration
+from heartbeat.platform import Configuration
 import sys
 import threading
 import time
@@ -32,7 +32,7 @@ def main(main_threads=None):
         main_threads['heartmonitor'] = monitor
 
     if (settings.config['enable_hwmonitor']):
-        hwmon = HWMonitor(settings.hwmonitors, settings.notifiers)
+        hwmon = MonitorHandler(settings.hwmonitors, settings.notifiers)
         hwmon.daemon = True
         hwmon.start()
         print("Hardware monitoring started. Hit ctrl+c to stop.")

@@ -1,8 +1,8 @@
-from notifiers import NotifyWorker
+from heartbeat.notifications import Notifier
 from datetime import datetime
 
 
-class NotifyTemplate(NotifyWorker):
+class NotifyTemplate(Notifier):
 
     __slots__ = ('message', 'title')
 

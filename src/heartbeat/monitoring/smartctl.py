@@ -1,11 +1,11 @@
-from heartbeat.hwmonitors import MonitorWorker
-from heartbeat.notifiers import Event
+from heartbeat.monitoring import Monitor
+from heartbeat.platform import Event
 from heartbeat.network import NetworkInfo
-from heartbeat.settings import Configuration
+from heartbeat.platform import Configuration
 import subprocess
 
 
-class SMARTMonitor(MonitorWorker):
+class SMARTMonitor(Monitor):
 
     def __init__(self, callback):
         settings = Configuration()

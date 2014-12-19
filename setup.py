@@ -9,5 +9,5 @@ setup(name='Heartbeat',
     author_email='public@thenaterhood.com',
     url='https://github.com/thenaterhood/heartbeat/archive/master.zip',
     package_dir={'':'src'},
-    packages=['heartbeat', 'heartbeat.modules', 'heartbeat.network', 'heartbeat.hwmonitors', 'heartbeat.notifiers'],
+    packages=['heartbeat', 'heartbeat.modules', 'heartbeat.network', 'heartbeat.monitoring', 'heartbeat.notifications', 'heartbeat.platform', 'heartbeat.multiprocessing'],
     )

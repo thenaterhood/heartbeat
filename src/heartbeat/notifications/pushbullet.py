@@ -1,10 +1,10 @@
 from pushbullet import PushBullet
-from heartbeat.notifiers import NotifyWorker
-from heartbeat.settings import Configuration
+from heartbeat.notifications import Notifier
+from heartbeat.platform import Configuration
 from datetime import datetime
 
 
-class pushbullet(NotifyWorker):
+class pushbullet(Notifier):
 
     __slots__ = ('api_key', 'message', 'title', 'api_keys')
 

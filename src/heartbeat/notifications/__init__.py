@@ -5,7 +5,7 @@ import json
 import inspect
 
 
-class NotifyWorker(threading.Thread):
+class Notifier():
 
     """
     A notify worker thread for notifiers to extend.
@@ -25,53 +25,9 @@ class NotifyWorker(threading.Thread):
             Event   event: the event details (message and title)
         """
         self.event = event
-        super(NotifyWorker, self).__init__()
 
     def run(self):
         raise NotImplementedError
-
-
-class Event:
-
-    """
-    An event to notify of. Contains a title, message, and timestamp
-    """
-    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source')
-
-    def __init__(self, title='', message='', host="localhost"):
-        """
-        Constructor
-
-        Params:
-            string title:   the title of the event
-            string message: the message describing the event
-        """
-        self.title = title
-        self.message = message
-        self.timestamp = datetime.datetime.now()
-        self.host = host
-        self.one_time = False
-        stack = inspect.stack()
-        self.source = str(stack[1][0].f_locals["self"].__class__)
-
-    def to_json(self):
-        dictionary = dict()
-        dictionary['title'] = self.title
-        dictionary['message'] = self.message
-        dictionary['host'] = self.host
-        dictionary['one_time'] = self.one_time
-        dictionary['source'] = self.source
-
-        return json.dumps(dictionary)
-
-    def load_json(self, jsonString):
-        dictionary = json.loads(jsonString)
-
-        self.title = dictionary['title']
-        self.message = dictionary['message']
-        self.host = dictionary['host']
-        self.one_time = dictionary['one_time']
-        self.source = dictionary['source']
 
 class Notification(threading.Thread):
 

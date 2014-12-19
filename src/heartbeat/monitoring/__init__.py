@@ -1,7 +1,6 @@
-import threading
 
 
-class MonitorWorker(threading.Thread):
+class Monitor():
 
     def __init__(self, callback):
         """
@@ -12,7 +11,6 @@ class MonitorWorker(threading.Thread):
                 discovers something of note, or just feels lonely
         """
         self.callback = callback
-        super(MonitorWorker, self).__init__()
 
     def run(self):
         """

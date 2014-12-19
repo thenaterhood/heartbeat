@@ -1,9 +1,9 @@
-from heartbeat.hwmonitors import MonitorWorker
-from heartbeat.notifiers import Event
+from heartbeat.monitoring import Monitor
+from heartbeat.platform import Event
 from heartbeat.network import NetworkInfo
 
 
-class LANIp(MonitorWorker):
+class LANIp(Monitor):
 
     def __init__(self, callback):
         super(LANIp, self).__init__(callback)
@@ -18,7 +18,7 @@ class LANIp(MonitorWorker):
         self.callback(event)
 
 
-class WANIp(MonitorWorker):
+class WANIp(Monitor):
 
     def __init__(self, callback):
         super(WANIp, self).__init__(callback)

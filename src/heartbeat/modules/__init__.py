@@ -7,8 +7,9 @@ import operator
 from heartbeat.network import NetworkInfo
 from heartbeat.network import SocketListener
 from heartbeat.network import SocketBroadcaster
-from heartbeat.notifiers import Event
-from heartbeat.notifiers import Notification
+from heartbeat.platform import Event
+from heartbeat.notifications import Notification
+from heartbeat.multiprocessing import Threadpool
 
 
 class Heartbeat(threading.Thread):
@@ -252,7 +253,7 @@ class LockingDictionary():
         return (key in self._dictionary)
 
 
-class HWMonitor(threading.Thread):
+class MonitorHandler(threading.Thread):
 
     """
     Monitoring class handling running multiple monitors on
@@ -264,16 +265,19 @@ class HWMonitor(threading.Thread):
         Constructor
 
         Params:
-            array[MonitorWorker] hwmonitors: an array of HardwareWorker
+            array[Monitor] hwmonitors: an array of HardwareWorker
                 instances
-            array[NotifyWorker]  notifiers:  an array of notifiers
+            array[Notifier]  notifiers:  an array of notifiers
         """
-        self.hwmonitors = hwmonitors
+        self.hwmonitors = []
+        for m in hwmonitors:
+            self.hwmonitors.append(m(self.receive_event))
         self.notifier = Notification(notifiers)
         self.eventTime = LockingDictionary()
         self.eventFrom = LockingDictionary()
         self.shutdown = False
-        super(HWMonitor, self).__init__()
+        self.threadpool = Threadpool(5)
+        super(MonitorHandler, self).__init__()
 
     def run(self):
         """
@@ -290,15 +294,13 @@ class HWMonitor(threading.Thread):
         Runs each monitor thread and waits for it to complete
         """
         for m in self.hwmonitors:
-            monitor = m(self.receive_event)
-            monitor.start()
-            monitor.join(10)
+            self.threadpool.add(m.run)
 
     def terminate(self):
         """
         Shuts down the thread cleanly
         """
-        pass
+        self.threadpool.terminate()
 
     def notify(self, event):
         self.eventTime.write(event.title, event.timestamp)

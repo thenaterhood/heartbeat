@@ -1,12 +1,12 @@
-from heartbeat.notifiers import NotifyWorker
+from heartbeat.notifications import Notifier
 from datetime import datetime
-from heartbeat.settings import Configuration
+from heartbeat.platform import Configuration
 from heartbeat.network import SocketBroadcaster
 
 PORT = 22000
 
 
-class Histamine(NotifyWorker):
+class Histamine(Notifier):
 
     """
     Calls up and sends hardware events to a monitoring server

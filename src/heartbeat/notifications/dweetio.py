@@ -1,4 +1,4 @@
-from heartbeat.notifiers import NotifyWorker
+from heartbeat.notifications import Notifier
 from datetime import datetime
 from heartbeat.network import NetworkInfo
 import urllib.parse
@@ -8,7 +8,7 @@ net = NetworkInfo()
 community_name = net.ip_wan
 
 
-class dweet(NotifyWorker):
+class dweet(Notifier):
 
     __slots__ = ('message', 'title', 'host')
 
