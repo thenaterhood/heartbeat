@@ -8,7 +8,6 @@ from heartbeat.network import NetworkInfo
 from heartbeat.network import SocketListener
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import Event
-from heartbeat.notifications import Notification
 from heartbeat.multiprocessing import Threadpool
 
 
@@ -71,7 +70,7 @@ class HeartMonitor(threading.Thread):
     network.
     """
 
-    def __init__(self, port, secret, notifiers):
+    def __init__(self, port, secret, notifyHandler):
         """
         constructor
 
@@ -80,14 +79,13 @@ class HeartMonitor(threading.Thread):
                this is intended to watch
             string secret: a secret string to identify the heartbeat. Must
                match that of the heartbeats this is intended to watch
-            array notifiers: an array of notifier classes to call to send
+            NotificationHandler notifyHandler: an array of notifier classes to call to send
                 notifications of events
         """
         self.port = port
         self.known_hosts = []
         self.secret = bytes(secret.encode("UTF-8"))
-        self.notifiers = notifiers
-        self.notifier = Notification(notifiers)
+        self.notifier = notifyHandler
         self.listener = SocketListener(port, self.receive)
         self.cachefile = '/dev/null'
         self.shutdown = False
@@ -167,7 +165,7 @@ class HeartMonitor(threading.Thread):
         while (i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=60)):
             event = Event(
                 "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
-            self.notifier.push(event)
+            self.notifier.receive_event(event)
             self.known_hosts.remove(sorted_hosts[i][0])
             i += 1
 
@@ -260,19 +258,19 @@ class MonitorHandler(threading.Thread):
     an interval
     """
 
-    def __init__(self, hwmonitors, notifiers):
+    def __init__(self, hwmonitors, notifyHandler):
         """
         Constructor
 
         Params:
             array[Monitor] hwmonitors: an array of HardwareWorker
                 instances
-            array[Notifier]  notifiers:  an array of notifiers
+            NotificationHandler notifyHandler:  notification handler
         """
         self.hwmonitors = []
         for m in hwmonitors:
             self.hwmonitors.append(m(self.receive_event))
-        self.notifier = Notification(notifiers)
+        self.notifier = notifyHandler
         self.eventTime = LockingDictionary()
         self.eventFrom = LockingDictionary()
         self.shutdown = False
@@ -305,7 +303,7 @@ class MonitorHandler(threading.Thread):
     def notify(self, event):
         self.eventTime.write(event.title, event.timestamp)
         self.eventFrom.write(event.source, event.title)
-        self.notifier.push(event)
+        self.notifier.receive_event(event)
 
     def receive_event(self, event):
         """
@@ -330,7 +328,7 @@ class HistamineNode(threading.Thread):
     using the HeartbeatServer monitor.
     """
 
-    def __init__(self, port, secret, notifiers):
+    def __init__(self, port, secret, notifyHandler):
         """
         constructor
 
@@ -339,13 +337,11 @@ class HistamineNode(threading.Thread):
                this is intended to watch
             string secret: a secret string to identify the heartbeat. Must
                match that of the heartbeats this is intended to watch
-            array notifiers: an array of notifier classes to call to send
-                notifications of events
+            Notificationhandler notifyHandler: notification handler
         """
         self.port = port
         self.secret = bytes(secret.encode("UTF-8"))
-        self.notifiers = notifiers
-        self.notifier = Notification(notifiers)
+        self.notifier = notifyHandler
         self.listener = SocketListener(22000, self.receive)
         self.shutdown = False
 
@@ -377,7 +373,7 @@ class HistamineNode(threading.Thread):
             event = Event()
             event.load_json(eventJson)
             if (not self._bcastIsOwn(event.host)):
-                self.notifier.push(event)
+                self.notifier.receive_event(event)
 
     def terminate(self):
         """
@@ -396,6 +392,46 @@ class HistamineNode(threading.Thread):
 
         self.terminate()
 
+class NotificationHandler():
+
+    """
+    A class that holds a list of notifiers and allows them to
+    all be kicked off in succession
+    """
+
+    def __init__(self, notifiers):
+        """
+        Constructor
+
+        Params:
+            list notifiers: the configured notifiers to push to
+        """
+        self.notifiers = notifiers
+        self.threadpool = Threadpool(5)
+
+    def receive_event(self, event):
+        """
+        Starts the thread to push notifications
+
+        Params:
+            Event event: The event to notify of
+        """
+        self.run(event)
+
+    def run(self, event):
+        """
+        Sends a notification to each configured
+        notifier passed in for the given host
+        and event.
+
+        Params:
+            array  notifiers: the notifiers to sent a notification through
+            string host:      the hostname the notification applies to
+            dict   event:     the event (contains a message and title)
+        """
+        for n in self.notifiers:
+            notify = n(event)
+            self.threadpool.add(notify.run)
 
 if __name__ == "__main__":
     pass
