@@ -6,7 +6,7 @@ from time import sleep
 from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.monitoring import Monitor
 from heartbeat.platform import Configuration, Event
-from heartbeat.modules import LockingDictionary
+from heartbeat.multiprocessing import LockingDictionary
 
 class HistamineNode(Monitor):
 
