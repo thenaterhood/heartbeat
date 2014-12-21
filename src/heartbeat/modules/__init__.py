@@ -134,15 +134,7 @@ class MonitorHandler(threading.Thread):
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        if (self.eventTime.exists(event.__hash__())):
-            lastSeen = self.eventTime.read(event.__hash__())
-            delayPassed = (datetime.datetime.now() - lastSeen > datetime.timedelta(hours=2))
-            if (not event.one_time and delayPassed):
-                self.notify(event)
-            else:
-                return
-        else:
-            self.notify(event)
+        self.notifier.receive_event(event)
 
 class NotificationHandler():
 
@@ -151,15 +143,25 @@ class NotificationHandler():
     all be kicked off in succession
     """
 
-    def __init__(self, notifiers):
+    def __init__(self, notifiers, limit_strategy=None):
         """
         Constructor
 
         Params:
             list notifiers: the configured notifiers to push to
+            Func limit_strategy: the function to call when checking if an event
+                should be thrown or not. None defaults to monitor-based
+                (doesn't throw the same event twice in a row from a monitor)
         """
         self.notifiers = notifiers
         self.threadpool = Threadpool(5)
+
+        self.monitorPreviousEvent = LockingDictionary()
+        self.eventTime = LockingDictionary()
+        if (limit_strategy == None):
+            self.limit_strategy = self.event_different_from_previous
+        else:
+            self.limit_strategy = limit_strategy
 
     def receive_event(self, event):
         """
@@ -168,7 +170,44 @@ class NotificationHandler():
         Params:
             Event event: The event to notify of
         """
-        self.run(event)
+        if (self.limit_strategy(event)):
+            self.run(event)
+        else:
+            pass
+
+    def event_different_from_previous(self, event):
+        """
+        Checks if an event is the same as the previous received
+        from the same notifier"
+        """
+        duplicate = False
+
+        if (self.monitorPreviousEvent.exists(event.source)):
+            previous = self.monitorPreviousEvent.read(event.source)
+            duplicate = (previous.__hash__() == event.__hash__())
+
+        return not duplicate
+
+    def event_delay_passed(self, event):
+        """
+        Checks if a specific event happened repeatedly within two hours
+        """
+        delay_passed = True
+
+        if (self.eventTime.exists(event.__hash__())):
+            lastSeen = self.eventTime.read(event.__hash__())
+            two_hours_ago = datetime.timedelta(hours=2)
+            delay_passed = (datetime.datetime.now() - lastSeen) > two_hours_ago
+
+        return delay_passed
+
+    def log_event(self, event):
+        """
+        Stores the event time and logs the event as the latest
+        from the particular monitor (no duplicate events in a row)
+        """
+        self.eventTime.write(event.__hash__(), event.timestamp)
+        self.monitorPreviousEvent.write(event.source, event)
 
     def run(self, event):
         """
@@ -181,6 +220,8 @@ class NotificationHandler():
             string host:      the hostname the notification applies to
             dict   event:     the event (contains a message and title)
         """
+        self.log_event(event)
+
         for n in self.notifiers:
             notify = n(event)
             self.threadpool.add(notify.run)
