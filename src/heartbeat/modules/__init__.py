@@ -92,8 +92,6 @@ class MonitorHandler(threading.Thread):
                 self.hwmonitors.append(monitor)
 
         self.notifier = notifyHandler
-        self.eventTime = LockingDictionary()
-        self.eventFrom = LockingDictionary()
         self.shutdown = False
         self.threadpool = Threadpool(5 + realtimeMonitors)
         super(MonitorHandler, self).__init__()
@@ -123,11 +121,6 @@ class MonitorHandler(threading.Thread):
         Shuts down the thread cleanly
         """
         self.threadpool.terminate()
-
-    def notify(self, event):
-        self.eventTime.write(event.__hash__(), event.timestamp)
-        self.eventFrom.write(event.source, event.title)
-        self.notifier.receive_event(event)
 
     def receive_event(self, event):
         """
