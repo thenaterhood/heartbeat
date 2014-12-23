@@ -27,7 +27,7 @@ class Event:
         self.payload = {}
         self.one_time = False
         stack = inspect.stack()
-        self.source = str(stack[1][0].f_locals["self"].__class__)
+        self.source = str(stack[1][0].f_locals["self"].__class__.__name__)
 
     def __hash__(self):
         return hash((self.title, self.message, self.source, self.host))
