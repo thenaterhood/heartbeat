@@ -10,7 +10,7 @@ class Event:
     """
     An event to notify of. Contains a title, message, and timestamp
     """
-    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source')
+    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source', 'payload')
 
     def __init__(self, title='', message='', host="localhost"):
         """
@@ -24,6 +24,7 @@ class Event:
         self.message = message
         self.timestamp = datetime.datetime.now()
         self.host = host
+        self.payload = {}
         self.one_time = False
         stack = inspect.stack()
         self.source = str(stack[1][0].f_locals["self"].__class__)
@@ -38,6 +39,7 @@ class Event:
         dictionary['host'] = self.host
         dictionary['one_time'] = self.one_time
         dictionary['source'] = self.source
+        dictionary['payload'] = self.payload
 
         return json.dumps(dictionary)
 
@@ -49,6 +51,10 @@ class Event:
         self.host = dictionary['host']
         self.one_time = dictionary['one_time']
         self.source = dictionary['source']
+        if ('payload' in dictionary):
+            self.payload = dictionary['payload']
+        else:
+            self.payload = {}
 
 class Configuration():
 

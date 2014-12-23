@@ -16,6 +16,8 @@ class LANIp(Monitor):
             event = Event(
                 "New LAN IP", "LAN IP address is now " + net.ip_lan, net.fqdn)
             event.one_time = True
+            event.payload['ip'] = self.ipv4
+            event.payload['ip_type'] = 'LAN'
 
             self.callback(event)
 
@@ -32,5 +34,7 @@ class WANIp(Monitor):
             event = Event(
                 "New WAN IP", "WAN IP address is now " + net.ip_wan, net.fqdn)
             event.one_time = True
+            event.payload['ip'] = self.ipv4
+            event.payload['ip_type'] = 'WAN'
 
             self.callback(event)
