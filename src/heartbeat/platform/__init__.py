@@ -76,7 +76,7 @@ class Configuration():
         if (self.config['notifiers'] is None):
             return []
         for n in self.config['notifiers']:
-            modulepath = "heartbeat.notifiers." + ".".join(n.split(".")[:-1])
+            modulepath = "heartbeat.notifications." + ".".join(n.split(".")[:-1])
             module = importlib.import_module(modulepath)
             self.notifiers.append(getattr(module, n.split(".")[-1]))
 
