@@ -8,3 +8,4 @@ Restart=always
 
 [Install]
 Alias=heartbeat.service
+WantedBy=multi-user.target
