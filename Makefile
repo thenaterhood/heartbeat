@@ -1,5 +1,5 @@
 INSTALL_PATH ?= /
-BUILD_PATH ?= build
+BUILD_PATH ?= build-heartbeat
 INIT_SYSTEM ?= systemd
 heartbeat:
 	python3 setup.py install --prefix=$(BUILD_PATH) --record installed_files
@@ -9,7 +9,7 @@ heartbeat:
 	cp -r dist/_bin/* $(BUILD_PATH)/bin
 ifneq ($(INIT_SYSTEM),systemd)
 	@echo "==> Setting up for sysvinit"
-	cp -r dist/_etc/init.d $(BUILD_PATH)/etc
+	#cp -r dist/_etc/init.d $(BUILD_PATH)/etc
 else
 	@echo "==> Setting up for systemd"
 	cp -r dist/_lib/* $(BUILD_PATH)/lib
