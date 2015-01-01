@@ -14,7 +14,6 @@ else
 	@echo "==> Setting up for systemd"
 	cp -r dist/_lib/* $(BUILD_PATH)/lib
 endif
-	cp dist/_etc/heartbeat.yml $(BUILD_PATH)/etc
 	chmod +x $(BUILD_PATH)/bin/startheart
 	@echo "A record of installed files is in installed_files."
 clean:
