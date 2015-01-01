@@ -10,5 +10,7 @@ setup(name='Heartbeat',
     url='https://github.com/thenaterhood/heartbeat/archive/master.zip',
     package_dir={'':'src'},
     packages=['heartbeat', 'heartbeat.modules', 'heartbeat.network', 'heartbeat.monitoring', 'heartbeat.notifications', 'heartbeat.platform', 'heartbeat.multiprocessing'],
-    data_files=[('etc', ['dist/_etc/heartbeat.yml'])]
+    data_files=[
+        ('etc', ['dist/_etc/heartbeat.yml']),
+        ]
     )
