@@ -15,14 +15,19 @@ Setup
 If you're on ArchLinux, a pkgbuild is provided with the occasional package
 in the releases under the releases tab here on Github.
 
-Once installed, configure a port and secret string in the settings.py file or
-in the /etc/heartbeat.conf depending on your install. This is used
-for the monitor to identify heartbeats so that multiple heartbeats can be
-on the same network with different monitors.
+If you're not on ArchLinux, you can build and install the package using make. By default, heartbeat will be configured assuming that systemd is the system init system. To use sysvinit instead, run make with the argument INIT_SYSTEM=sysvinit, which will instead set up heartbeat with an init script. To manually build and install the package, run:
 
-Import and add notify scripts to the NOTIFIERS array. Any time a new heartbeat
+        make [[BUILD_PATH=build-heartbeat] INIT_SYSTEM=sysvinit] (the build path and init system arguments are optional)
+        sudo make install
+
+Once installed, configure a port and secret string in the /etc/heartbeat.yml
+file. This is used for the monitor to identify heartbeats so that multiple
+heartbeats can be on the same network with different monitors.
+
+Uncomment or add notifiers in the NOTIFIERS array. Any time a new heartbeat
 is detected or an existing heartbeat disappears, heartbeat will push a
-notification to the configured notifiers.
+notification to the configured notifiers. If additional monitoring is enabled,
+notifications will be pushed to the same notifiers if Events are generated.
 
 Heartbeat is modular and can be used with any combination of its modules,
 currently hardware monitoring, heartbeat, and a heartbeat monitor. These can
