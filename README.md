@@ -17,8 +17,10 @@ in the releases under the releases tab here on Github.
 
 If you're not on ArchLinux, you can build and install the package using make. By default, heartbeat will be configured assuming that systemd is the system init system. To use sysvinit instead, run make with the argument INIT_SYSTEM=sysvinit, which will instead set up heartbeat with an init script. To manually build and install the package, run:
 
-        make [[BUILD_PATH=build-heartbeat] INIT_SYSTEM=sysvinit] (the build path and init system arguments are optional)
-        sudo make install
+        make [[BUILD_PATH=build-heartbeat] INIT_SYSTEM=sysvinit]
+        sudo make [[BUILD_PATH=build-heartbeat] INSTALL_PATH=/] install
+
+The BUILD_PATH, INIT_SYSTEM, and INSTALL_PATH ar eoptional parameters. The make install command MUST use the same BUILD_PATH value as the make command.
 
 Once installed, configure a port and secret string in the /etc/heartbeat.yml
 file. This is used for the monitor to identify heartbeats so that multiple
