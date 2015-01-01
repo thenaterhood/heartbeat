@@ -20,7 +20,7 @@ If you're not on ArchLinux, you can build and install the package using make. By
         make [[BUILD_PATH=build-heartbeat] INIT_SYSTEM=sysvinit]
         sudo make [[BUILD_PATH=build-heartbeat] INSTALL_PATH=/] install
 
-The BUILD_PATH, INIT_SYSTEM, and INSTALL_PATH ar eoptional parameters. The make install command MUST use the same BUILD_PATH value as the make command.
+The BUILD_PATH, INIT_SYSTEM, and INSTALL_PATH are optional parameters. The make install command MUST use the same BUILD_PATH value as the make command.
 
 Once installed, configure a port and secret string in the /etc/heartbeat.yml
 file. This is used for the monitor to identify heartbeats so that multiple
