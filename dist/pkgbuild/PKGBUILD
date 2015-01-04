@@ -5,7 +5,7 @@
 
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=1.0.2
+pkgver=1.0.3
 pkgrel=1
 epoch=
 pkgdesc=""
@@ -20,13 +20,13 @@ optdepends=()
 provides=()
 conflicts=()
 replaces=()
-backup=()
+backup=("etc/heartbeat.yml")
 options=()
 install=
 changelog=
 source=("https://github.com/thenaterhood/heartbeat/archive/master.zip")
 noextract=("master.zip")
-md5sums=('dd2aafb30587b6b5460115f48bacee34') #generate with 'makepkg -g'
+md5sums=('c0e530c8562f49e153aee952561ef6b8') #generate with 'makepkg -g'
 
 prepare() {
         unzip $srcdir/master.zip
