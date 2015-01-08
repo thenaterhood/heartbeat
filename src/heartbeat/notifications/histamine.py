@@ -14,13 +14,16 @@ class Histamine(Notifier):
 
     __slots__ = ('message', 'title')
 
-    def __init__(self, event):
+    def __init__(self):
+        super(Histamine, self).__init__()
+
+    def load(self, event):
+        self.event = event
         host = event.host
         self.title = event.title + ": " + host
         date = datetime.now()
         self.message = host + ": " + event.message + " at " + \
             event.timestamp.strftime("%H:%M:%S %m/%d/%y")
-        super(Histamine, self).__init__(event)
 
     def run(self):
         settings = Configuration()

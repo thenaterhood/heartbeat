@@ -4,6 +4,7 @@ import threading
 from random import randint
 import datetime
 import operator
+from queue import Queue
 from heartbeat.network import NetworkInfo
 from heartbeat.network import SocketListener
 from heartbeat.network import SocketBroadcaster
@@ -129,6 +130,31 @@ class MonitorHandler(threading.Thread):
         """
         self.notifier.receive_event(event)
 
+class _NotificationHandlerWorker(threading.Thread):
+
+    """
+    A worker for the notification handler so notifications
+    can be processed asynchronously
+    """
+
+    def __init__(self, queue, notifiers, parent):
+        super(_NotificationHandlerWorker, self).__init__()
+        self.queue = queue
+        self.notifiers = notifiers
+        self.parent = parent
+        self.threadpool = Threadpool(5)
+        self.daemon = True
+
+    def run(self):
+        self.parent.processing = True
+        while not self.queue.empty():
+            event = self.queue.get()
+            for n in self.notifiers:
+                n.load(event)
+                self.threadpool.add(n.run)
+        
+        self.parent.processing = False
+
 class NotificationHandler():
 
     """
@@ -146,8 +172,13 @@ class NotificationHandler():
                 should be thrown or not. None defaults to monitor-based
                 (doesn't throw the same event twice in a row from a monitor)
         """
-        self.notifiers = notifiers
-        self.threadpool = Threadpool(5)
+        self.notifiers = []
+        for n in notifiers:
+            notifier = n()
+            self.notifiers.append(notifier)
+
+        self.queue = Queue(50)
+        self.processing = False
 
         self.monitorPreviousEvent = LockingDictionary()
         self.eventTime = LockingDictionary()
@@ -214,10 +245,12 @@ class NotificationHandler():
             dict   event:     the event (contains a message and title)
         """
         self.log_event(event)
+        self.queue.put(event)
 
-        for n in self.notifiers:
-            notify = n(event)
-            self.threadpool.add(notify.run)
+        if not self.processing:
+            processor = _NotificationHandlerWorker(self.queue, self.notifers, self)
+            processor.start()
+
 
 if __name__ == "__main__":
     pass

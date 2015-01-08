@@ -16,7 +16,7 @@ class Notifier():
         threading.Thread
     """
 
-    def __init__(self, event):
+    def __init__(self):
         """
         constructor
 
@@ -24,6 +24,9 @@ class Notifier():
             string host:  the hostname of the system to notify for
             Event   event: the event details (message and title)
         """
+        self.event = None
+
+    def load(self, event):
         self.event = event
 
     def run(self):

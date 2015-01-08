@@ -3,16 +3,26 @@ import json
 import inspect
 import importlib
 import yaml
+from enum import Enum
 
+class EventType(Enum):
+
+    """
+    Event types
+    """
+    error = "error"
+    info = "information"
+    debug = "debug"
+    warn = "warning"
 
 class Event:
 
     """
     An event to notify of. Contains a title, message, and timestamp
     """
-    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source', 'payload')
+    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source', 'payload', 'type')
 
-    def __init__(self, title='', message='', host="localhost"):
+    def __init__(self, title='', message='', host="localhost", type=None):
         """
         Constructor
 
@@ -26,11 +36,17 @@ class Event:
         self.host = host
         self.payload = {}
         self.one_time = False
+        if (type == None):
+            self.type = EventType.info
+        else:
+            if (not isinstance(self.type, EventType)):
+                raise Exception("type passed to Event is not an EventType")
+            self.type = type
         stack = inspect.stack()
         self.source = str(stack[1][0].f_locals["self"].__class__.__name__)
 
     def __hash__(self):
-        return hash((self.title, self.message, self.source, self.host))
+        return hash((self.title, self.message, self.source, self.host, self.type))
 
     def to_json(self):
         dictionary = dict()
@@ -40,6 +56,7 @@ class Event:
         dictionary['one_time'] = self.one_time
         dictionary['source'] = self.source
         dictionary['payload'] = self.payload
+        dictionary['type'] = self.type.name
 
         return json.dumps(dictionary)
 
@@ -55,6 +72,7 @@ class Event:
             self.payload = dictionary['payload']
         else:
             self.payload = {}
+        self.type = EventType[dictionary['type']]
 
 class Configuration():
 
