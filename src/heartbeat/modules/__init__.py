@@ -248,7 +248,7 @@ class NotificationHandler():
         self.queue.put(event)
 
         if not self.processing:
-            processor = _NotificationHandlerWorker(self.queue, self.notifers, self)
+            processor = _NotificationHandlerWorker(self.queue, self.notifiers, self)
             processor.start()
 
 
