@@ -10,10 +10,9 @@ class EventType(Enum):
     """
     Event types
     """
-    error = "error"
-    info = "information"
-    debug = "debug"
-    warn = "warning"
+    WARNING = "error"
+    INFO = "information"
+    DEBUG = "debug"
 
 class Event:
 
@@ -37,7 +36,7 @@ class Event:
         self.payload = {}
         self.one_time = False
         if (type == None):
-            self.type = EventType.info
+            self.type = EventType.INFO
         else:
             if (not isinstance(self.type, EventType)):
                 raise Exception("type passed to Event is not an EventType")

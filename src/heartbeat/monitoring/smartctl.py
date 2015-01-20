@@ -1,5 +1,5 @@
 from heartbeat.monitoring import Monitor
-from heartbeat.platform import Event
+from heartbeat.platform import Event, EventType
 from heartbeat.network import NetworkInfo
 from heartbeat.platform import Configuration
 import subprocess
@@ -10,6 +10,7 @@ class SMARTMonitor(Monitor):
     def __init__(self, callback):
         settings = Configuration()
         self.check_drives = settings.config['heartbeat.hwmonitors.smartctl']['drives']
+        self.threw_warning = False
         super(SMARTMonitor, self).__init__(callback)
 
     def run(self):
@@ -25,6 +26,17 @@ class SMARTMonitor(Monitor):
         if (foundProblem):
             net = NetworkInfo()
             event = Event("SMART Alert", problemDrive, net.fqdn)
+            event.type = EventType.WARNING
+            self.callback(event)
+
+        if (not foundProblem and self.threw_warning):
+            net = NetworkInfo()
+            self.threw_warning = False
+            event = Event("SMART Message",
+                    "A previous alert did not reoccur",
+                    net.fqdn,
+                    EventType.INFO
+                    )
             self.callback(event)
 
     def _call_smartctl(self, drive):
