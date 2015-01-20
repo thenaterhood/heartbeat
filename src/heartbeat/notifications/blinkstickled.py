@@ -9,6 +9,7 @@ class BlinkStickColor(Notifier):
     __slots__ = ('message', 'title', 'serial', 'warning', 'okay', 'alert', 'use_color', 'previous_warnings')
 
     def __init__(self):
+        print("Initting blinkstick module")
         config = Configuration()
         self.previous_warnings = {}
         self.serial = config.config['heartbeat.notifiers.blinkstick']['serial']
@@ -18,11 +19,11 @@ class BlinkStickColor(Notifier):
         super(BlinkStickColor, self).__init__()
 
     def _choose_color(self, event):
-        if (isinstance(event.type, EventType.warn) or isinstance(event.type, EventType.error)):
+        if (event.type == EventType.error or event.type == EventType.warn):
             self.use_color = self.alert
-            self.previous_warnings[event.source] = event.datestamp
+            self.previous_warnings[event.source] = event.timestamp
 
-        elif (isinstance(event.type, EventType.info)):
+        elif (event.type == EventType.info):
             if (event.source in self.previous_warnings):
                 del(self.previous_warnings[event.source])
 
@@ -31,6 +32,8 @@ class BlinkStickColor(Notifier):
 
         else:
             self.use_color = self.okay
+
+        print("Using color " + self.use_color)
 
     def load(self, event):
         host = event.host
