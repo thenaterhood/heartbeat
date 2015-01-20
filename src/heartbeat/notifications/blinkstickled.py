@@ -16,14 +16,17 @@ class BlinkStickColor(Notifier):
         self.warning = config.config['heartbeat.notifiers.blinkstick']['warning_color']
         self.okay = config.config['heartbeat.notifiers.blinkstick']['okay_color']
         self.alert = config.config['heartbeat.notifiers.blinkstick']['alert_color']
+        self.use_color = self.okay
+
         super(BlinkStickColor, self).__init__()
+        self.run()
 
     def _choose_color(self, event):
-        if (event.type == EventType.error or event.type == EventType.warn):
+        if (event.type == EventType.WARNING):
             self.use_color = self.alert
             self.previous_warnings[event.source] = event.timestamp
 
-        elif (event.type == EventType.info):
+        elif (event.type == EventType.INFO):
             if (event.source in self.previous_warnings):
                 del(self.previous_warnings[event.source])
 
