@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='Heartbeat',
-    version='1.0.1',
+    version='1.2.1',
     description='Heartbeat monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
