@@ -27,7 +27,11 @@ class UrlPull(Notifier):
     def run(self):
 
         try:
-            urllib.request.urlopen(self.url, timeout=5)
-
+            if (self.new_ip != None):
+                urllib.request.urlopen(self.url, timeout=5)
+                self.current_ip = self.new_ip
+                self.new_ip = None
+            else:
+                pass
         except:
             pass
