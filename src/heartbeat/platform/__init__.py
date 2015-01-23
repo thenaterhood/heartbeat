@@ -75,11 +75,9 @@ class Event:
 
 class Configuration():
 
-    __slots__ = ('config', 'notifiers', 'hwmonitors')
-
     def __init__(self, configFile='/etc/heartbeat.yml', load_modules=False):
         stream = open(configFile, 'r')
-        self.config = yaml.load(stream)
+        self.__dict__ = yaml.load(stream)
         stream.close()
 
         self.notifiers = []
@@ -88,6 +86,14 @@ class Configuration():
         if (load_modules):
             self.load_notifiers()
             self.load_hwmonitors()
+
+    def __getattr__(self, attr):
+        if (attr in self.__dict__):
+            return self.__dict__[attr]
+        elif (attr == "config"):
+            return self.__dict__
+        else:
+            raise AttributeError("Configuration does not contain " + attr)
 
     def load_notifiers(self):
         if (self.config['notifiers'] is None):
