@@ -77,7 +77,7 @@ class Configuration():
 
     def __init__(self, configFile='/etc/heartbeat.yml', load_modules=False):
         stream = open(configFile, 'r')
-        self.__dict__ = yaml.load(stream)
+        self.config_data = yaml.load(stream)
         stream.close()
 
         self.notifiers = []
@@ -88,10 +88,10 @@ class Configuration():
             self.load_hwmonitors()
 
     def __getattr__(self, attr):
-        if (attr in self.__dict__):
-            return self.__dict__[attr]
+        if (attr in self.config_data):
+            return self.config_data[attr]
         elif (attr == "config"):
-            return self.__dict__
+            return self.config_data
         else:
             raise AttributeError("Configuration does not contain " + attr)
 
