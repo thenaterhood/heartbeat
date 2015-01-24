@@ -73,6 +73,25 @@ class Event:
             self.payload = {}
         self.type = EventType[dictionary['type']]
 
+class Autoloader():
+
+    __slots__ = ("modules", "paths")
+
+    def __init__(self, paths = []):
+        self.paths = paths
+        self.modules = []
+
+    def load(self):
+        for p in self.paths:
+            self.loadPath(p)
+
+    def loadPath(self, path):
+        modulepath = ".".join(path.split(".")[:-1])
+        module = importlib.import_module(modulepath)
+        self.modules.append(getattr(module, path.split(".")[-1]))
+        if (path not in self.paths):
+            self.paths.append(path)
+
 class Configuration():
 
     def __init__(self, configFile='/etc/heartbeat.yml', load_modules=False):
@@ -96,21 +115,26 @@ class Configuration():
             raise AttributeError("Configuration does not contain " + attr)
 
     def load_notifiers(self):
+
         if (self.config['notifiers'] is None):
             return []
-        for n in self.config['notifiers']:
-            modulepath = "heartbeat.notifications." + ".".join(n.split(".")[:-1])
-            module = importlib.import_module(modulepath)
-            self.notifiers.append(getattr(module, n.split(".")[-1]))
 
+        loader = Autoloader()
+        for n in self.config['notifiers']:
+            modulepath = "heartbeat.notifications." + ".".join(n.split("."))
+            loader.loadPath(modulepath)
+
+        self.notifiers = loader.modules
         return self.notifiers
 
     def load_hwmonitors(self):
         if (self.config['monitors'] is None):
             return []
-        for m in self.config['monitors']:
-            modulepath = "heartbeat.monitoring." + ".".join(m.split(".")[:-1])
-            module = importlib.import_module(modulepath)
-            self.hwmonitors.append(getattr(module, m.split(".")[-1]))
 
+        loader = Autoloader()
+        for m in self.config['monitors']:
+            modulepath = "heartbeat.monitoring." + ".".join(m.split("."))
+            loader.loadPath(modulepath)
+
+        self.hwmonitors = loader.modules
         return self.hwmonitors

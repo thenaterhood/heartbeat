@@ -14,15 +14,15 @@ def main(main_threads=None):
     settings = Configuration(load_modules=True)
     notificationHandler = NotificationHandler(settings.notifiers)
 
-    if (settings.config['enable_heartbeat']):
+    if (settings.enable_heartbeat):
         server = Heartbeat(
-            settings.config['port'], 2, settings.config['secret_key'])
+            settings.port, 2, settings.secret_key)
         server.daemon = True
         server.start()
         main_threads['heartbeat'] = server
         print("Heartbeat started. Hit ctrl+c to stop.")
 
-    if (settings.config['enable_hwmonitor']):
+    if (settings.enable_hwmonitor):
         hwmon = MonitorHandler(settings.hwmonitors, notificationHandler)
         hwmon.daemon = True
         hwmon.start()
