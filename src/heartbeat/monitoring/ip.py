@@ -11,7 +11,7 @@ class LANIp(Monitor):
 
     def run(self):
         net = NetworkInfo()
-        if (net.ip_lan != self.ipv4):
+        if (net.ip_lan != "0.0.0.0" and net.ip_lan != self.ipv4):
             self.ipv4 = net.ip_lan
             event = Event(
                 "New LAN IP", "LAN IP address is now " + net.ip_lan, net.fqdn)
@@ -29,7 +29,7 @@ class WANIp(Monitor):
 
     def run(self):
         net = NetworkInfo()
-        if (net.ip_wan != self.ipv4):
+        if (net.ip_wan != '0.0.0.0' and net.ip_wan != self.ipv4):
             self.ipv4 = net.ip_wan
             event = Event(
                 "New WAN IP", "WAN IP address is now " + net.ip_wan, net.fqdn)
