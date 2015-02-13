@@ -11,6 +11,7 @@ from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import Event
 from heartbeat.multiprocessing import Threadpool
 from heartbeat.multiprocessing import LockingDictionary
+import logging
 
 
 class Heartbeat(threading.Thread):
@@ -37,6 +38,7 @@ class Heartbeat(threading.Thread):
         self.secret = bytes(secret.encode("UTF-8"))
         self.bcaster = SocketBroadcaster(self.port)
         self.shutdown = False
+        self._logger = logging.getLogger(__name__ + "." + "Heartbeat")
 
         super().__init__()
 
@@ -44,7 +46,7 @@ class Heartbeat(threading.Thread):
         """
         Shuts down the thread cleanly
         """
-        pass
+        self._logger.info("Shutting down heartbeat broadcast")
 
     def _beat(self):
         """
@@ -52,6 +54,7 @@ class Heartbeat(threading.Thread):
         """
         netinfo = NetworkInfo()
         data = self.secret + bytes(netinfo.fqdn.encode("UTF-8"))
+        self._logger.info("Broadcasting heartbeat")
         self.bcaster.push(data)
 
     def run(self):
@@ -72,7 +75,7 @@ class MonitorHandler(threading.Thread):
     an interval
     """
 
-    def __init__(self, hwmonitors, notifyHandler):
+    def __init__(self, hwmonitors, notifyHandler, logger=None):
         """
         Constructor
 
@@ -83,6 +86,10 @@ class MonitorHandler(threading.Thread):
         """
         self.hwmonitors = []
         self.rtMonitors = []
+        if (logger == None):
+            self.logger = logging.getLogger(__name__ + "." + "MonitorHandler")
+        else:
+            self.logger = logger
         realtimeMonitors = 0
         for m in hwmonitors:
             monitor = m(self.receive_event)
@@ -94,6 +101,7 @@ class MonitorHandler(threading.Thread):
 
         self.notifier = notifyHandler
         self.shutdown = False
+        self.logger.debug("Bringing up threadpool")
         self.threadpool = Threadpool(5 + realtimeMonitors)
         super(MonitorHandler, self).__init__()
 
@@ -101,10 +109,12 @@ class MonitorHandler(threading.Thread):
         """
         Run method, generally called from the parent start()
         """
+        self.logger.debug("Starting realtime monitors")
         for m in self.rtMonitors:
             self.threadpool.add(m.run)
 
         while not self.shutdown:
+            self.logger.debug("Starting periodic query to monitors")
             self.scan()
             sleep(60)
 
@@ -152,7 +162,7 @@ class _NotificationHandlerWorker(threading.Thread):
             for n in self.notifiers:
                 n.load(event)
                 self.threadpool.add(n.run)
-        
+
         self.parent.processing = False
 
 class NotificationHandler():
@@ -162,7 +172,7 @@ class NotificationHandler():
     all be kicked off in succession
     """
 
-    def __init__(self, notifiers, limit_strategy=None):
+    def __init__(self, notifiers, limit_strategy=None, logger=None):
         """
         Constructor
 
@@ -172,6 +182,11 @@ class NotificationHandler():
                 should be thrown or not. None defaults to monitor-based
                 (doesn't throw the same event twice in a row from a monitor)
         """
+        if (logger == None):
+            self.logger = logging.getLogger(__name__ + ".NotificationHandler")
+        else:
+            self.logger = logger
+
         self.notifiers = []
         for n in notifiers:
             notifier = n()
@@ -194,10 +209,12 @@ class NotificationHandler():
         Params:
             Event event: The event to notify of
         """
+        self.logger.debug("Received event: " + str(event))
         if (self.limit_strategy(event)):
+            self.logger.debug("Dispatching notification")
             self.run(event)
         else:
-            pass
+            self.logger.debug("Skipping notification dispatch per limit strategy")
 
     def event_different_from_previous(self, event):
         """

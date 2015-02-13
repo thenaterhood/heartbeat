@@ -4,6 +4,8 @@ import inspect
 import importlib
 import yaml
 from enum import Enum
+import logging
+
 
 class EventType(Enum):
 
@@ -75,11 +77,13 @@ class Event:
 
 class Autoloader():
 
-    __slots__ = ("modules", "paths")
+    __slots__ = ("modules", "paths", "_logger")
 
     def __init__(self, paths = []):
+        self._logger = logging.getLogger(__name__ + "." + "Autoloader")
         self.paths = paths
         self.modules = []
+        self._logger.debug("Autoloader primed")
 
     def load(self):
         for p in self.paths:
@@ -87,6 +91,7 @@ class Autoloader():
 
     def loadPath(self, path):
         modulepath = ".".join(path.split(".")[:-1])
+        self._logger.debug("Importing module " + modulepath)
         module = importlib.import_module(modulepath)
         self.modules.append(getattr(module, path.split(".")[-1]))
         if (path not in self.paths):
@@ -95,6 +100,9 @@ class Autoloader():
 class Configuration():
 
     def __init__(self, configFile='/etc/heartbeat.yml', load_modules=False):
+        self._logger = logging.getLogger(__name__ + "." + "Configuration")
+
+        self._logger.debug("Loading configuration file " + configFile)
         stream = open(configFile, 'r')
         self.config_data = yaml.load(stream)
         stream.close()
@@ -103,6 +111,7 @@ class Configuration():
         self.hwmonitors = []
 
         if (load_modules):
+            self._logger.debug("Loading configured modules")
             self.load_notifiers()
             self.load_hwmonitors()
 
