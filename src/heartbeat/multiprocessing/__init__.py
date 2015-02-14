@@ -1,6 +1,6 @@
 from queue import Queue
 import threading
-
+import logging
 
 class Worker(threading.Thread):
 
@@ -8,7 +8,7 @@ class Worker(threading.Thread):
     Worker thread for executing threadpool tasks
     """
 
-    def __init__(self, tasks):
+    def __init__(self, tasks, exception_func=None):
         """
         Constructor
 
@@ -20,6 +20,7 @@ class Worker(threading.Thread):
         self.shutdown = False
         self.tasks = tasks
         self.daemon = True
+        self.exception_func = exception_func
 
     def run(self):
         """
@@ -29,8 +30,11 @@ class Worker(threading.Thread):
             call, args, kwargs = self.tasks.get()
             try:
                 call(*args, **kwargs)
-            except Exception:
-                print(e)
+            except Exception as e:
+                if (self.exception_func != None):
+                    self.exception_func(e)
+                else:
+                    print(e)
 
             self.tasks.task_done()
 
@@ -40,7 +44,7 @@ class Threadpool:
     Threadpool handling tasks from a queue
     """
 
-    def __init__(self, threads):
+    def __init__(self, threads, pool_name="UnnamedThreadpool"):
         """
         Constructor
 
@@ -49,9 +53,14 @@ class Threadpool:
         """
         self.workers = []
         self.tasks = Queue(threads)
-
+        self._logger = logging.getLogger(
+                __name__ + "." + self.__class__.__name__ + "-" + pool_name
+                )
+        self._logger.debug(
+                "Starting threadpool workers (" + str(threads) + " workers)"
+                )
         for n in range(0, threads):
-            w = Worker(self.tasks)
+            w = Worker(self.tasks, self.recv_worker_exception)
             w.start()
             self.workers.append(w)
 
@@ -64,6 +73,7 @@ class Threadpool:
             list args: Arguments for the function
             list kwargs: keyword arguments for the function
         """
+        self._logger.debug("Adding new task to threadpool")
         self.tasks.put((call, args, kwargs))
 
     def terminate(self):
@@ -71,9 +81,13 @@ class Threadpool:
         Immediately shuts down the threadpool by telling all the
         worker threads to stop after completing their current task
         """
+        self._logger.debug("Initiating clean shutdown of threadpool")
         for w in self.workers:
             w.shutdown = True
             w.join()
+
+    def recv_worker_exception(self, exception):
+        self._logger.exception(exception)
 
     def join(self):
         """

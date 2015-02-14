@@ -102,7 +102,7 @@ class MonitorHandler(threading.Thread):
         self.notifier = notifyHandler
         self.shutdown = False
         self.logger.debug("Bringing up threadpool")
-        self.threadpool = Threadpool(5 + realtimeMonitors)
+        self.threadpool = Threadpool(5 + realtimeMonitors, "MonitorPool")
         super(MonitorHandler, self).__init__()
 
     def run(self):
@@ -153,7 +153,7 @@ class _NotificationHandlerWorker(threading.Thread):
         self.queue = queue
         self.notifiers = notifiers
         self.parent = parent
-        self.threadpool = Threadpool(5)
+        self.threadpool = Threadpool(5, "NotificationWorkerThreadpool")
         self.daemon = True
         self._logger = logging.getLogger(__name__ + "." + "_NotificationHandlerWorker")
         self._logger.debug("Worker primed")
