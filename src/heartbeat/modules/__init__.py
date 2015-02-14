@@ -38,7 +38,9 @@ class Heartbeat(threading.Thread):
         self.secret = bytes(secret.encode("UTF-8"))
         self.bcaster = SocketBroadcaster(self.port)
         self.shutdown = False
-        self._logger = logging.getLogger(__name__ + "." + "Heartbeat")
+        self._logger = logging.getLogger(
+                __name__ + "." + self.__class__.__name__
+                )
 
         super().__init__()
 
@@ -87,7 +89,9 @@ class MonitorHandler(threading.Thread):
         self.hwmonitors = []
         self.rtMonitors = []
         if (logger == None):
-            self.logger = logging.getLogger(__name__ + "." + "MonitorHandler")
+            self.logger = logging.getLogger(
+                    __name__ + "." + self.__class__.__name__
+                    )
         else:
             self.logger = logger
         realtimeMonitors = 0
@@ -155,7 +159,9 @@ class _NotificationHandlerWorker(threading.Thread):
         self.parent = parent
         self.threadpool = Threadpool(5, "NotificationWorkerThreadpool")
         self.daemon = True
-        self._logger = logging.getLogger(__name__ + "." + "_NotificationHandlerWorker")
+        self._logger = logging.getLogger(
+                __name__ + "." + self.__class__.__name__
+                )
         self._logger.debug("Worker primed")
 
     def run(self):
@@ -190,7 +196,9 @@ class NotificationHandler():
                 (doesn't throw the same event twice in a row from a monitor)
         """
         if (logger == None):
-            self.logger = logging.getLogger(__name__ + ".NotificationHandler")
+            self.logger = logging.getLogger(
+                    __name__ + "." + self.__class__.__name__
+                    )
         else:
             self.logger = logger
 

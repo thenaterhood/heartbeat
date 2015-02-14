@@ -83,7 +83,9 @@ class Autoloader():
     __slots__ = ("modules", "paths", "_logger")
 
     def __init__(self, paths = []):
-        self._logger = logging.getLogger(__name__ + "." + "Autoloader")
+        self._logger = logging.getLogger(
+                __name__ + "." + self.__class__.__name__
+                )
         self.paths = paths
         self.modules = []
         self._logger.debug("Autoloader primed")
@@ -103,7 +105,8 @@ class Autoloader():
 class Configuration():
 
     def __init__(self, configFile='/etc/heartbeat.yml', load_modules=False):
-        self._logger = logging.getLogger(__name__ + "." + "Configuration")
+        self._logger = logging.getLogger(
+                __name__ + "." + self.__class__.__name__)
 
         self._logger.debug("Loading configuration file " + configFile)
         stream = open(configFile, 'r')
