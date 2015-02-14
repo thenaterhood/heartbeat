@@ -2,7 +2,7 @@ from heartbeat.modules import Heartbeat
 from heartbeat.modules import MonitorHandler
 from heartbeat.modules import NotificationHandler
 from heartbeat.platform import Configuration
-import sys
+import sys, os
 import threading
 import time
 import logging, logging.handlers
@@ -10,7 +10,17 @@ import logging, logging.handlers
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-filehandler = logging.handlers.TimedRotatingFileHandler(filename='/var/log/heartbeat.log', when='W0')
+try:
+    filehandler = logging.handlers.TimedRotatingFileHandler(
+            filename='/var/log/heartbeat.log',
+            when='W0'
+            )
+except Exception:
+    print("No write permissions to log directory. Using current directory")
+    filehandler = logging.handlers.TimedRotatingFileHandler(
+            filename="./heartbeat.log",
+            when="W0"
+            )
 formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(name)s;%(message)s",
                               "%Y-%m-%d %H:%M:%S")
 filehandler.setFormatter(formatter)
