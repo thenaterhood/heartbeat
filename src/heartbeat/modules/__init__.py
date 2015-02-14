@@ -125,6 +125,7 @@ class MonitorHandler(threading.Thread):
         Runs each monitor thread and waits for it to complete
         """
         for m in self.hwmonitors:
+            self.logger.debug("Querying " + m.__class__.__name__)
             self.threadpool.add(m.run)
 
     def terminate(self):
@@ -154,15 +155,21 @@ class _NotificationHandlerWorker(threading.Thread):
         self.parent = parent
         self.threadpool = Threadpool(5)
         self.daemon = True
+        self._logger = logging.getLogger(__name__ + "." + "_NotificationHandlerWorker")
+        self._logger.debug("Worker primed")
 
     def run(self):
+        self._logger.debug("Starting work")
         self.parent.processing = True
         while not self.queue.empty():
             event = self.queue.get()
+            self._logger.debug("Working on dispatching event " + str(event.__hash__()))
             for n in self.notifiers:
+                self._logger.debug("Dispatching event " + str(event.__hash__()) + " to " + n.__class__.__name__)
                 n.load(event)
                 self.threadpool.add(n.run)
 
+        self._logger.debug("Worker terminating")
         self.parent.processing = False
 
 class NotificationHandler():
