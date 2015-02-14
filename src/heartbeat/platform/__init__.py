@@ -75,6 +75,9 @@ class Event:
             self.payload = {}
         self.type = EventType[dictionary['type']]
 
+    def __str__(self):
+        return self.title + ": " + self.host + ": " + self.message
+
 class Autoloader():
 
     __slots__ = ("modules", "paths", "_logger")

@@ -11,7 +11,7 @@ cache_dir: /home/nate/.cache
 # or a hardware monitor produces an alert
 notifiers:
     - pushbullet.pushbullet
-    - stdout.PrintOutput
+#    - stdout.PrintOutput
     - dweetio.dweet
 # Add this to send notifications to histamine nodes on the network
 #   - histamine.Histamine

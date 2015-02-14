@@ -209,7 +209,7 @@ class NotificationHandler():
         Params:
             Event event: The event to notify of
         """
-        self.logger.debug("Received event: " + str(event))
+        self.logger.info("Received event: " + str(event))
         if (self.limit_strategy(event)):
             self.logger.debug("Dispatching notification")
             self.run(event)
