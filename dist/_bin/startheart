@@ -3,6 +3,9 @@
 import heartbeat
 import sys
 
+if (sys.version_info == (3, 2)):
+    sys.path.append('/lib/python3.2/site-packages')
+
 if __name__ == "__main__":
     try:
         heartbeat.main()
