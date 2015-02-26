@@ -1,14 +1,26 @@
 heartbeat
 ============
-Heartbeat is a dead simple network monitoring tool. Set it up, run the
-heartbeat.py script on the servers to monitor, and the monitor.py script on
-a server to keep track of things. It will send a notification whenever a new
-heartbeat is detected, whenever a host appears to flatline, or when a
-hardware monitor reports an error.
+
+What Heartbeat is
+-------------
+Heartbeat is a dead simple network monitoring tool. Set it up, start it with
+your init system (systemd or sysvinit), or manually with the `startheart`
+command. It will send a notification whenever a new heartbeat is detected,
+whenever a host appears to flatline, or when a hardware monitor reports an
+error. It is designed for quick notifications if problems happen, geared
+towards a relatively small fleet of servers.
+
+What Heartbeat is NOT
+-------------
+Heartbeat is NOT intended to be used as a full-fledged monitoring, management,
+or logging tool. Rather, it is a tiny application intended to provide another,
+extremely lightweight method of keeping tabs on servers with minimal overhead.
+Tools like Nagios and Observium require a database and keep track of much
+more information over time, which Heartbeat is not designed to do.
 
 How
 ============
-Network broadcast packets.
+Network broadcast packets and threading.
 
 Setup
 ============
