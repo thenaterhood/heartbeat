@@ -41,18 +41,10 @@ Once installed, configure a port and secret string in the /etc/heartbeat.yml
 file. This is used for the monitor to identify heartbeats so that multiple
 heartbeats can be on the same network with different monitors.
 
-Uncomment or add notifiers in the NOTIFIERS array. Any time a new heartbeat
-is detected or an existing heartbeat disappears, heartbeat will push a
-notification to the configured notifiers. If additional monitoring is enabled,
-notifications will be pushed to the same notifiers if Events are generated.
-
-Heartbeat is modular and can be used with any combination of its modules,
-currently hardware monitoring, heartbeat, and a heartbeat monitor. These can
-be enabled or disabled in the settings.py file. For a heartbeat and the
-associated monitor of it, make sure to configure the SECRET_KEY and PORT
-settings, which respectively give a heartbeat a distinct signature and the
-port to operate on. Multiple heartbeats can coexist on the same network
-by using unique ports or secret keys.
+See the [wiki](https://github.com/thenaterhood/heartbeat/wiki/Configuration)
+and the inline comments in the
+[/etc/heartbeat.yml](https://github.com/thenaterhood/heartbeat/blob/master/dist/_etc/heartbeat.yml)
+file for more detailed setup instructions.
 
 Notifiers
 ============
@@ -68,8 +60,7 @@ Histamine will broadcast notification events from a node which will be
 received by any histamine server on the network using a matching secret key.
 Histamine nodes will forward the notification to all the configured notifiers.
 
-Using a notifier:
-* Add it to the NOTIFIERS array, without the heartbeat.notifiers path prefix
+Also see [the wiki](https://github.com/thenaterhood/heartbeat/wiki/Notifiers)
 
 Hardware Monitors
 ============
@@ -77,20 +68,7 @@ Heartbeat is also capable of notifying of hardware changes or problems with
 added hardware monitors. They use the same notification framework as
 heartbeat for new/flatlined hosts.
 
-Using a hardware monitor:
-* Add it to the HW_MONITORS array, without the heartbeat.hwmonitors path prefix
-
-Roadmap
-============
-This started as a means of learning some basic socket fun and python threading.
-Next up for this:
-
-- Code cleanup. Things can probably be reworked and written better.
-- More notifiers.
-- Better security (make the secret string actually secret)
-- Remember the devices on the network to avoid the "found a new heartbeat" spam
- when starting the monitor - DONE!
-- Potentially, more features (but seriously, dead simple can be nice)
+Also see [the wiki](https://github.com/thenaterhood/heartbeat/wiki/Monitoring)
 
 License
 ============
