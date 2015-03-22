@@ -64,7 +64,7 @@ class SocketListener(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, port, callback, daemon=True, timeout=1):
+    def __init__(self, port, callback, daemon=True, timeout=5):
         """
         Constructor
 
@@ -90,8 +90,11 @@ class SocketListener(threading.Thread):
         """
         Listens for data then calls back when data is received
         """
-        data, addr = self.listen_socket.recvfrom(1024)
-        self.callback(data, addr)
+        try:
+            data, addr = self.listen_socket.recvfrom(1024)
+            self.callback(data, addr)
+        except socket.timeout:
+            pass
 
     def run(self):
         """
