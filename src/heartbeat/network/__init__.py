@@ -64,7 +64,7 @@ class SocketListener(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, port, callback, daemon=True, timeout=5):
+    def __init__(self, port, callback, daemon=True, timeout=None):
         """
         Constructor
 
