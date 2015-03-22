@@ -64,7 +64,7 @@ class SocketListener(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, port, callback, daemon=True):
+    def __init__(self, port, callback, daemon=True, timeout=1):
         """
         Constructor
 
@@ -79,6 +79,9 @@ class SocketListener(threading.Thread):
         self.callback = callback
 
         listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if (timeout is not None):
+            listen.settimeout(timeout)
+
         listen.bind(('', self.port))
         self.listen_socket = listen
         self.shutdown = False

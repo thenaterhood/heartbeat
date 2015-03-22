@@ -78,7 +78,7 @@ class HistamineNode(Monitor):
         self.listener.start()
 
         while not self.shutdown:
-            sleep(40)
+            sleep(4)
 
         self.terminate()
 
