@@ -18,10 +18,6 @@ extremely lightweight method of keeping tabs on servers with minimal overhead.
 Tools like Nagios and Observium require a database and keep track of much
 more information over time, which Heartbeat is not designed to do.
 
-How
-============
-Network broadcast packets and threading.
-
 Setup
 ============
 If you're on ArchLinux, a pkgbuild is provided with the occasional package

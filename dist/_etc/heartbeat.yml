@@ -5,7 +5,7 @@ secret_key: heartbeat3477
 port: 21999
 # Directory to store cache files in for data that should persist between
 # sessions.
-cache_dir: /home/nate/.cache
+cache_dir: /var/log/heartbeat.cache
 
 # The notifiers for when a new heartbeat is discovered, a heartbeat flatlines,
 # or a hardware monitor produces an alert
