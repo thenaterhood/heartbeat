@@ -175,6 +175,8 @@ class _NotificationHandlerWorker(threading.Thread):
                 n.load(event)
                 self.threadpool.add(n.run)
 
+            self.queue.task_done()
+
         self._logger.debug("Worker terminating")
         self.parent.processing = False
 
