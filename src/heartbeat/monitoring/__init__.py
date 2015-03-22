@@ -12,6 +12,7 @@ class Monitor():
         """
         self.callback = callback
         self.realtime = False
+        self.shutdown = False
 
     def run(self):
         """

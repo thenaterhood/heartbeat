@@ -81,6 +81,7 @@ class SocketListener(threading.Thread):
         listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         listen.bind(('', self.port))
         self.listen_socket = listen
+        self.shutdown = False
 
     def _listen(self):
         """
@@ -93,7 +94,7 @@ class SocketListener(threading.Thread):
         """
         Runs the thread (typically with the Thread start() method)
         """
-        while True:
+        while not self.shutdown:
             self._listen()
 
 

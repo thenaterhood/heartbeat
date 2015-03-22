@@ -69,7 +69,7 @@ class HistamineNode(Monitor):
         """
         Shuts down the thread cleanly
         """
-        pass
+        self.listener.shutdown = True
 
     def run(self):
         """
@@ -120,6 +120,7 @@ class HeartMonitor(Monitor):
         """
         Shuts down the thread cleanly
         """
+        self.listener.shutdown = True
         self.saveCache()
 
     def saveCache(self):
