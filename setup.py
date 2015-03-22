@@ -13,7 +13,7 @@ if (sys.version_info < (3, 4)):
     install_requires.append('enum34 >= 1.0')
 
 setup(name='Heartbeat',
-    version='2.2.1',
+    version='2.3.0',
     description='Heartbeat monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
