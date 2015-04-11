@@ -110,9 +110,9 @@ class SocketBroadcaster():
     Sends a broadcast packet containing data on a given port
     """
 
-    __slots__ = ('_bcast_socket', '_port')
+    __slots__ = ('_bcast_socket', '_port', '_dest')
 
-    def __init__(self, port):
+    def __init__(self, port, dest='<broadcast>'):
         """
         Constructor
 
@@ -120,6 +120,7 @@ class SocketBroadcaster():
             int port: The port to broadcast on
         """
         self._port = port
+        self._dest = dest
 
     def push(self, data):
         """
@@ -131,16 +132,18 @@ class SocketBroadcaster():
             boolean: true on success, false on failure
         """
         success = False
-        bcast = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        bcast.bind(('', 0))
-        bcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        if (self._dest == '<broadcast>'):
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
         try:
-            bcast.sendto(data, ('<broadcast>', self._port))
+            sock.sendto(data, (self._dest, self._port))
             success = True
-            bcast.shutdown(1)
+            sock.shutdown(1)
         except:
             pass
-        bcast.close()
+        sock.close()
         return success
 
 if __name__ == '__main__':
