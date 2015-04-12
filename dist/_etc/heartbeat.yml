@@ -1,6 +1,14 @@
 # The secret identifying key for this particular monitor/heartbeat.
 # Use the same key for all heartbeats monitored by the same monitor
 secret_key: heartbeat3477
+
+# A monitoring server, if any. This will cause heartbeat and histamine
+# to talk directly to the specified monitoring server, rather than
+# using broadcast packets. If you are using heartbeat between networks
+# or subnets, you will need to configure the monitor server. No configuration
+# of the server is required, it will receive both broadcast and direct
+#monitor_server: heartbeat.example.com
+
 # The port to use for sending and receiving packets. Same deal as above
 port: 21999
 # Directory to store cache files in for data that should persist between

@@ -127,7 +127,7 @@ class Configuration():
         elif (attr == "config"):
             return self.config_data
         else:
-            raise AttributeError("Configuration does not contain " + attr)
+            return None
 
     def load_notifiers(self):
 

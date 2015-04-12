@@ -43,7 +43,11 @@ def main(main_threads=None):
     if (settings.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
         server = Heartbeat(
-            settings.port, 2, settings.secret_key)
+            settings.port,
+            2,
+            settings.secret_key,
+            settings.monitor_server
+            )
         server.daemon = True
         server.start()
         main_threads['heartbeat'] = server

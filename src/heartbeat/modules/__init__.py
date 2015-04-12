@@ -24,7 +24,7 @@ class Heartbeat(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, port, interval, secret):
+    def __init__(self, port, interval, secret, dest=None):
         """
         constructor
 
@@ -36,7 +36,10 @@ class Heartbeat(threading.Thread):
         self.port = port
         self.interval = interval
         self.secret = bytes(secret.encode("UTF-8"))
-        self.bcaster = SocketBroadcaster(self.port)
+        if (dest == None):
+            self.bcaster = SocketBroadcaster(self.port)
+        else:
+            self.bcaster = SocketBroadcaster(self.port, dest)
         self.shutdown = False
         self._logger = logging.getLogger(
                 __name__ + "." + self.__class__.__name__
