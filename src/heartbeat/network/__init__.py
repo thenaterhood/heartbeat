@@ -120,6 +120,10 @@ class SocketBroadcaster():
             int port: The port to broadcast on
         """
         self._port = port
+
+        if (dest is None):
+            dest = '<broadcast>'
+
         self._dest = dest
 
     def push(self, data):
