@@ -27,6 +27,6 @@ class Histamine(Notifier):
 
     def run(self):
         settings = Configuration()
-        broadcaster = SocketBroadcaster(PORT, settings.config['monitor_server'])
-        data = settings.config['secret_key'] + self.event.to_json()
+        broadcaster = SocketBroadcaster(PORT, settings.monitor_server)
+        data = settings.secret_key + self.event.to_json()
         broadcaster.push(bytes(data.encode("UTF-8")))

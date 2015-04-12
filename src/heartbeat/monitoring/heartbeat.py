@@ -27,7 +27,7 @@ class HistamineNode(Monitor):
             Notificationhandler notifyHandler: notification handler
         """
         settings = Configuration()
-        secret = settings.config['secret_key']
+        secret = settings.secret_key
 
         self.callback = callback
         self.secret = bytes(secret.encode("UTF-8"))
@@ -102,14 +102,14 @@ class HeartMonitor(Monitor):
                 notifications of events
         """
         settings = Configuration()
-        secret = settings.config['secret_key']
+        secret = settings.secret_key
 
-        self.port = settings.config['port']
+        self.port = settings.port
         self.known_hosts = []
         self.secret = bytes(secret.encode("UTF-8"))
         self.callback = callback
         self.listener = SocketListener(self.port, self.receive)
-        self.cachefile = settings.config['cache_dir'] + "/heartbeats"
+        self.cachefile = settings.cache_dir + "/heartbeats"
         self.shutdown = False
 
         super(HeartMonitor, self).__init__(callback)
