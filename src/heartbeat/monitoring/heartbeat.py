@@ -5,7 +5,7 @@ import operator
 from time import sleep
 from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.monitoring import Monitor
-from heartbeat.platform import Configuration, Event
+from heartbeat.platform import get_config_manager, Event
 from heartbeat.multiprocessing import LockingDictionary
 
 class HistamineNode(Monitor):
@@ -26,8 +26,8 @@ class HistamineNode(Monitor):
                match that of the heartbeats this is intended to watch
             Notificationhandler notifyHandler: notification handler
         """
-        settings = Configuration()
-        secret = settings.secret_key
+        settings = get_config_manager()
+        secret = settings.heartbeat.secret_key
 
         self.callback = callback
         self.secret = bytes(secret.encode("UTF-8"))
@@ -101,15 +101,15 @@ class HeartMonitor(Monitor):
             NotificationHandler notifyHandler: an array of notifier classes to call to send
                 notifications of events
         """
-        settings = Configuration()
-        secret = settings.secret_key
+        settings = get_config_manager()
+        secret = settings.heartbeat.secret_key
 
-        self.port = settings.port
+        self.port = settings.heartbeat.port
         self.known_hosts = []
         self.secret = bytes(secret.encode("UTF-8"))
         self.callback = callback
         self.listener = SocketListener(self.port, self.receive)
-        self.cachefile = settings.cache_dir + "/heartbeats"
+        self.cachefile = settings.heartbeat.cache_dir + "/heartbeats"
         self.shutdown = False
 
         super(HeartMonitor, self).__init__(callback)

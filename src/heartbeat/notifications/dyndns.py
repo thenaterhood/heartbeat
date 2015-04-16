@@ -1,5 +1,5 @@
 from heartbeat.notifications import Notifier
-from heartbeat.platform import Configuration
+from heartbeat.platform import get_config_manager
 import urllib.parse
 import urllib.request
 
@@ -11,8 +11,8 @@ class UrlPull(Notifier):
     def __init__(self):
         self.current_ip = None
         self.new_ip = None
-        config = Configuration()
-        self.url = config.config['heartbeat.notifiers.dyndns']['urlpull']
+        config = get_config_manager()
+        self.url = config.notifying.dyndns.urlpull
         super(UrlPull, self).__init__()
 
     def load(self, event):

@@ -1,7 +1,7 @@
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import MonitorHandler
 from heartbeat.modules import NotificationHandler
-from heartbeat.platform import Configuration
+from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
 import sys, os
 import threading
 import time
@@ -35,26 +35,28 @@ def main(main_threads=None):
         main_threads = dict()
 
     logger.debug("Loading configuration")
-    settings = Configuration(load_modules=True)
+    settings = get_config_manager()
 
     logger.info("Bringing up notification/event handling")
-    notificationHandler = NotificationHandler(settings.notifiers)
+    notifiers = load_notifiers(settings.heartbeat.notifiers)
+    notificationHandler = NotificationHandler(notifiers)
 
-    if (settings.enable_heartbeat):
+    if (settings.heartbeat.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
         server = Heartbeat(
-            settings.port,
+            settings.heartbeat.port,
             2,
-            settings.secret_key,
-            settings.monitor_server
+            settings.heartbeat.secret_key,
+            settings.heartbeat.monitor_server
             )
         server.daemon = True
         server.start()
         main_threads['heartbeat'] = server
 
-    if (settings.enable_hwmonitor):
+    if (settings.heartbeat.enable_hwmonitor):
         logger.info("Bringing up monitoring subsystem")
-        hwmon = MonitorHandler(settings.hwmonitors, notificationHandler)
+        monitors = load_monitors(settings.heartbeat.monitors)
+        hwmon = MonitorHandler(monitors, notificationHandler)
         hwmon.daemon = True
         hwmon.start()
         main_threads['hwmon'] = hwmon

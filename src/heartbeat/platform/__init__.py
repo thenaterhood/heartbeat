@@ -5,7 +5,7 @@ import importlib
 import yaml
 from enum import Enum
 import logging
-
+from pymlconf import ConfigManager
 
 class EventType(Enum):
 
@@ -102,54 +102,38 @@ class Autoloader():
         if (path not in self.paths):
             self.paths.append(path)
 
-class Configuration():
+def get_config_manager(config_dir='/etc/heartbeat'):
+    _default_config = {
+            'heartbeat': {
+                'monitor_server': None
+                }
+            }
 
-    def __init__(self, configFile='/etc/heartbeat.yml', load_modules=False):
-        self._logger = logging.getLogger(
-                __name__ + "." + self.__class__.__name__)
+    cfg = ConfigManager(_default_config, [config_dir])
 
-        self._logger.debug("Loading configuration file " + configFile)
-        stream = open(configFile, 'r')
-        self.config_data = yaml.load(stream)
-        stream.close()
+    return cfg
 
-        self.notifiers = []
-        self.hwmonitors = []
+def load_notifiers(notifiers):
 
-        if (load_modules):
-            self._logger.debug("Loading configured modules")
-            self.load_notifiers()
-            self.load_hwmonitors()
+    if (notifiers is None):
+        return []
 
-    def __getattr__(self, attr):
-        if (attr in self.config_data):
-            return self.config_data[attr]
-        elif (attr == "config"):
-            return self.config_data
-        else:
-            return None
+    loader = Autoloader()
+    for n in notifiers:
+        modulepath = "heartbeat.notifications." + ".".join(n.split("."))
+        loader.loadPath(modulepath)
 
-    def load_notifiers(self):
+    notifiers = loader.modules
+    return notifiers
 
-        if (self.config['notifiers'] is None):
-            return []
+def load_monitors(monitors):
+    if (monitors is None):
+        return []
 
-        loader = Autoloader()
-        for n in self.config['notifiers']:
-            modulepath = "heartbeat.notifications." + ".".join(n.split("."))
-            loader.loadPath(modulepath)
+    loader = Autoloader()
+    for m in monitors:
+        modulepath = "heartbeat.monitoring." + ".".join(m.split("."))
+        loader.loadPath(modulepath)
 
-        self.notifiers = loader.modules
-        return self.notifiers
-
-    def load_hwmonitors(self):
-        if (self.config['monitors'] is None):
-            return []
-
-        loader = Autoloader()
-        for m in self.config['monitors']:
-            modulepath = "heartbeat.monitoring." + ".".join(m.split("."))
-            loader.loadPath(modulepath)
-
-        self.hwmonitors = loader.modules
-        return self.hwmonitors
+    hwmonitors = loader.modules
+    return hwmonitors

@@ -3,7 +3,7 @@
 from distutils.core import setup
 import sys
 
-install_requires = []
+install_requires = ['pymlconf']
 suggested = {
     'Pushbullet': ["pushbullet.py >= 0.5"],
     'Blinkstick': ["blinkstick >= 1.1.6"]
@@ -13,7 +13,7 @@ if (sys.version_info < (3, 4)):
     install_requires.append('enum34 >= 1.0')
 
 setup(name='Heartbeat',
-    version='2.3.1',
+    version='3.0.0',
     description='Heartbeat monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
@@ -30,7 +30,9 @@ setup(name='Heartbeat',
         'heartbeat.multiprocessing'
         ],
     data_files=[
-        ('etc', ['dist/_etc/heartbeat.yml']),
+        ('etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
+        ('etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
+        ('etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf'])
         ]
     )
 

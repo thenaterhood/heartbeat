@@ -1,15 +1,15 @@
 from heartbeat.monitoring import Monitor
 from heartbeat.platform import Event, EventType
 from heartbeat.network import NetworkInfo
-from heartbeat.platform import Configuration
+from heartbeat.platform import get_config_manager
 import subprocess
 
 
 class SMARTMonitor(Monitor):
 
     def __init__(self, callback):
-        settings = Configuration()
-        self.check_drives = settings.config['heartbeat.hwmonitors.smartctl']['drives']
+        settings = get_config_manager()
+        self.check_drives = settings.monitoring.smartctl.drives
         self.threw_warning = False
         super(SMARTMonitor, self).__init__(callback)
 

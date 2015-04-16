@@ -1,6 +1,6 @@
 from blinkstick import blinkstick
 from heartbeat.notifications import Notifier
-from heartbeat.platform import Configuration, EventType
+from heartbeat.platform import get_config_manager, EventType
 from datetime import datetime
 
 
@@ -10,12 +10,12 @@ class BlinkStickColor(Notifier):
 
     def __init__(self):
         print("Initting blinkstick module")
-        config = Configuration()
+        config = get_config_manager()
         self.previous_warnings = {}
-        self.serial = config.config['heartbeat.notifiers.blinkstick']['serial']
-        self.warning = config.config['heartbeat.notifiers.blinkstick']['warning_color']
-        self.okay = config.config['heartbeat.notifiers.blinkstick']['okay_color']
-        self.alert = config.config['heartbeat.notifiers.blinkstick']['alert_color']
+        self.serial = config.notifying.blinkstick.serial
+        self.warning = config.notifying.blinkstick.warning_color
+        self.okay = config.notifying.blinkstick.okay_color
+        self.alert = config.notifying.blinkstick.alert_color
         self.use_color = self.okay
 
         super(BlinkStickColor, self).__init__()

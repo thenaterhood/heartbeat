@@ -5,7 +5,7 @@
 
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=2.3.1
+pkgver=3.0.0
 pkgrel=1
 epoch=
 pkgdesc=""
@@ -20,7 +20,11 @@ optdepends=()
 provides=()
 conflicts=()
 replaces=()
-backup=("etc/heartbeat.yml")
+backup=(
+        "etc/heartbeat/heartbeat.conf",
+        "etc/heartbeat/notifying.conf",
+        "etc/heartbeat/monitoring.conf"
+)
 options=()
 install=
 changelog=

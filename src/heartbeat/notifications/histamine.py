@@ -1,6 +1,6 @@
 from heartbeat.notifications import Notifier
 from datetime import datetime
-from heartbeat.platform import Configuration
+from heartbeat.platform import get_config_manager
 from heartbeat.network import SocketBroadcaster
 
 PORT = 22000
@@ -26,7 +26,7 @@ class Histamine(Notifier):
             event.timestamp.strftime("%H:%M:%S %m/%d/%y")
 
     def run(self):
-        settings = Configuration()
-        broadcaster = SocketBroadcaster(PORT, settings.monitor_server)
-        data = settings.secret_key + self.event.to_json()
+        settings = get_config_manager()
+        broadcaster = SocketBroadcaster(PORT, settings.heartbeat.monitor_server)
+        data = settings.heartbeat.secret_key + self.event.to_json()
         broadcaster.push(bytes(data.encode("UTF-8")))
