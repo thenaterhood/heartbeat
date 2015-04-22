@@ -150,7 +150,6 @@ def get_config_manager(config_dir='/etc/heartbeat', config_file='/etc/heartbeat.
                 _default_config
                 )
 
-        print(config_dict)
         cfg = ConfigManager(config_dict, [], [])
 
     else:
