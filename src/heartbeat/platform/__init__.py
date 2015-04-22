@@ -2,6 +2,7 @@ import datetime
 import json
 import inspect
 import importlib
+import os
 import yaml
 from enum import Enum
 import logging
@@ -102,14 +103,58 @@ class Autoloader():
         if (path not in self.paths):
             self.paths.append(path)
 
-def get_config_manager(config_dir='/etc/heartbeat'):
+def _translate_legacy_config(config_file, config_skeleton):
+
+    stream = open(config_file, 'r')
+    y = yaml.load(stream)
+
+    for key in y.keys():
+        if (not '.' in key):
+            config_skeleton['heartbeat'][key] = y[key]
+
+        else:
+            path = key.split('.')
+            if path[0] == 'heartbeat':
+                path = path[1:]
+            if path[0] == 'hwmonitors':
+                path[0] = 'monitors'
+
+            config_location = config_skeleton
+
+            for element in path:
+                if (element == "notifiers"):
+                    element = "notifying"
+                config_location[element] = {}
+                config_location = config_location[element]
+            for setting in y[key].keys():
+                config_location[setting] = y[key][setting]
+
+    return config_skeleton
+
+
+def get_config_manager(config_dir='/etc/heartbeat', config_file='/etc/heartbeat.yml'):
+
     _default_config = {
             'heartbeat': {
                 'monitor_server': None
+                },
+            'notifiers': {
+                },
+            'monitors': {
                 }
             }
 
-    cfg = ConfigManager(_default_config, [config_dir])
+    if (not os.path.exists(config_dir)):
+        config_dict = _translate_legacy_config(
+                config_file,
+                _default_config
+                )
+
+        print(config_dict)
+        cfg = ConfigManager(config_dict, [], [])
+
+    else:
+        cfg = ConfigManager(_default_config, [config_dir])
 
     return cfg
 
