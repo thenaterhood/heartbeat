@@ -1,9 +1,9 @@
 language: python
 python:
-        - 3.4
-        - 3.3
-        - 3.2
+        - "3.4"
+        - "3.3"
+        - "3.2"
 install:
-        - "pip install nose"
-        - "pip install ."
-script: "nosetests"
+        - pip install nose
+        - pip install .
+script: nosetests
