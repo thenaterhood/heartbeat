@@ -10,7 +10,7 @@ suggested = {
         }
 
 if (sys.version_info < (3, 4)):
-    install_requires.append('enum34 >= 1.0')
+    install_requires.append('enum34')
 
 setup(name='Heartbeat',
     version='3.0.0',
