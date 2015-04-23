@@ -1,6 +1,6 @@
 import unittest
 import sys
-if (sys.version_info < (3.3)):
+if (sys.version_info < (3, 3)):
     from mock import MagicMock
     from mock import Mock
 else:
