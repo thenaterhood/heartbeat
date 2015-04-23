@@ -127,7 +127,10 @@ def _translate_legacy_config(config_file, config_skeleton):
 
                 if (element == "monitors"):
                     element = "monitoring"
-                config_location[element] = {}
+
+                if (not element in config_location):
+                    config_location[element] = {}
+
                 config_location = config_location[element]
             for setting in y[key].keys():
                 config_location[setting] = y[key][setting]
