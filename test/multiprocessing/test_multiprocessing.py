@@ -21,7 +21,7 @@ class WorkerTest(unittest.TestCase):
     def worker_exception_callback(self, e):
         self.exception_counter = 1
         self.worker.shutdown = True
-        self.queue.put((self.worker.callback, [], {}))
+        self.queue.put((self.worker_callback, [], {}))
 
     def worker_callback_raise_exception(self):
         raise Exception("Testing")
