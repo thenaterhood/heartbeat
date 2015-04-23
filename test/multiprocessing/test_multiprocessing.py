@@ -7,9 +7,15 @@ class WorkerTest(unittest.TestCase):
 
     def setUp(self):
         self.counter = 0
+        self.exception_counter = 0
         self.tasks = 3
         self.queue = Queue(3)
         self.worker = Worker(self.queue)
+
+    def worker_exception_callback(self):
+        self.exception_counter += 1
+        self.worker.shutdown = True
+        self.queue.put((self.worker.callback, [], {}))
 
     def worker_callback(self):
         if (self.counter == self.tasks):
@@ -51,5 +57,10 @@ class WorkerTest(unittest.TestCase):
 
         self.assertEqual(self.counter, 3)
 
+    def test_exception_callback(self):
+        self.tasks = 1
+        self.queue.put((self.worker_exception_callback, [], {}))
+        self.worker.start()
 
+        self.assertEqual(self.exception_counter, 1)
 
