@@ -1,5 +1,11 @@
 import unittest
-
+import sys
+if (sys.version_info < (3, 3)):
+    from mock import MagicMock
+    from mock import Mock
+else:
+    from unittest.mock import MagicMock
+    from unittest.mock import Mock
 from heartbeat.multiprocessing import Worker
 from queue import Queue
 
@@ -67,5 +73,4 @@ class WorkerTest(unittest.TestCase):
         self.worker.start()
 
         self.assertEqual(self.exception_counter, 1)
-
 
