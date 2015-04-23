@@ -1,7 +1,11 @@
 import unittest
-from unittest.mock import MagicMock
-from unittest.mock import patch
-from unittest.mock import Mock
+import sys
+if (sys.version_info < (3.3)):
+    from mock import MagicMock
+    from mock import Mock
+else:
+    from unittest.mock import MagicMock
+    from unittest.mock import Mock
 import socket
 import urllib
 from heartbeat.network import NetworkInfo

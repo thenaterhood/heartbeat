@@ -6,4 +6,6 @@ python:
 install:
         - pip install nose
         - pip install `python3 setup.py --requires`
+        # python 3.2 apparently doesn't have mock
+        - pip install mock
 script: nosetests
