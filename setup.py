@@ -3,7 +3,7 @@
 from distutils.core import setup
 import sys
 
-install_requires = ['pymlconf']
+install_requires = ['pymlconf', 'pyyaml']
 suggested = {
     'Pushbullet': ["pushbullet.py >= 0.5"],
     'Blinkstick': ["blinkstick >= 1.1.6"]
