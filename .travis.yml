@@ -5,5 +5,5 @@ python:
         - "3.2"
 install:
         - pip install nose
-        - pip install .
+        - pip install `python3 setup.py --requires`
 script: nosetests

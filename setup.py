@@ -36,8 +36,3 @@ setup(name='Heartbeat',
         ]
     )
 
-print()
-print("====================> Suggested Packages <=====================")
-for k in suggested:
-    print("        " + k + ", satisfiable by " + str(suggested[k]))
-print()
