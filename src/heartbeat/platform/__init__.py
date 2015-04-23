@@ -124,6 +124,9 @@ def _translate_legacy_config(config_file, config_skeleton):
             for element in path:
                 if (element == "notifiers"):
                     element = "notifying"
+
+                if (element == "monitors"):
+                    element = "monitoring"
                 config_location[element] = {}
                 config_location = config_location[element]
             for setting in y[key].keys():
