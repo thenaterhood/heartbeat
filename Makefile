@@ -25,6 +25,7 @@ install:
 ifeq ($(PRESERVE_CFG),yes)
 	@echo "==> Avoiding overwriting existing heartbeat config"
 	if [ -e "/etc/heartbeat" ]; then mv "$(BUILD_PATH)/etc/heartbeat" "$(BUILD_PATH)/etc/heartbeat.new"; fi
+	if [ -e "/etc/heartbeat.yml" ]; then mv "$(BUILD_PATH)/etc/heartbeat.yml" "$(BUILD_PATH)/etc/heartbeat.yml.new"; fi
 endif
 	cp -r $(BUILD_PATH)/* $(INSTALL_PATH)
 
