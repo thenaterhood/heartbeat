@@ -75,7 +75,7 @@ class SocketListener(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, port, callback, daemon=True, timeout=None):
+    def __init__(self, port, callback, daemon=True, timeout=None, sock=socket):
         """
         Constructor
 
@@ -89,7 +89,7 @@ class SocketListener(threading.Thread):
         self.port = port
         self.callback = callback
 
-        listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        listen = sock(socket.AF_INET, socket.SOCK_DGRAM)
         if (timeout is not None):
             listen.settimeout(timeout)
 
@@ -137,7 +137,7 @@ class SocketBroadcaster():
 
         self._dest = dest
 
-    def push(self, data):
+    def push(self, data, sock=socket.socket):
         """
         Sends a broadcast
 
@@ -147,18 +147,19 @@ class SocketBroadcaster():
             boolean: true on success, false on failure
         """
         success = False
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        pusher = sock(socket.AF_INET, socket.SOCK_DGRAM)
 
         if (self._dest == '<broadcast>'):
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            pusher.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         try:
-            sock.sendto(data, (self._dest, self._port))
+            pusher.sendto(data, (self._dest, self._port))
             success = True
-            sock.shutdown(1)
+            pusher.shutdown(1)
         except:
             pass
-        sock.close()
+
+        pusher.close()
         return success
 
 if __name__ == '__main__':
