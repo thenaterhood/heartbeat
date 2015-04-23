@@ -11,34 +11,45 @@ class NetworkInfo():
     Contains network data
     """
 
-    def __init__(self):
+    def __init__(self, caching=True):
         """
         Constructor
         """
-        self.ip_lan = self.get_local_ip()
-        self.ip_wan = self.get_public_ip()
-        self.hostname = socket.gethostname()
-        self.fqdn = socket.getfqdn()
+        if (caching):
+            self.ip_lan = self.get_local_ip()
+            self.ip_wan = self.get_public_ip()
+            self.hostname = self.get_hostname()
+            self.fqdn = self.get_fqdn()
+        else:
+            self.ip_lan = None
+            self.ip_wan = None
+            self.hostname = None
+            self.fqdn = None
 
-    def get_local_ip(self):
+    def get_hostname(self, strategy=socket.gethostname):
+        return strategy()
+
+    def get_fqdn(self, strategy=socket.getfqdn):
+        return strategy()
+
+    def get_local_ip(self, sock=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)):
         """
         Grabs the local IP of the system
 
         Returns:
             string ip: the ip address
         """
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.settimeout(5)
+        sock.settimeout(5)
         try:
-            s.connect(("google.com", 80))
-            ip = s.getsockname()[0]
-            s.close()
+            sock.connect(("google.com", 80))
+            ip = sock.getsockname()[0]
+            sock.close()
         except:
             ip = "0.0.0.0"
 
         return ip
 
-    def get_public_ip(self):
+    def get_public_ip(self, url_lib=urllib):
         """
         Grabs the public IP of the network
 
@@ -46,7 +57,7 @@ class NetworkInfo():
             string ip: the public ip address
         """
         try:
-            filehandle = urllib.request.urlopen(
+            filehandle = url_lib.request.urlopen(
                 'http://icanhazip.com', timeout=5)
             ip = filehandle.readlines()[0].decode('UTF-8').strip()
         except:
@@ -156,3 +167,4 @@ if __name__ == '__main__':
     print("Local IP address (if determinable): " + netinfo.ip_lan)
     print("Local fqdn: " + netinfo.fqdn)
     print("Local hostname: " + netinfo.hostname)
+    print("WAN IP address (if determinable): " + netinfo.ip_wan)
