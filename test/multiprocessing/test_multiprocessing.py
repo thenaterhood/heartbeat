@@ -6,7 +6,6 @@ if (sys.version_info < (3, 3)):
 else:
     from unittest.mock import MagicMock
     from unittest.mock import Mock
-from heartbeat.multiprocessing import Worker
 from heartbeat.multiprocessing import LockingDictionary
 from queue import Queue
 
