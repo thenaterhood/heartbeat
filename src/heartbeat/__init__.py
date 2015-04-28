@@ -65,8 +65,10 @@ def main(main_threads=None):
         hwmon.start()
         main_threads['hwmon'] = hwmon
 
-    while threading.active_count() > 0:
-        time.sleep(0.1)
+    for t in main_threads.values():
+        t.join()
 
     logger.info("Shutting down heartbeat")
 
+if __name__ == "__main__":
+    main()
