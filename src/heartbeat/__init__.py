@@ -1,6 +1,7 @@
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import MonitorHandler
 from heartbeat.modules import NotificationHandler
+from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
 import sys, os
 import threading
@@ -43,11 +44,14 @@ def main(main_threads=None):
 
     if (settings.heartbeat.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
+        broadcaster = SocketBroadcaster(
+                settings.heartbeat.port,
+                settings.heartbeat.monitor_server
+                )
         server = Heartbeat(
-            settings.heartbeat.port,
             2,
             settings.heartbeat.secret_key,
-            settings.heartbeat.monitor_server
+            broadcaster
             )
         server.daemon = True
         server.start()
