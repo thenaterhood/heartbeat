@@ -9,10 +9,9 @@ from heartbeat.network import NetworkInfo
 from heartbeat.network import SocketListener
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import Event
-from heartbeat.multiprocessing import Threadpool
 from heartbeat.multiprocessing import LockingDictionary
 import logging
-
+import concurrent.futures
 
 class Heartbeat(threading.Thread):
 
@@ -106,7 +105,8 @@ class MonitorHandler(threading.Thread):
         self.notifier = notifyHandler
         self.shutdown = False
         self.logger.debug("Bringing up threadpool")
-        self.threadpool = Threadpool(5 + realtimeMonitors, "MonitorPool")
+        workers = realtimeMonitors + 5
+        self.threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
         super(MonitorHandler, self).__init__()
 
     def run(self):
@@ -115,7 +115,7 @@ class MonitorHandler(threading.Thread):
         """
         self.logger.debug("Starting realtime monitors")
         for m in self.rtMonitors:
-            self.threadpool.add(m.run)
+            self.threadpool.submit(m.run)
 
         while not self.shutdown:
             self.logger.debug("Starting periodic query to monitors")
@@ -130,7 +130,7 @@ class MonitorHandler(threading.Thread):
         """
         for m in self.hwmonitors:
             self.logger.debug("Querying " + m.__class__.__name__)
-            self.threadpool.add(m.run)
+            self.threadpool.submit(m.run)
 
     def terminate(self):
         """
@@ -144,41 +144,6 @@ class MonitorHandler(threading.Thread):
         wrapper for the notifier.push
         """
         self.notifier.receive_event(event)
-
-class _NotificationHandlerWorker(threading.Thread):
-
-    """
-    A worker for the notification handler so notifications
-    can be processed asynchronously
-    """
-
-    def __init__(self, queue, notifiers, parent):
-        super(_NotificationHandlerWorker, self).__init__()
-        self.queue = queue
-        self.notifiers = notifiers
-        self.parent = parent
-        self.threadpool = Threadpool(5, "NotificationWorkerThreadpool")
-        self.daemon = True
-        self._logger = logging.getLogger(
-                __name__ + "." + self.__class__.__name__
-                )
-        self._logger.debug("Worker primed")
-
-    def run(self):
-        self._logger.debug("Starting work")
-        self.parent.processing = True
-        while not self.queue.empty():
-            event = self.queue.get()
-            self._logger.debug("Working on dispatching event " + str(event.__hash__()))
-            for n in self.notifiers:
-                self._logger.debug("Dispatching event " + str(event.__hash__()) + " to " + n.__class__.__name__)
-                n.load(event)
-                self.threadpool.add(n.run)
-
-            self.queue.task_done()
-
-        self._logger.debug("Worker terminating")
-        self.parent.processing = False
 
 class NotificationHandler():
 
@@ -218,6 +183,8 @@ class NotificationHandler():
             self.limit_strategy = self.event_different_from_previous
         else:
             self.limit_strategy = limit_strategy
+
+        self.threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 
     def receive_event(self, event):
         """
@@ -278,12 +245,11 @@ class NotificationHandler():
             string host:      the hostname the notification applies to
             dict   event:     the event (contains a message and title)
         """
-        self.log_event(event)
-        self.queue.put(event)
+        for n in self.notifiers:
+            n.load(event)
+            self.threadpool.submit(n.run)
 
-        if not self.processing:
-            processor = _NotificationHandlerWorker(self.queue, self.notifiers, self)
-            processor.start()
+        self.log_event(event)
 
 
 if __name__ == "__main__":
