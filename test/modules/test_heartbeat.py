@@ -9,6 +9,11 @@ else:
 
 from heartbeat.modules import Heartbeat
 from heartbeat.network import SocketBroadcaster
+from heartbeat.modules import NotificationHandler
+from heartbeat.modules import MonitorHandler
+from heartbeat.monitoring import Monitor
+
+import concurrent.futures
 
 class TestHeartbeat(unittest.TestCase):
 
@@ -32,6 +37,5 @@ class TestHeartbeat(unittest.TestCase):
         self.hb._beat()
 
         self.hb.bcaster.push.assert_called_once()
-
 
 

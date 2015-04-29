@@ -76,7 +76,7 @@ class MonitorHandler(threading.Thread):
     an interval
     """
 
-    def __init__(self, hwmonitors, notifyHandler, logger=None):
+    def __init__(self, hwmonitors, notifyHandler, threadpool, logger=None):
         """
         Constructor
 
@@ -105,8 +105,7 @@ class MonitorHandler(threading.Thread):
         self.notifier = notifyHandler
         self.shutdown = False
         self.logger.debug("Bringing up threadpool")
-        workers = realtimeMonitors + 5
-        self.threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=workers)
+        self.threadpool = threadpool
         super(MonitorHandler, self).__init__()
 
     def run(self):
@@ -152,7 +151,7 @@ class NotificationHandler():
     all be kicked off in succession
     """
 
-    def __init__(self, notifiers, limit_strategy=None, logger=None):
+    def __init__(self, notifiers, threadpool, limit_strategy=None, logger=None):
         """
         Constructor
 
@@ -184,7 +183,8 @@ class NotificationHandler():
         else:
             self.limit_strategy = limit_strategy
 
-        self.threadpool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
+        self.threadpool = threadpool
+
 
     def receive_event(self, event):
         """
