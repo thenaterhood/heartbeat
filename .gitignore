@@ -3,3 +3,10 @@ bin
 docs
 build
 build-heartbeat
+cover
+*.log
+*.egg*
+installed_files
+.settings
+pkg
+heartbeat-master
