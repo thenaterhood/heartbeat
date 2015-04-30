@@ -44,7 +44,7 @@ def main(threads=None):
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
     notifiers = load_notifiers(settings.heartbeat.notifiers)
-    notificationHandler = NotificationHandler(notifiers, notifyPool)
+    notificationHandler = NotificationHandler(notifiers, notifyPool, logger=logger)
 
     if (settings.heartbeat.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
@@ -55,7 +55,8 @@ def main(threads=None):
         server = Heartbeat(
             2,
             settings.heartbeat.secret_key,
-            broadcaster
+            broadcaster,
+            logger
             )
         server.daemon = True
         server.start()
@@ -67,7 +68,7 @@ def main(threads=None):
         monitorPool = concurrent.futures.ThreadPoolExecutor(
                 max_workers=len(settings.heartbeat.monitors)
                     )
-        hwmon = MonitorHandler(monitors, notificationHandler, monitorPool)
+        hwmon = MonitorHandler(monitors, notificationHandler, monitorPool, logger)
         hwmon.daemon = True
         hwmon.start()
         threads.append(hwmon)

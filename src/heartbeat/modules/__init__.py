@@ -23,7 +23,7 @@ class Heartbeat(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, interval, secret, bcaster):
+    def __init__(self, interval, secret, bcaster, logger=None):
         """
         constructor
 
@@ -37,9 +37,13 @@ class Heartbeat(threading.Thread):
         self.bcaster = bcaster
 
         self.shutdown = False
-        self._logger = logging.getLogger(
+
+        if (logger == None):
+            self._logger = logging.getLogger(
                 __name__ + "." + self.__class__.__name__
                 )
+        else:
+            self._logger = logger
 
         super().__init__()
 
