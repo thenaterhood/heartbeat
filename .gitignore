@@ -10,3 +10,4 @@ installed_files
 .settings
 pkg
 heartbeat-master
+.coverage
