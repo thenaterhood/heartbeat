@@ -29,3 +29,5 @@ ifeq ($(PRESERVE_CFG),yes)
 endif
 	cp -r $(BUILD_PATH)/* $(INSTALL_PATH)
 
+unittest:
+	nosetests -v test --with-coverage --cover-html --cover-package=heartbeat
