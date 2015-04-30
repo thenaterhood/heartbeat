@@ -65,7 +65,7 @@ def main(threads=None):
         logger.info("Bringing up monitoring subsystem")
         monitors = load_monitors(settings.heartbeat.monitors)
         monitorPool = concurrent.futures.ThreadPoolExecutor(
-                max_workers=len(settings.heartbeat.monitors
+                max_workers=len(settings.heartbeat.monitors)
                     )
         hwmon = MonitorHandler(monitors, notificationHandler, monitorPool)
         hwmon.daemon = True
