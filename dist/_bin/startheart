@@ -12,7 +12,7 @@ import logging, logging.handlers
 import concurrent.futures
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("heartbeat")
 logger.setLevel(logging.DEBUG)
 try:
     filehandler = logging.handlers.TimedRotatingFileHandler(
@@ -44,7 +44,10 @@ def main(threads=None):
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
     notifiers = load_notifiers(settings.heartbeat.notifiers)
-    notificationHandler = NotificationHandler(notifiers, notifyPool, logger=logger)
+    notificationHandler = NotificationHandler(
+            notifiers,
+            notifyPool,
+            )
 
     if (settings.heartbeat.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
@@ -68,7 +71,12 @@ def main(threads=None):
         monitorPool = concurrent.futures.ThreadPoolExecutor(
                 max_workers=len(settings.heartbeat.monitors)
                     )
-        hwmon = MonitorHandler(monitors, notificationHandler, monitorPool, logger)
+        hwmon = MonitorHandler(
+                monitors,
+                notificationHandler,
+                monitorPool,
+                logger
+                )
         hwmon.daemon = True
         hwmon.start()
         threads.append(hwmon)
