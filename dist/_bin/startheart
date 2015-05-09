@@ -61,7 +61,6 @@ def main(threads=None):
             broadcaster,
             logger
             )
-        server.daemon = True
         server.start()
         threads.append(server)
 
