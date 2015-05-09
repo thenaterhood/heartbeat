@@ -5,7 +5,7 @@
 
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=3.0.0
+pkgver=2.4.0
 pkgrel=1
 epoch=
 pkgdesc=""
@@ -13,7 +13,7 @@ arch=('any')
 url=""
 license=('BSD')
 groups=()
-depends=()
+depends=("python3")
 makedepends=("unzip")
 checkdepends=()
 optdepends=()
@@ -21,6 +21,7 @@ provides=()
 conflicts=()
 replaces=()
 backup=(
+        "etc/heartbeat.yml"
         "etc/heartbeat/heartbeat.conf",
         "etc/heartbeat/notifying.conf",
         "etc/heartbeat/monitoring.conf"
