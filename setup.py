@@ -9,7 +9,8 @@ install_requires = [
     ]
 
 test_requires = [
-    'nose'
+    'nose',
+    'mock'
     ]
 
 suggested = {
