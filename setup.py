@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 import sys
 
 install_requires = ['pymlconf', 'pyyaml']
@@ -14,11 +14,11 @@ if (sys.version_info < (3, 4)):
 
 setup(name='Heartbeat',
     version='2.4.1',
-    description='Heartbeat monitoring tool',
+    description='Minimalist network monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
     url='https://github.com/thenaterhood/heartbeat/archive/master.zip',
-    requires=install_requires,
+    install_requires=install_requires,
     package_dir={'':'src'},
     packages=[
         'heartbeat',
@@ -32,7 +32,9 @@ setup(name='Heartbeat',
     data_files=[
         ('etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
         ('etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
-        ('etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf'])
+        ('etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
+        ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
+        ('usr/bin', ['dist/_bin/startheart'])
         ]
     )
 
