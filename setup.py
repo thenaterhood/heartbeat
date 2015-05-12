@@ -3,7 +3,15 @@
 from setuptools import setup
 import sys
 
-install_requires = ['pymlconf', 'pyyaml']
+install_requires = [
+    'pymlconf',
+    'pyyaml'
+    ]
+
+test_requires = [
+    'nose'
+    ]
+
 suggested = {
     'Pushbullet': ["pushbullet.py >= 0.5"],
     'Blinkstick': ["blinkstick >= 1.1.6"]
@@ -19,6 +27,8 @@ setup(name='Heartbeat',
     author_email='public@thenaterhood.com',
     url='https://github.com/thenaterhood/heartbeat/archive/master.zip',
     install_requires=install_requires,
+    tests_require=test_requires,
+    test_suite='nose.collector',
     package_dir={'':'src'},
     packages=[
         'heartbeat',
