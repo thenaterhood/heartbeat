@@ -30,11 +30,11 @@ setup(name='Heartbeat',
         'heartbeat.multiprocessing'
         ],
     data_files=[
-        ('etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
-        ('etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
-        ('etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
+        ('../etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
+        ('../etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
+        ('../etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
         ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
-        ('usr/bin', ['dist/_bin/startheart'])
+        ('bin', ['dist/_bin/startheart'])
         ]
     )
 

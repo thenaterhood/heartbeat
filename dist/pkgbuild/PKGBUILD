@@ -37,8 +37,7 @@ build() {
 	#cd "$srcdir/$pkgname-$pkgver"
 	#./configure --prefix=/usr
 	#make
-        cd $srcdir/heartbeat-master
-        python setup.py install --root="$pkgdir/" --optimize=1
+        echo "No build"
 }
 
 check() {
@@ -50,9 +49,7 @@ check() {
 package() {
 	#cd "$srcdir/$pkgname-$pkgver"
 	#make DESTDIR="$pkgdir/" install
+        echo $pkgdir
         cd $srcdir/heartbeat-master
-        make BUILD_DIR="$srcdir/../build" INSTALL_PATH="$pkgdir/" install
-        mkdir -p $pkgdir/usr
-        mv $pkgdir/lib $pkgdir/usr/
-        mv $pkgdir/bin $pkgdir/usr/
+        python setup.py install --root="$pkgdir/" --optimize=1
 }
