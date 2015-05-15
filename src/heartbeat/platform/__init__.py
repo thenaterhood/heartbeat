@@ -105,8 +105,8 @@ class Autoloader():
 
 def _translate_legacy_config(config_file, config_skeleton):
 
-    stream = open(config_file, 'r')
-    y = yaml.load(stream)
+    with open(config_file, 'r') as stream:
+        y = yaml.load(stream)
 
     for key in y.keys():
         if (not '.' in key):
