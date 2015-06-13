@@ -2,8 +2,7 @@ from heartbeat.notifications import Notifier
 from datetime import datetime
 from heartbeat.platform import get_config_manager
 from heartbeat.network import SocketBroadcaster
-
-PORT = 22000
+from heartbeat.security import Encryptor
 
 
 class Histamine(Notifier):
@@ -27,6 +26,12 @@ class Histamine(Notifier):
 
     def run(self):
         settings = get_config_manager()
-        broadcaster = SocketBroadcaster(PORT, settings.heartbeat.monitor_server)
-        data = settings.heartbeat.secret_key + self.event.to_json()
+        broadcaster = SocketBroadcaster(22000, settings.heartbeat.monitor_server)
+        data = settings.heartbeat.secret_key
+        if (settings.use_encryption):
+            encryptor = Encryptor(settings.enc_password)
+            data += encryptor.encrypt(self.event.to_json())
+        else:
+            data += self.event.to_json()
+
         broadcaster.push(bytes(data.encode("UTF-8")))

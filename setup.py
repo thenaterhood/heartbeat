@@ -5,7 +5,8 @@ import sys
 
 install_requires = [
     'pymlconf',
-    'pyyaml'
+    'pyyaml',
+    'pycrypto'
     ]
 
 test_requires = [

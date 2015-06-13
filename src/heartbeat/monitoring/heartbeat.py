@@ -7,6 +7,8 @@ from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.monitoring import Monitor
 from heartbeat.platform import get_config_manager, Event
 from heartbeat.multiprocessing import LockingDictionary
+from heartbeat.security import Encryptor
+
 
 class HistamineNode(Monitor):
 
@@ -26,8 +28,8 @@ class HistamineNode(Monitor):
                match that of the heartbeats this is intended to watch
             Notificationhandler notifyHandler: notification handler
         """
-        settings = get_config_manager()
-        secret = settings.heartbeat.secret_key
+        self.settings = get_config_manager()
+        secret = self.settings.heartbeat.secret_key
 
         self.callback = callback
         self.secret = bytes(secret.encode("UTF-8"))
@@ -61,9 +63,30 @@ class HistamineNode(Monitor):
         if data.startswith(self.secret):
             eventJson = data[len(self.secret):].decode("UTF-8")
             event = Event()
-            event.load_json(eventJson)
-            if (not self._bcastIsOwn(event.host)):
+
+            event_loaded = False
+
+            if (self._bcastIsOwn(event.host)):
+                return
+
+            if (self.settings.accept_plaintext or not self.settings.use_encryption):
+                try:
+                    event.load_json(eventJson)
+                    event_loaded = True
+                except:
+                    pass
+
+            if (not event_loaded and self.settings.use_encryption):
+                try:
+                    encryptor = Encryptor(self.settings.enc_password)
+                    event.load_json(encryptor.decrypt(eventJson))
+                    event_loaded = True
+                except:
+                    pass
+
+            if (event_loaded):
                 self.callback(event)
+
 
     def terminate(self):
         """
