@@ -53,9 +53,27 @@ class EncryptorTest(unittest.TestCase):
         encrypted = self.encryptor.encrypt(plaintext, True, b'heartbeatheartbe')
         self.assertEqual(encrypted, correct_encrypted)
 
+    def test_encrypt_16(self):
+        plaintext = 'test_text_16_now'
+        correct_encrypted = b'aGVhcnRiZWF0aGVhcnRiZct2fh0EhS3LRnxKJkFWsdFG9+RffOSPDIzvndEoNGfZ'
+        encrypted = self.encryptor.encrypt(plaintext, True, b'heartbeatheartbe')
+
+        self.assertEqual(encrypted, correct_encrypted)
+
     def test_decrypt(self):
         correct_plaintext = 'test_text'
         encrypted = b'aGVhcnRiZWF0aGVhcnRiZd5sZecsTA83iQ5TDpvJ65w='
 
+        plaintext = self.encryptor.decrypt(encrypted, True)
+        self.assertEqual(plaintext, correct_plaintext)
+
+    def test_decrypt_16(self):
+        """
+        This method ensures that a string that requires 0 padding
+        will be handled correctly, since that constitutes an
+        edge case
+        """
+        correct_plaintext = 'test_text_16_now'
+        encrypted = b'aGVhcnRiZWF0aGVhcnRiZct2fh0EhS3LRnxKJkFWsdFG9+RffOSPDIzvndEoNGfZ'
         plaintext = self.encryptor.decrypt(encrypted, True)
         self.assertEqual(plaintext, correct_plaintext)
