@@ -6,7 +6,8 @@ from datetime import datetime
 
 class BlinkStickColor(Notifier):
 
-    __slots__ = ('message', 'title', 'serial', 'warning', 'okay', 'alert', 'use_color', 'previous_warnings')
+    __slots__ = ('message', 'title', 'serial', 'warning', 'okay',
+                 'alert', 'use_color', 'previous_warnings')
 
     def __init__(self):
         print("Initting blinkstick module")

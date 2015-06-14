@@ -31,4 +31,3 @@ class Notifier():
 
     def run(self):
         raise NotImplementedError
-

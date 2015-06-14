@@ -3,6 +3,7 @@ from Crypto.Cipher import AES
 import hashlib
 import base64
 
+
 class Encryptor():
 
     def __init__(self, password):
@@ -48,16 +49,16 @@ class Encryptor():
         extra_bytes = len(text) % self.aes_multiple
         padding_size = self.aes_multiple - extra_bytes
 
-        padding = chr((padding_size+33)%122) * padding_size
+        padding = chr((padding_size + 33) % 122) * padding_size
         padded_text = text + padding
 
         return padded_text
 
     def _unpad_text(self, padded_text):
-        last_char = padded_text[len(padded_text)-1]
+        last_char = padded_text[len(padded_text) - 1]
         if (isinstance(last_char, str)):
             last_char = ord(last_char)
-        padding_size = (last_char)-33
+        padding_size = (last_char) - 33
         text = padded_text[:-padding_size]
 
         return text
@@ -70,5 +71,3 @@ class Encryptor():
             key = hashlib.sha256(key).digest()
 
         return key
-
-

@@ -21,6 +21,7 @@ class LANIp(Monitor):
 
             self.callback(event)
 
+
 class WANIp(Monitor):
 
     def __init__(self, callback):

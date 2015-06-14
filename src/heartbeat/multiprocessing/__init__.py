@@ -66,5 +66,3 @@ class LockingDictionary():
         Returns whether a key is in the dictionary
         """
         return (key in self._dictionary)
-
-

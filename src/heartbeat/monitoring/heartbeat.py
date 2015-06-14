@@ -87,7 +87,6 @@ class HistamineNode(Monitor):
             if (event_loaded):
                 self.callback(event)
 
-
     def terminate(self):
         """
         Shuts down the thread cleanly
@@ -104,6 +103,7 @@ class HistamineNode(Monitor):
             sleep(4)
 
         self.terminate()
+
 
 class HeartMonitor(Monitor):
 
@@ -153,7 +153,7 @@ class HeartMonitor(Monitor):
         hosts = self.known_hosts.keys()
         fileHandle = open(self.cachefile, 'w')
         for h in hosts:
-            fileHandle.write(h + "\n" )
+            fileHandle.write(h + "\n")
         fileHandle.close()
 
     def loadCache(self):
@@ -232,5 +232,3 @@ class HeartMonitor(Monitor):
             self._cleanup_hosts()
 
         self.terminate()
-
-

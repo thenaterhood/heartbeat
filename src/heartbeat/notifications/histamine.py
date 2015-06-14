@@ -26,7 +26,8 @@ class Histamine(Notifier):
 
     def run(self):
         settings = get_config_manager()
-        broadcaster = SocketBroadcaster(22000, settings.heartbeat.monitor_server)
+        broadcaster = SocketBroadcaster(
+            22000, settings.heartbeat.monitor_server)
         data = settings.heartbeat.secret_key
         if (settings.use_encryption):
             encryptor = Encryptor(settings.enc_password)

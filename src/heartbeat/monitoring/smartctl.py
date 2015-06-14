@@ -33,10 +33,10 @@ class SMARTMonitor(Monitor):
             net = NetworkInfo()
             self.threw_warning = False
             event = Event("SMART Message",
-                    "A previous alert did not reoccur",
-                    net.fqdn,
-                    EventType.INFO
-                    )
+                          "A previous alert did not reoccur",
+                          net.fqdn,
+                          EventType.INFO
+                          )
             self.callback(event)
 
     def _call_smartctl(self, drive):

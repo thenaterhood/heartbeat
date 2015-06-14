@@ -13,6 +13,7 @@ from heartbeat.multiprocessing import LockingDictionary
 import logging
 import concurrent.futures
 
+
 class Heartbeat(threading.Thread):
 
     """
@@ -41,7 +42,7 @@ class Heartbeat(threading.Thread):
         if (logger == None):
             self._logger = logging.getLogger(
                 __name__ + "." + self.__class__.__name__
-                )
+            )
         else:
             self._logger = logger
 
@@ -93,8 +94,8 @@ class MonitorHandler(threading.Thread):
         self.rtMonitors = []
         if (logger == None):
             self.logger = logging.getLogger(
-                    __name__ + "." + self.__class__.__name__
-                    )
+                __name__ + "." + self.__class__.__name__
+            )
         else:
             self.logger = logger
         realtimeMonitors = 0
@@ -148,6 +149,7 @@ class MonitorHandler(threading.Thread):
         """
         self.notifier.receive_event(event)
 
+
 class NotificationHandler():
 
     """
@@ -167,8 +169,8 @@ class NotificationHandler():
         """
         if (logger == None):
             self.logger = logging.getLogger(
-                    __name__ + "." + self.__class__.__name__
-                    )
+                __name__ + "." + self.__class__.__name__
+            )
         else:
             self.logger = logger
 
@@ -189,7 +191,6 @@ class NotificationHandler():
 
         self.threadpool = threadpool
 
-
     def receive_event(self, event):
         """
         Starts the thread to push notifications
@@ -202,7 +203,8 @@ class NotificationHandler():
             self.logger.debug("Dispatching notification")
             self.run(event)
         else:
-            self.logger.debug("Skipping notification dispatch per limit strategy")
+            self.logger.debug(
+                "Skipping notification dispatch per limit strategy")
 
     def event_different_from_previous(self, event):
         """

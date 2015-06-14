@@ -8,6 +8,7 @@ from enum import Enum
 import logging
 from pymlconf import ConfigManager
 
+
 class EventType(Enum):
 
     """
@@ -17,12 +18,14 @@ class EventType(Enum):
     INFO = "information"
     DEBUG = "debug"
 
+
 class Event:
 
     """
     An event to notify of. Contains a title, message, and timestamp
     """
-    __slots__ = ('title', 'message', 'timestamp', 'host', 'one_time', 'source', 'payload', 'type')
+    __slots__ = ('title', 'message', 'timestamp', 'host',
+                 'one_time', 'source', 'payload', 'type')
 
     def __init__(self, title='', message='', host="localhost", type=None):
         """
@@ -79,14 +82,15 @@ class Event:
     def __str__(self):
         return self.title + ": " + self.host + ": " + self.message
 
+
 class Autoloader():
 
     __slots__ = ("modules", "paths", "_logger")
 
-    def __init__(self, paths = []):
+    def __init__(self, paths=[]):
         self._logger = logging.getLogger(
-                __name__ + "." + self.__class__.__name__
-                )
+            __name__ + "." + self.__class__.__name__
+        )
         self.paths = paths
         self.modules = []
         self._logger.debug("Autoloader primed")
@@ -102,6 +106,7 @@ class Autoloader():
         self.modules.append(getattr(module, path.split(".")[-1]))
         if (path not in self.paths):
             self.paths.append(path)
+
 
 def _translate_legacy_config(config_file, config_skeleton):
 
@@ -141,20 +146,20 @@ def _translate_legacy_config(config_file, config_skeleton):
 def get_config_manager(config_dir='/etc/heartbeat', config_file='/etc/heartbeat.yml'):
 
     _default_config = {
-            'heartbeat': {
-                'monitor_server': None
-                },
-            'notifiers': {
-                },
-            'monitors': {
-                }
-            }
+        'heartbeat': {
+            'monitor_server': None
+        },
+        'notifiers': {
+        },
+        'monitors': {
+        }
+    }
 
     if (not os.path.exists(config_dir)):
         config_dict = _translate_legacy_config(
-                config_file,
-                _default_config
-                )
+            config_file,
+            _default_config
+        )
 
         cfg = ConfigManager(config_dict, [], [])
 
@@ -162,6 +167,7 @@ def get_config_manager(config_dir='/etc/heartbeat', config_file='/etc/heartbeat.
         cfg = ConfigManager(_default_config, [config_dir])
 
     return cfg
+
 
 def load_notifiers(notifiers):
 
@@ -175,6 +181,7 @@ def load_notifiers(notifiers):
 
     notifiers = loader.modules
     return notifiers
+
 
 def load_monitors(monitors):
     if (monitors is None):
