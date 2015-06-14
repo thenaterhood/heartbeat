@@ -39,7 +39,8 @@ setup(name='Heartbeat',
         'heartbeat.monitoring',
         'heartbeat.notifications',
         'heartbeat.platform',
-        'heartbeat.multiprocessing'
+        'heartbeat.multiprocessing',
+        'heartbeat.security'
         ],
     data_files=[
         ('../etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
