@@ -29,7 +29,6 @@ if (sys.platform == 'win32'):
         (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/heartbeat.conf']),
         (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/monitoring.conf']),
         (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/notifying.conf']),
-        (os.path.join('heartbeat', 'platform'), ['dist/resources/win32/site-files.ini'])
         ]
 else:
     data_files=[
@@ -38,7 +37,6 @@ else:
         ('../etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
         ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
         ('bin', ['dist/_bin/startheart']),
-        ('heartbeat/platform', ['dist/resources/linux/site-files.ini'])
         ]
 
 
