@@ -2,6 +2,7 @@
 
 from setuptools import setup
 import sys
+import os
 
 install_requires = [
     'pymlconf',
@@ -21,6 +22,25 @@ suggested = {
 
 if (sys.version_info < (3, 4)):
     install_requires.append('enum34')
+
+if (sys.platform == 'win32'):
+    data_location = os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat')
+    data_files=[
+        (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/heartbeat.conf']),
+        (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/monitoring.conf']),
+        (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/notifying.conf']),
+        (os.path.join('heartbeat', 'platform'), ['dist/resources/win32/site-files.ini'])
+        ]
+else:
+    data_files=[
+        ('../etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
+        ('../etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
+        ('../etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
+        ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
+        ('bin', ['dist/_bin/startheart']),
+        ('heartbeat/platform', ['dist/resources/linux/site-files.ini'])
+        ]
+
 
 setup(name='Heartbeat',
     version='2.4.1',
@@ -42,12 +62,6 @@ setup(name='Heartbeat',
         'heartbeat.multiprocessing',
         'heartbeat.security'
         ],
-    data_files=[
-        ('../etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
-        ('../etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
-        ('../etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
-        ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
-        ('bin', ['dist/_bin/startheart'])
-        ]
+    data_files=data_files
     )
 
