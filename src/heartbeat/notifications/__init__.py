@@ -27,9 +27,10 @@ class Notifier():
         self.event = None
 
     def load(self, event):
+        self.event = event
         host = event.host
         self.title = event.title + ": " + host
-        date = datetime.now()
+        date = datetime.datetime.now()
         self.message = host + ": " + event.message + " at " + \
             event.timestamp.strftime("%H:%M:%S %m/%d/%y")
 
