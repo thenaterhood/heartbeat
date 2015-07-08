@@ -143,16 +143,18 @@ def _translate_legacy_config(config_file, config_skeleton):
 
     return config_skeleton
 
-def _get_config_path():
-    if (sys.platform == 'win32'):
+def _get_config_path(path = None):
+    if (path is not None):
+        return path
+    elif (sys.platform == 'win32'):
         return os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat', 'Settings')
     else:
         return os.path.join('/etc', 'heartbeat')
 
 
-def get_config_manager(config_dir='/etc/heartbeat', config_file='/etc/heartbeat.yml'):
+def get_config_manager(path = None):
 
-    config_dir = _get_config_path()
+    config_dir = _get_config_path(path)
 
     _default_config = {
         'heartbeat': {
@@ -166,7 +168,7 @@ def get_config_manager(config_dir='/etc/heartbeat', config_file='/etc/heartbeat.
 
     if (not os.path.exists(config_dir)):
         config_dict = _translate_legacy_config(
-            config_dir + '.yml',
+            (config_dir + '.yml'),
             _default_config
         )
 
