@@ -91,7 +91,7 @@ if __name__ == "__main__":
     try:
         #threads = [t.join(1) for t in threads if t is not None and t.isAlive()]
         while 1:
-            sleep(1)
+            time.sleep(1)
     except KeyboardInterrupt:
         print("Shutting down heartbeat")
         for t in threads:
