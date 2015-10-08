@@ -52,5 +52,5 @@ package() {
         echo $pkgdir
         cd $srcdir/heartbeat-master
         python setup.py install --root="$pkgdir/" --optimize=1
-        chmod +x "$pkgdir/heartbeat/usr/bin/startheart"
+        chmod +x "$pkgdir/usr/bin/startheart"
 }
