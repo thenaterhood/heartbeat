@@ -2,6 +2,7 @@ heartbeat
 ============
 [![Build Status](https://travis-ci.org/thenaterhood/heartbeat.svg?branch=master)](https://travis-ci.org/thenaterhood/heartbeat)
 [![Code Climate](https://codeclimate.com/github/thenaterhood/heartbeat/badges/gpa.svg)](https://codeclimate.com/github/thenaterhood/heartbeat)
+[![Code Health](https://landscape.io/github/thenaterhood/heartbeat/master/landscape.svg?style=flat)](https://landscape.io/github/thenaterhood/heartbeat/master)
 
 What Heartbeat is
 -------------
