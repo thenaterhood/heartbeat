@@ -13,6 +13,14 @@ class pushbullet(Notifier):
         self.api_keys = config.notifying.pushbullet.api_keys
         super(pushbullet, self).__init__()
 
+    def load(self, event):
+        host = event.host
+        self.title = event.title + ": " + host
+        date = datetime.now()
+        self.message = host + ": " + event.message + " at " + \
+            event.timestamp.strftime("%H:%M:%S %m/%d/%y")
+
+
     def run(self):
         for key in self.api_keys:
             pb = PushBullet(key)
