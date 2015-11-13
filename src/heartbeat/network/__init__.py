@@ -32,13 +32,16 @@ class NetworkInfo():
     def get_fqdn(self, strategy=socket.getfqdn):
         return strategy()
 
-    def get_local_ip(self, sock=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)):
+    def get_local_ip(self, sock=None):
         """
         Grabs the local IP of the system
 
         Returns:
             string ip: the ip address
         """
+        if sock is None:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
         sock.settimeout(5)
         try:
             sock.connect(("google.com", 80))
