@@ -1,6 +1,6 @@
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=2.5.0
+pkgver=2.5.1
 pkgrel=1
 epoch=
 pkgdesc=""
@@ -43,7 +43,8 @@ build() {
 check() {
 	#cd "$srcdir/$pkgname-$pkgver"
 	#make -k check
-        echo "No check"
+        cd $srcdir/heartbeat-master
+        python setup.py test
 }
 
 package() {
