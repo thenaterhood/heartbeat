@@ -5,7 +5,7 @@ import json
 import inspect
 
 
-class Notifier():
+class Notifier(object):
 
     """
     A notify worker thread for notifiers to extend.
