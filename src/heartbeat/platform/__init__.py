@@ -151,7 +151,7 @@ def _get_config_path(path = None):
     else:
         linux_paths = [
                 os.path.join(os.path.expanduser('~'), '.heartbeat'),
-                os.path.join('/', 'usr', 'local', 'etc'),
+                os.path.join('/', 'usr', 'local', 'etc', 'heartbeat'),
                 os.path.join('/', 'etc', 'heartbeat')
                 ]
 
