@@ -1,17 +1,11 @@
 from time import sleep
-import os
 import threading
 from random import randint
 import datetime
-import operator
 from queue import Queue
 from heartbeat.network import NetworkInfo
-from heartbeat.network import SocketListener
-from heartbeat.network import SocketBroadcaster
-from heartbeat.platform import Event
 from heartbeat.multiprocessing import LockingDictionary
 import logging
-import concurrent.futures
 
 
 class Heartbeat(threading.Thread):
@@ -98,11 +92,9 @@ class MonitorHandler(threading.Thread):
             )
         else:
             self.logger = logger
-        realtimeMonitors = 0
         for m in hwmonitors:
             monitor = m(self.receive_event)
             if monitor.realtime:
-                realtimeMonitors += 1
                 self.rtMonitors.append(monitor)
             else:
                 self.hwmonitors.append(monitor)
@@ -150,7 +142,7 @@ class MonitorHandler(threading.Thread):
         self.notifier.receive_event(event)
 
 
-class NotificationHandler():
+class NotificationHandler(object):
 
     """
     A class that holds a list of notifiers and allows them to
