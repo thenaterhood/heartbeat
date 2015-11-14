@@ -1,8 +1,4 @@
-import queue
-import threading
 import datetime
-import json
-import inspect
 
 
 class Notifier(object):
