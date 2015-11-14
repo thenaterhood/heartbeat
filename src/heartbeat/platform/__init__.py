@@ -149,7 +149,17 @@ def _get_config_path(path = None):
     elif (sys.platform == 'win32'):
         return os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat', 'Settings')
     else:
-        return os.path.join('/etc', 'heartbeat')
+        linux_paths = [
+                os.path.join(os.path.expanduser('~'), '.heartbeat'),
+                os.path.join('/', 'usr', 'local', 'etc'),
+                os.path.join('/', 'etc', 'heartbeat')
+                ]
+
+        for p in linux_paths:
+            if os.path.exists(p):
+                return p
+
+        return os.path.join('/', 'etc', 'heartbeat')
 
 
 def get_config_manager(path = None):
