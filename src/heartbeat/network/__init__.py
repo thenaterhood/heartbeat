@@ -1,8 +1,6 @@
-import select
 import socket
 import threading
 import urllib.request
-from queue import Queue, Empty
 
 
 class NetworkInfo(object):
