@@ -5,7 +5,7 @@ import urllib.request
 from queue import Queue, Empty
 
 
-class NetworkInfo():
+class NetworkInfo(object):
 
     """
     Contains network data
@@ -118,7 +118,7 @@ class SocketListener(threading.Thread):
             self._listen()
 
 
-class SocketBroadcaster():
+class SocketBroadcaster(object):
 
     """
     Sends a broadcast packet containing data on a given port

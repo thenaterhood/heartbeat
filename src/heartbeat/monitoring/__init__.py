@@ -1,6 +1,6 @@
 
 
-class Monitor():
+class Monitor(object):
 
     def __init__(self, callback):
         """

@@ -20,7 +20,7 @@ class EventType(Enum):
     DEBUG = "debug"
 
 
-class Event:
+class Event(object):
 
     """
     An event to notify of. Contains a title, message, and timestamp
@@ -84,7 +84,7 @@ class Event:
         return self.title + ": " + self.host + ": " + self.message
 
 
-class Autoloader():
+class Autoloader(object):
 
     __slots__ = ("modules", "paths", "_logger")
 
