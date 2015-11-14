@@ -1,9 +1,7 @@
-from queue import Queue
 import threading
-import logging
 
 
-class LockingDictionary():
+class LockingDictionary(object):
 
     """
     A thread-safe wrapper for a dictionary with locking
