@@ -8,6 +8,7 @@ cover
 *.egg*
 installed_files
 .settings
+.vscode
 pkg
 heartbeat-master
 .coverage
