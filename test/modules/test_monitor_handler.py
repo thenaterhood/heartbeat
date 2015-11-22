@@ -9,7 +9,7 @@ else:
 
 from heartbeat.modules import Heartbeat
 from heartbeat.network import SocketBroadcaster
-from heartbeat.modules import NotificationHandler
+from heartbeat.modules import EventDispatcher
 from heartbeat.modules import MonitorHandler
 from heartbeat.monitoring import Monitor
 from heartbeat.platform import Event
@@ -26,13 +26,13 @@ class TestMonitorHandler(unittest.TestCase):
 
         self.hwmonitors[0].realtime=False
 
-        notifyHandler = MagicMock(name="notify_handler", spec=NotificationHandler)
+        notifyHandler = MagicMock(name="dispatcher", spec=EventDispatcher)
 
         pool = MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor)
 
         self.monitor_handler = MonitorHandler(
                 self.hwmonitors,
-                notifyHandler,
+                notifyHandler.put_event,
                 pool
                 )
 
@@ -46,6 +46,6 @@ class TestMonitorHandler(unittest.TestCase):
         e = Event()
         self.monitor_handler.receive_event(e)
 
-        self.monitor_handler.notifier.receive_event.assert_called_once_with(e)
+        self.monitor_handler.notifier.assert_called_once_with(e)
 
 
