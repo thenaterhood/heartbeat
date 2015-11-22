@@ -1,3 +1,6 @@
+from Queue import Queue
+
+
 class ModuleLoader(object):
 
 	def load_multiple(paths):
@@ -24,8 +27,10 @@ class PluginRegistry(type):
 class Plugin(object):
 	__metaclass__ = PluginRegistry
 
-	def get_worker(self, worker_id):
-		return None
+	work_queue = None
+
+	def queue_work(self, work):
+		self.work_queue.put(work)
 
 	def get_signal_hook(self, signal):
 		return None

@@ -21,6 +21,8 @@ class EventDispatcher(object):
     def put_event(self, event, signal_type=SignalType.NEW_HUM_EVENT):
             
         self._send_event_signal(event, signal_type)
+        if (signal_type != SignalType.NEW_EVENT):
+            self._send_event_signal(event, SignalType.NEW_EVENT)
 
     def hook_attach(signal_type, call):
         self.hooks[signal_type].append(call)
