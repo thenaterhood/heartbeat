@@ -18,9 +18,9 @@ class EventDispatcher(object):
         for s in SignalType:
             self.hooks[s] = []
 
-    def put_event(self, event):
+    def put_event(self, event, signal_type=SignalType.NEW_HUM_EVENT):
             
-        self._send_event_signal(event, signal)
+        self._send_event_signal(event, signal_type)
 
     def hook_attach(signal_type, call):
         self.hooks[signal_type].append(call)
