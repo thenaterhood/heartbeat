@@ -85,7 +85,7 @@ def main(threads=None):
                     )
         hwmon = MonitorHandler(
                 monitors,
-                dispatcher.put_event
+                dispatcher.put_event,
                 monitorPool,
                 logger
                 )
