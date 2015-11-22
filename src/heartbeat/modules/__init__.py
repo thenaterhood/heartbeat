@@ -5,7 +5,35 @@ import datetime
 from queue import Queue
 from heartbeat.network import NetworkInfo
 from heartbeat.multiprocessing import LockingDictionary
+from heartbeat.api import Signal, SignalType
 import logging
+
+
+class EventDispatcher(object):
+    __slots__ = ('hooks')
+
+    def __init__(self):
+        self.event_stack = {}
+        self.hooks = {}
+        for s in SignalType:
+            self.hooks[s] = []
+
+    def put_event(self, event):
+            
+        self._send_event_signal(event, signal)
+
+    def hook_attach(signal_type, call):
+        self.hooks[signal_type].append(call)
+
+    def _send_event_signal(self, event, signal_type):
+        signal = Signal(signal_type, lambda: event)
+        for r in self.hooks[signal_type]:
+            r(signal)
+
+    def _send_poll_signal(self):
+        signal = Signal(SignalType.POLL, self.put_event)
+        for r in self.hooks[SignalType.POLL]:
+            r(signal)       
 
 
 class Heartbeat(threading.Thread):
