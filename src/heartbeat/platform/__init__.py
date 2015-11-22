@@ -49,7 +49,11 @@ class Event(object):
                 raise Exception("type passed to Event is not an EventType")
             self.type = type
         stack = inspect.stack()
-        self.source = str(stack[1][0].f_locals["self"].__class__.__name__)
+
+        try:
+            self.source = str(stack[1][0].f_locals["self"].__class__.__name__)
+        except KeyError:
+            self.source = None
 
     def __hash__(self):
         return hash((self.title, self.message, self.source, self.host, self.type))
@@ -66,19 +70,22 @@ class Event(object):
 
         return json.dumps(dictionary)
 
-    def load_json(self, jsonString):
+    def from_json(jsonString):
         dictionary = json.loads(jsonString)
 
-        self.title = dictionary['title']
-        self.message = dictionary['message']
-        self.host = dictionary['host']
-        self.one_time = dictionary['one_time']
-        self.source = dictionary['source']
+        e = Event()
+        e.title = dictionary['title']
+        e.message = dictionary['message']
+        e.host = dictionary['host']
+        e.one_time = dictionary['one_time']
+        e.source = dictionary['source']
         if ('payload' in dictionary):
-            self.payload = dictionary['payload']
+            e.payload = dictionary['payload']
         else:
-            self.payload = {}
-        self.type = EventType[dictionary['type']]
+            e.payload = {}
+        e.type = EventType[dictionary['type']]
+
+        return e
 
     def __str__(self):
         return self.title + ": " + self.host + ": " + self.message

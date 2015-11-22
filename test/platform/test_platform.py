@@ -47,8 +47,7 @@ class EventTest(unittest.TestCase):
     def test_json_load(self):
         event_json = self.event.to_json()
 
-        e = Event()
-        e.load_json(event_json)
+        e = Event.from_json(event_json)
 
         self.assertEqual(self.event.__hash__(), e.__hash__())
 

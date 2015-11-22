@@ -62,7 +62,6 @@ class HistamineNode(Monitor):
         """
         if data.startswith(self.secret):
             eventJson = data[len(self.secret):].decode("UTF-8")
-            event = Event()
 
             event_loaded = False
 
@@ -71,7 +70,7 @@ class HistamineNode(Monitor):
 
             if (self.settings.accept_plaintext or not self.settings.use_encryption):
                 try:
-                    event.load_json(eventJson)
+                    event = Event.from_json(eventJson)
                     event_loaded = True
                 except:
                     pass
@@ -79,7 +78,7 @@ class HistamineNode(Monitor):
             if (not event_loaded and self.settings.use_encryption):
                 try:
                     encryptor = Encryptor(self.settings.enc_password)
-                    event.load_json(encryptor.decrypt(eventJson))
+                    event = Event.from_json(encryptor.decrypt(eventJson))
                     event_loaded = True
                 except:
                     pass
