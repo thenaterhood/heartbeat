@@ -213,7 +213,7 @@ class NotificationHandler(object):
         self.threadpool = threadpool
 
     def receive_signal(self, signal):
-        if (signal.signal_type == SignalType.NEW_HUM_EVENT):
+        if (signal.sig_type == SignalType.NEW_HUM_EVENT):
             event = signal.callback()
             self.receive_event(event)
 
