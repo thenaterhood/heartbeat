@@ -1,4 +1,4 @@
-from Queue import Queue
+from queue import Queue
 
 
 class ModuleLoader(object):
@@ -7,7 +7,7 @@ class ModuleLoader(object):
 		modules = []
 		for p in paths:
 			modules.append(ModuleLoader.load_module(p))
-			
+
 		return modules
 
 	def load_path(path):
@@ -22,7 +22,7 @@ class PluginRegistry(type):
 	def __init__(cls, name, bases, attrs):
 		if name != 'Plugin':
 			PluginRegistry.plugins.append(cls)
-			
+
 
 class Plugin(object):
 	__metaclass__ = PluginRegistry

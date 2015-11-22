@@ -13,18 +13,17 @@ class EventDispatcher(object):
     __slots__ = ('hooks')
 
     def __init__(self):
-        self.event_stack = {}
         self.hooks = {}
         for s in SignalType:
             self.hooks[s] = []
 
     def put_event(self, event, signal_type=SignalType.NEW_HUM_EVENT):
-            
+
         self._send_event_signal(event, signal_type)
         if (signal_type != SignalType.NEW_EVENT):
             self._send_event_signal(event, SignalType.NEW_EVENT)
 
-    def hook_attach(signal_type, call):
+    def hook_attach(self, signal_type, call):
         self.hooks[signal_type].append(call)
 
     def _send_event_signal(self, event, signal_type):
@@ -35,7 +34,7 @@ class EventDispatcher(object):
     def _send_poll_signal(self):
         signal = Signal(SignalType.POLL, self.put_event)
         for r in self.hooks[SignalType.POLL]:
-            r(signal)       
+            r(signal)
 
 
 class Heartbeat(threading.Thread):
@@ -169,7 +168,7 @@ class MonitorHandler(threading.Thread):
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        self.notifier.receive_event(event)
+        self.notifier(event)
 
 
 class NotificationHandler(object):
@@ -212,6 +211,11 @@ class NotificationHandler(object):
             self.limit_strategy = limit_strategy
 
         self.threadpool = threadpool
+
+    def receive_signal(self, signal):
+        if (signal.signal_type == SignalType.NEW_HUM_EVENT):
+            event = signal.callback()
+            self.receive_event(event)
 
     def receive_event(self, event):
         """
