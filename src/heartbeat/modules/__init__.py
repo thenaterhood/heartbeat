@@ -10,6 +10,11 @@ import logging
 
 
 class EventDispatcher(object):
+
+    """
+    Handles dispatching events based on hooks and signals
+    """
+
     __slots__ = ('hooks')
 
     def __init__(self):
@@ -18,20 +23,50 @@ class EventDispatcher(object):
             self.hooks[s] = []
 
     def put_event(self, event, signal_type=SignalType.NEW_HUM_EVENT):
+        """
+        Passes an Event to the dispatcher
+
+        Parameters:
+            Event event
+            SignalType signal_type: signal type associated with the
+                event. Defaults to NEW_HUM_EVENT if not provided
+        """
 
         self._send_event_signal(event, signal_type)
         if (signal_type != SignalType.NEW_EVENT):
             self._send_event_signal(event, SignalType.NEW_EVENT)
 
     def hook_attach(self, signal_type, call):
+        """
+        Attaches a hook for a type of signal
+
+        Parameters:
+            SignalType signal_type: the signal that will trigger
+                the hook
+            Callable call: A method to call when triggered. This will
+                be called with a Signal instance passed as a param
+        """
+
         self.hooks[signal_type].append(call)
 
     def _send_event_signal(self, event, signal_type):
+        """
+        Private method. Sends a signal for a new event.
+
+        Parameters:
+            Event event
+            SignalType signal_type
+        """
+
         signal = Signal(signal_type, lambda: event)
         for r in self.hooks[signal_type]:
             r(signal)
 
     def _send_poll_signal(self):
+        """
+        Sends a signal triggering all Poll hooks.
+        """
+
         signal = Signal(SignalType.POLL, self.put_event)
         for r in self.hooks[SignalType.POLL]:
             r(signal)
