@@ -68,7 +68,19 @@ class LockingDictionary(object):
 
 class BackgroundTimer(object):
 
+    """
+    A repeating timer that runs in the background
+    and calls a provided callback each time the
+    timer runs out.
+    """
+
     def __init__(self, interval=60, repeat=True, call=None):
+        """
+        Parameters:
+            int interval: Timer interval, in seconds
+            bool repeat: Whether the timer should repeat
+            Callable call: A callback to call when the timer hits zero
+        """
         self._timer = None
         self.callback = call
         self.interval = interval
@@ -78,20 +90,37 @@ class BackgroundTimer(object):
             self.callback = do_nothing
 
     def start(self):
+        """
+        Starts the timer. This method is safe to call multiple
+        times as it will check if the timer is already running.
+        If it is, it does nothing, otherwise it starts the timer.
+        """
         if not self.is_running:
             self._timer = threading.Timer(self.interval, self._run)
             self._timer.start()
             self.is_running = True
 
     def _run(self):
+        """
+        Private run method. This is called each time the timer
+        hits 0.
+        """
         self.is_running = False
         if self.repeat:
             self.start()
         self.callback()
 
     def stop(self):
+        """
+        Stops and resets the timer.
+        """
         self._timer.cancel()
         self.is_running = False
 
 def do_nothing():
+    """
+    As the name implies, does nothing.
+    This is used as the default callback
+    for the timer.
+    """
     pass
