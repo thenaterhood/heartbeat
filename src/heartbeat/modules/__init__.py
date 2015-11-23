@@ -122,7 +122,7 @@ class Heartbeat(object):
         self._logger.info("Broadcasting heartbeat")
         self.bcaster.push(data)
 
-    def run(self):
+    def start(self):
         """
         Runs the heartbeat (typically started by the thread start() call)
         """
