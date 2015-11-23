@@ -1,4 +1,5 @@
 import threading
+from time import sleep
 
 
 class LockingDictionary(object):
@@ -64,3 +65,33 @@ class LockingDictionary(object):
         Returns whether a key is in the dictionary
         """
         return (key in self._dictionary)
+
+class BackgroundTimer(object):
+
+    def __init__(self, interval=60, repeat=True, call=None):
+        self._timer = None
+        self.callback = call
+        self.interval = interval
+        self.repeat = repeat
+        self.is_running = False
+        if call is None:
+            self.callback = do_nothing
+
+    def start(self):
+        if not self.is_running:
+            self._timer = threading.Timer(self.interval, self._run)
+            self._timer.start()
+            self.is_running = True
+
+    def _run(self):
+        self.is_running = False
+        if self.repeat:
+            self.start()
+        self.callback()
+
+    def stop(self):
+        self._timer.cancel()
+        self.is_running = False
+
+def do_nothing():
+    pass

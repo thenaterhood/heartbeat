@@ -46,6 +46,6 @@ class TestMonitorHandler(unittest.TestCase):
         e = Event()
         self.monitor_handler.receive_event(e)
 
-        self.monitor_handler.notifier.assert_called_once_with(e)
+        self.monitor_handler.event_callback.assert_called_once_with(e)
 
 

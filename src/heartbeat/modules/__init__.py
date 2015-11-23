@@ -4,7 +4,7 @@ from random import randint
 import datetime
 from queue import Queue
 from heartbeat.network import NetworkInfo
-from heartbeat.multiprocessing import LockingDictionary
+from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
 from heartbeat.api import Signal, SignalType
 import logging
 
@@ -72,7 +72,7 @@ class EventDispatcher(object):
             r(signal)
 
 
-class Heartbeat(threading.Thread):
+class Heartbeat(object):
 
     """
     Defines a heartbeat thread which will send a broadcast
@@ -82,7 +82,7 @@ class Heartbeat(threading.Thread):
     Extends threading.Thread
     """
 
-    def __init__(self, interval, secret, bcaster, logger=None):
+    def __init__(self, interval, secret, bcaster, logger=None, timer=None):
         """
         constructor
 
@@ -95,7 +95,9 @@ class Heartbeat(threading.Thread):
         self.secret = bytes(secret.encode("UTF-8"))
         self.bcaster = bcaster
 
-        self.shutdown = False
+        self.timer = timer
+        if (timer is None):
+            self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
 
         if (logger == None):
             self._logger = logging.getLogger(
@@ -104,13 +106,12 @@ class Heartbeat(threading.Thread):
         else:
             self._logger = logger
 
-        super().__init__()
-
     def terminate(self):
         """
         Shuts down the thread cleanly
         """
         self._logger.info("Shutting down heartbeat broadcast")
+        self.timer.stop()
 
     def _beat(self):
         """
@@ -125,21 +126,17 @@ class Heartbeat(threading.Thread):
         """
         Runs the heartbeat (typically started by the thread start() call)
         """
-        while not self.shutdown:
-            self._beat()
-            sleep(5 * randint(1, 5))
-
-        self.terminate()
+        self.timer.start()
 
 
-class MonitorHandler(threading.Thread):
+class MonitorHandler(object):
 
     """
     Monitoring class handling running multiple monitors on
     an interval
     """
 
-    def __init__(self, hwmonitors, notifyHandler, threadpool, logger=None):
+    def __init__(self, hwmonitors, event_callback, threadpool, logger=None, timer=None):
         """
         Constructor
 
@@ -163,13 +160,15 @@ class MonitorHandler(threading.Thread):
             else:
                 self.hwmonitors.append(monitor)
 
-        self.notifier = notifyHandler
-        self.shutdown = False
+        self.event_callback = event_callback
         self.logger.debug("Bringing up threadpool")
         self.threadpool = threadpool
-        super(MonitorHandler, self).__init__()
+        if (timer is None):
+            self.timer = BackgroundTimer(60, True, self.scan)
+        else:
+            self.timer = timer
 
-    def run(self):
+    def start(self):
         """
         Run method, generally called from the parent start()
         """
@@ -177,17 +176,13 @@ class MonitorHandler(threading.Thread):
         for m in self.rtMonitors:
             self.threadpool.submit(m.run)
 
-        while not self.shutdown:
-            self.logger.debug("Starting periodic query to monitors")
-            self.scan()
-            sleep(60)
-
-        self.terminate()
+        self.timer.start()
 
     def scan(self):
         """
         Runs each monitor thread and waits for it to complete
         """
+        self.logger.debug("Starting periodic query to monitors")
         for m in self.hwmonitors:
             self.logger.debug("Querying " + m.__class__.__name__)
             self.threadpool.submit(m.run)
@@ -196,6 +191,7 @@ class MonitorHandler(threading.Thread):
         """
         Shuts down the thread cleanly
         """
+        self.timer.stop()
         self.threadpool.terminate()
 
     def receive_event(self, event):
@@ -203,7 +199,7 @@ class MonitorHandler(threading.Thread):
         A callback method for monitors to call to. Currently just a
         wrapper for the notifier.push
         """
-        self.notifier(event)
+        self.event_callback(event)
 
 
 class NotificationHandler(object):
