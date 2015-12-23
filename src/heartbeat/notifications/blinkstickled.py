@@ -1,6 +1,6 @@
 from blinkstick import blinkstick
 from heartbeat.notifications import Notifier
-from heartbeat.platform import get_config_manager, EventType
+from heartbeat.platform import get_config_manager, Topics
 from datetime import datetime
 
 
@@ -23,11 +23,11 @@ class BlinkStickColor(Notifier):
         self.run()
 
     def _choose_color(self, event):
-        if (event.type == EventType.WARNING):
+        if (event.type == Topics.WARNING):
             self.use_color = self.alert
             self.previous_warnings[event.source] = event.timestamp
 
-        elif (event.type == EventType.INFO):
+        elif (event.type == Topics.INFO):
             if (event.source in self.previous_warnings):
                 del(self.previous_warnings[event.source])
 

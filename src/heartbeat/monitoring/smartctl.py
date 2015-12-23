@@ -1,5 +1,5 @@
 from heartbeat.monitoring import Monitor
-from heartbeat.platform import Event, EventType
+from heartbeat.platform import Event, Topics
 from heartbeat.network import NetworkInfo
 from heartbeat.platform import get_config_manager
 import subprocess
@@ -26,7 +26,7 @@ class SMARTMonitor(Monitor):
         if (foundProblem):
             net = NetworkInfo()
             event = Event("SMART Alert", problemDrive, net.fqdn)
-            event.type = EventType.WARNING
+            event.type = Topics.WARNING
             self.callback(event)
 
         if (not foundProblem and self.threw_warning):
@@ -35,7 +35,7 @@ class SMARTMonitor(Monitor):
             event = Event("SMART Message",
                           "A previous alert did not reoccur",
                           net.fqdn,
-                          EventType.INFO
+                          Topics.INFO
                           )
             self.callback(event)
 

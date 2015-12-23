@@ -10,7 +10,7 @@ import logging
 from pymlconf import ConfigManager
 
 
-class EventType(Enum):
+class Topics(Enum):
 
     """
     Event types
@@ -18,6 +18,8 @@ class EventType(Enum):
     WARNING = "error"
     INFO = "information"
     DEBUG = "debug"
+    VIRT = "virtual"
+    HEARTBEAT = "heartbeat"
 
 
 class Event(object):
@@ -43,10 +45,10 @@ class Event(object):
         self.payload = {}
         self.one_time = False
         if (type == None):
-            self.type = EventType.INFO
+            self.type = Topic.INFO
         else:
-            if (not isinstance(self.type, EventType)):
-                raise Exception("type passed to Event is not an EventType")
+            if (not isinstance(self.type, Topic)):
+                raise Exception("Topic received was not recognized")
             self.type = type
         stack = inspect.stack()
 
@@ -83,7 +85,7 @@ class Event(object):
             e.payload = dictionary['payload']
         else:
             e.payload = {}
-        e.type = EventType[dictionary['type']]
+        e.type = Topic[dictionary['type']]
 
         return e
 
