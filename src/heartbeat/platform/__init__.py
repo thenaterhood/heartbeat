@@ -45,9 +45,9 @@ class Event(object):
         self.payload = {}
         self.one_time = False
         if (type == None):
-            self.type = Topic.INFO
+            self.type = Topics.INFO
         else:
-            if (not isinstance(self.type, Topic)):
+            if (not isinstance(self.type, Topics)):
                 raise Exception("Topic received was not recognized")
             self.type = type
         stack = inspect.stack()

@@ -9,21 +9,43 @@ from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
 import logging
 
 
-class MessageServer(object):
+class EventServer(object):
 
     """
-    Handles publishing events. This class also
-    handles rate-limiting so that anything producing
-    events can't spam the system.
+    Handles dispatching events based on hooks and signals
     """
 
-    def __init__(self, url, context=None):
+    __slots__ = ('topics')
 
-        self.publisher = Publisher(url, context)
+    def __init__(self):
+        self.topics = {}
+        for s in Topics:
+            self.topics[s] = []
 
-    def send_event(self, event):
+    def put_event(self, event):
+        """
+        Passes an Event to the dispatcher
 
-        self.publisher.publish(event)
+        Parameters:
+            Event event
+            SignalType signal_type: signal type associated with the
+                event. Defaults to NEW_HUM_EVENT if not provided
+        """
+
+        for c in self.topics[event.type]:
+            c(event)
+
+    def attach(self, topic, callback):
+        """
+        Attaches a hook for a type of signal
+
+        Parameters:
+            SignalType signal_type: the signal that will trigger
+                the hook
+            Callable call: A method to call when triggered. This will
+                be called with a Signal instance passed as a param
+        """
+        self.topics[topic].append(callback)
 
 
 class Heartbeat(object):
@@ -130,6 +152,7 @@ class MonitorHandler(object):
         for m in self.rtMonitors:
             self.threadpool.submit(m.run)
 
+        self.scan()
         self.timer.start()
 
     def scan(self):
@@ -196,11 +219,6 @@ class NotificationHandler(object):
             self.limit_strategy = limit_strategy
 
         self.threadpool = threadpool
-
-    def receive_signal(self, signal):
-        if (signal.sig_type == SignalType.NEW_HUM_EVENT):
-            event = signal.callback()
-            self.receive_event(event)
 
     def receive_event(self, event):
         """
