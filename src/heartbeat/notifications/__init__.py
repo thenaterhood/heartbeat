@@ -1,7 +1,8 @@
 import datetime
+from heartbeat.plugin import Plugin
 
 
-class Notifier(object):
+class Notifier(Plugin):
 
     """
     A notify worker thread for notifiers to extend.

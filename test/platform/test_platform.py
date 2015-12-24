@@ -3,7 +3,7 @@ import sys
 import json
 import pymlconf
 from heartbeat.platform import Event
-from heartbeat.platform import Autoloader
+from heartbeat.platform import ModuleLoader
 from heartbeat.platform import _translate_legacy_config
 from heartbeat.platform import get_config_manager
 
@@ -73,37 +73,19 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(conf.heartbeat.secret_key, 'heartbeat3477')
         self.assertEqual(conf.heartbeat.port, 21999)
         self.assertEqual(conf.notifying.pushbullet.api_keys, ['api_key_1', 'api_key_2'])
-        
-class AutoloaderTest(unittest.TestCase):
-    
+
+class ModuleLoaderTest(unittest.TestCase):
+
     def setUp(self):
         pass
-        
-    def test_instantiate(self):
-        a = Autoloader(['path1', 'path2'])
-        
-        self.assertEqual(['path1', 'path2'], a.paths)
-        self.assertEqual([], a.modules)
-        
+
     def test_load_path(self):
         # This is a tainted test because it does not
         # mock everything involved.
-        
-        a = Autoloader(['heartbeat.notifications.Notifier'])
-        a.load()
-        
+
+        ModuleLoader.load('heartbeat.notifications')
         self.assertTrue('heartbeat.notifications' in sys.modules)
-        
+
     def test_load_bad_path(self):
-        a = Autoloader(['foo.bar'])
-        
-        self.assertRaises(ImportError, a.load)
-        
-    def test_loadPath(self):
-        
-        a = Autoloader()
-        a.loadPath('heartbeat.notifications.Notifier')
-        
-        self.assertTrue('heartbeat.notifications.Notifier' in a.paths)
-        
+        self.assertRaises(ImportError, lambda: ModuleLoader.load('foo.bar'))
 

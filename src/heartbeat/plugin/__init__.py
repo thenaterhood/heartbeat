@@ -1,31 +1,33 @@
 from queue import Queue
-
+import importlib
 
 class ModuleLoader(object):
 
-    def load_multiple(paths):
+    def load_multiple(paths, full_classpath=False):
         modules = []
         for p in paths:
-            modules.append(ModuleLoader.load_module(p))
+            modules.append(ModuleLoader.load_module(p, full_classpath))
 
         return modules
 
-    def load_path(path):
-        module = importlib.import_module(module_path)
+    def load(path, full_classpath=False):
+        if full_classpath:
+            path = ".".join(path.split(".")[:-1])
+
+        module = importlib.import_module(path)
         return module
 
 
 class PluginRegistry(type):
 
-    plugins = []
+    plugins = {}
 
     def __init__(cls, name, bases, attrs):
         if name != 'Plugin':
-            PluginRegistry.plugins.append(cls)
+            PluginRegistry.plugins[cls.__module__ + "." + name] = cls
 
 
-class Plugin(object):
-    __metaclass__ = PluginRegistry
+class Plugin(object, metaclass=PluginRegistry):
 
     work_queue = None
 
@@ -34,3 +36,4 @@ class Plugin(object):
 
     def get_signal_hook(self, signal):
         return None
+

@@ -8,6 +8,7 @@ import yaml
 from enum import Enum
 import logging
 from pymlconf import ConfigManager
+from heartbeat.plugin import ModuleLoader, PluginRegistry
 
 
 class Topics(Enum):
@@ -93,31 +94,6 @@ class Event(object):
         return self.title + ": " + self.host + ": " + self.message
 
 
-class Autoloader(object):
-
-    __slots__ = ("modules", "paths", "_logger")
-
-    def __init__(self, paths=[]):
-        self._logger = logging.getLogger(
-            __name__ + "." + self.__class__.__name__
-        )
-        self.paths = paths
-        self.modules = []
-        self._logger.debug("Autoloader primed")
-
-    def load(self):
-        for p in self.paths:
-            self.loadPath(p)
-
-    def loadPath(self, path):
-        modulepath = ".".join(path.split(".")[:-1])
-        self._logger.debug("Importing module " + modulepath)
-        module = importlib.import_module(modulepath)
-        self.modules.append(getattr(module, path.split(".")[-1]))
-        if (path not in self.paths):
-            self.paths.append(path)
-
-
 def _translate_legacy_config(config_file, config_skeleton):
 
     with open(config_file, 'r') as stream:
@@ -199,28 +175,28 @@ def get_config_manager(path = None):
     return cfg
 
 
+def load_plugins(modules, prefix='', full_classpath=True):
+    loaded = []
+
+    if (modules is None):
+        return loaded
+
+    for m in modules:
+        modulepath = ".".join([prefix] + m.split("."))
+        ModuleLoader.load(modulepath, full_classpath)
+
+    for p, c in PluginRegistry.plugins.items():
+        if (prefix in p and p[len(prefix)+1:] in modules):
+            loaded.append(c)
+
+    return loaded
+
 def load_notifiers(notifiers):
 
-    if (notifiers is None):
-        return []
-
-    loader = Autoloader()
-    for n in notifiers:
-        modulepath = "heartbeat.notifications." + ".".join(n.split("."))
-        loader.loadPath(modulepath)
-
-    notifiers = loader.modules
-    return notifiers
+    return load_plugins(notifiers, prefix="heartbeat.notifications")
 
 
 def load_monitors(monitors):
-    if (monitors is None):
-        return []
 
-    loader = Autoloader()
-    for m in monitors:
-        modulepath = "heartbeat.monitoring." + ".".join(m.split("."))
-        loader.loadPath(modulepath)
+    return load_plugins(monitors, prefix="heartbeat.monitoring")
 
-    hwmonitors = loader.modules
-    return hwmonitors

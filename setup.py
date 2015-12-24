@@ -57,6 +57,7 @@ setup(name='Heartbeat',
         'heartbeat.monitoring',
         'heartbeat.notifications',
         'heartbeat.platform',
+        'heartbeat.plugin',
         'heartbeat.multiprocessing',
         'heartbeat.security'
         ],

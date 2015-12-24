@@ -1,6 +1,6 @@
+from heartbeat.plugin import Plugin
 
-
-class Monitor(object):
+class Monitor(Plugin):
 
     def __init__(self, callback):
         """
