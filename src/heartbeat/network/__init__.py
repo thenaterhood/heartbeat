@@ -1,50 +1,6 @@
 import socket
 import threading
 import urllib.request
-import zmq
-
-class Publisher(object):
-
-    __slots__ = ('socket', 'shutdown')
-
-    def __init__(self, url, context=None):
-        self.shutdown = False
-
-        if context is None:
-            context = zmq.Context()
-
-        self.socket = context.socket(zmq.PUB)
-        self.socket.bind(url)
-
-    def publish(self, event):
-        message = "{0} {1}".format(event.topic, event.to_json())
-
-        self.socket.send(message)
-
-
-class Subscriber(threading.Thread):
-
-    __slots__ = ('socket', 'callback')
-
-    def __init__(self, url, topics, callback, context=None):
-
-        self.callback = callback
-
-        if context is None:
-            context = zmq.Context()
-
-        self.socket = context.socket(zmq.SUB)
-        self.socket.connect(url)
-
-        for t in topics:
-            self.socket.setsockopt(zmq.SUBSCRIBE, t.encode('UTF-8'))
-
-        self.shutdown = False
-
-    def run(self):
-
-        while not self.shutdown:
-            self.callback(Event.from_json(self.socket.recv_json(zmq.NOBLOCK)))
 
 
 class NetworkInfo(object):
