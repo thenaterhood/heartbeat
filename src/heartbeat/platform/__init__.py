@@ -175,28 +175,28 @@ def get_config_manager(path = None):
     return cfg
 
 
-def load_plugins(modules, prefix='', full_classpath=True):
+def load_plugins(modules, package='', full_classpath=True):
     loaded = []
 
     if (modules is None):
         return loaded
 
     for m in modules:
-        modulepath = ".".join([prefix] + m.split("."))
+        modulepath = ".".join([package] + m.split("."))
         ModuleLoader.load(modulepath, full_classpath)
 
     for p, c in PluginRegistry.plugins.items():
-        if (prefix in p and p[len(prefix)+1:] in modules):
+        if (package in p and p[len(package)+1:] in modules):
             loaded.append(c)
 
     return loaded
 
 def load_notifiers(notifiers):
 
-    return load_plugins(notifiers, prefix="heartbeat.notifications")
+    return load_plugins(notifiers, package="heartbeat.notifications")
 
 
 def load_monitors(monitors):
 
-    return load_plugins(monitors, prefix="heartbeat.monitoring")
+    return load_plugins(monitors, package="heartbeat.monitoring")
 
