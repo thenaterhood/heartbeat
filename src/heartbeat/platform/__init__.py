@@ -85,7 +85,7 @@ class Event(object):
             e.payload = dictionary['payload']
         else:
             e.payload = {}
-        e.type = Topic[dictionary['type']]
+        e.type = Topics[dictionary['type']]
 
         return e
 
