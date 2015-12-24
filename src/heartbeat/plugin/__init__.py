@@ -1,6 +1,7 @@
 from queue import Queue
 import importlib
 
+
 class ModuleLoader(object):
 
     def load_multiple(paths, full_classpath=False):
@@ -36,4 +37,3 @@ class Plugin(object, metaclass=PluginRegistry):
 
     def get_signal_hook(self, signal):
         return None
-
