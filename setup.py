@@ -36,7 +36,6 @@ else:
         ('etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
         ('etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
         ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
-        ('bin', ['dist/_bin/startheart']),
         ]
 
 
@@ -50,6 +49,11 @@ setup(name='Heartbeat',
     tests_require=test_requires,
     test_suite='nose.collector',
     package_dir={'':'src'},
+    entry_points={
+        'console_scripts': [
+            'startheart = heartbeat.main:main'
+            ]
+    },
     packages=[
         'heartbeat',
         'heartbeat.modules',
@@ -63,4 +67,3 @@ setup(name='Heartbeat',
         ],
     data_files=data_files
     )
-
