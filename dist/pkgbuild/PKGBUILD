@@ -23,13 +23,12 @@ backup=("etc/heartbeat.yml"
 options=()
 install=
 changelog=
-source=("https://github.com/thenaterhood/heartbeat/archive/master.zip")
+source=("https://github.com/thenaterhood/heartbeat/archive/$pkgver.zip")
 noextract=("master.zip")
 md5sums=('SKIP') #generate with 'makepkg -g'
 
 prepare() {
-        unzip $srcdir/master.zip
-	cd $srcdir/heartbeat-master
+        unzip $srcdir/$pkgver.zip
 }
 
 build() {
@@ -42,7 +41,7 @@ build() {
 check() {
 	#cd "$srcdir/$pkgname-$pkgver"
 	#make -k check
-        cd $srcdir/heartbeat-master
+        cd $srcdir/heartbeat-$pkgver
         python setup.py test
 }
 
@@ -50,9 +49,8 @@ package() {
 	#cd "$srcdir/$pkgname-$pkgver"
 	#make DESTDIR="$pkgdir/" install
         echo $pkgdir
-        cd $srcdir/heartbeat-master
+        cd $srcdir/heartbeat-$pkgver
         python setup.py install --root="$pkgdir/" --optimize=1
         mkdir -p $pkgdir/etc
         mv $pkgdir/usr/etc/heartbeat $pkgdir/etc
-        chmod +x "$pkgdir/usr/bin/startheart"
 }
