@@ -175,28 +175,20 @@ def get_config_manager(path = None):
     return cfg
 
 
-def load_plugins(modules, package='', full_classpath=True):
-    loaded = []
-
-    if (modules is None):
-        return loaded
+def load_trusted_plugins(modules, package='', full_classpath=True):
 
     for m in modules:
         modulepath = ".".join([package] + m.split("."))
+        PluginRegistry.whitelist.append(modulepath)
         ModuleLoader.load(modulepath, full_classpath)
-
-    for p, c in PluginRegistry.plugins.items():
-        if (package in p and p[len(package)+1:] in modules):
-            loaded.append(c)
-
-    return loaded
 
 def load_notifiers(notifiers):
 
-    return load_plugins(notifiers, package="heartbeat.notifications")
+    load_trusted_plugins(notifiers, package="heartbeat.notifications")
+    return PluginRegistry.filter_by_package("heartbeat.notifications").values()
 
 
 def load_monitors(monitors):
 
-    return load_plugins(monitors, package="heartbeat.monitoring")
-
+    load_trusted_plugins(monitors, package="heartbeat.monitoring")
+    return PluginRegistry.filter_by_package("heartbeat.monitoring").values()
