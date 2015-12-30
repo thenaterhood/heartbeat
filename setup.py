@@ -39,7 +39,7 @@ else:
         ]
 
 
-setup(name='Heartbeat',
+setup(name='heartbeat',
     version='2.5.2',
     description='Minimalist network monitoring tool',
     author='Nate Levesque',
