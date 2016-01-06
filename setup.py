@@ -7,7 +7,7 @@ import os
 install_requires = [
     'pymlconf',
     'pyyaml',
-    'pycrypto'
+    'pycryptodome'
     ]
 
 test_requires = [

@@ -132,7 +132,7 @@ def _get_config_path(path = None):
     if (path is not None):
         return path
     elif (sys.platform == 'win32'):
-        return os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat', 'Settings')
+        return os.path.join(os.path.split(sys.executable)[0], 'ProgramData', 'Heartbeat', 'Settings')
     else:
         linux_paths = [
                 os.path.join(os.path.expanduser('~'), '.heartbeat'),
