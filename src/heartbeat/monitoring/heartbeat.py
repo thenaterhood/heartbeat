@@ -150,10 +150,13 @@ class HeartMonitor(Monitor):
         Saves the cache out to disk
         """
         hosts = self.known_hosts.keys()
-        fileHandle = open(self.cachefile, 'w')
-        for h in hosts:
-            fileHandle.write(h + "\n")
-        fileHandle.close()
+        try:
+            fileHandle = open(self.cachefile, 'w')
+            for h in hosts:
+                fileHandle.write(h + "\n")
+            fileHandle.close()
+        except Exception:
+            pass
 
     def loadCache(self):
         """
@@ -225,6 +228,7 @@ class HeartMonitor(Monitor):
         self.known_hosts = LockingDictionary()
         self.loadCache()
         self.listener.start()
+
 
         while not self.shutdown:
             sleep(40)
