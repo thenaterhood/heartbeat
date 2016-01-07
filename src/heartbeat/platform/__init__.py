@@ -22,6 +22,9 @@ class Topics(Enum):
     VIRT = "virtual"
     HEARTBEAT = "heartbeat"
 
+# Keeps backward compatibility for enum name
+# TODO: Remove when API is upgraded (breaking change)
+EventType = Topics
 
 class Event(object):
 
