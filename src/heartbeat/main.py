@@ -98,21 +98,19 @@ def main():
         hwmon.start()
         threads.append(hwmon)
 
-    return threads
-
-
-if __name__ == "__main__":
-    threads = main()
-
     try:
-        #threads = [t.join(1) for t in threads if t is not None and t.isAlive()]
         while 1:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("Shutting down heartbeat")
         for t in threads:
             t.shutdown = True
 
-        print("Shutdown request sent, exiting in 5 seconds")
+        print("Shutting down heartbeat...")
         time.sleep(5)
-        os._exit(0)
+        os._exit(1)
+
+
+if __name__ == "__main__":
+
+    main()
+
