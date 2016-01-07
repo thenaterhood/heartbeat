@@ -47,7 +47,7 @@ class Encryptor():
         cipher = AES.new(key, AES.MODE_ECB)
         padded_plaintext = self._pad_text(plaintext)
 
-        ciphertext = cipher.encrypt(padded_plaintext)
+        ciphertext = cipher.encrypt(padded_plaintext.encode("UTF-8"))
         ciphertext_with_salt = salt + ciphertext
 
         if (base64_encode):
