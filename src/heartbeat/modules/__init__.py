@@ -15,8 +15,6 @@ class Heartbeat(object):
     Defines a heartbeat thread which will send a broadcast
     over the network every given interval (plus a small random margin
     so as to avoid flooding the network)
-
-    Extends threading.Thread
     """
 
     def __init__(self, interval, secret, bcaster, logger=None, timer=None):
@@ -143,8 +141,8 @@ class MonitorHandler(object):
 class EventServer(object):
 
     """
-    A class that holds a list of notifiers and allows them to
-    all be kicked off in succession
+    Handles dispatching events to subscribers based on the topic
+    of the event.
     """
 
     def __init__(self, threadpool, limit_strategy=None, logger=None):
