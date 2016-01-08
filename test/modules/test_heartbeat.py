@@ -11,7 +11,7 @@ else:
 
 from heartbeat.modules import Heartbeat
 from heartbeat.network import SocketBroadcaster
-from heartbeat.modules import NotificationHandler
+from heartbeat.modules import EventServer
 from heartbeat.modules import MonitorHandler
 from heartbeat.monitoring import Monitor
 
@@ -40,5 +40,3 @@ class TestHeartbeat(unittest.TestCase):
         self.hb._beat()
 
         self.hb.bcaster.push.assert_called_once_with(ANY)
-
-

@@ -6,7 +6,6 @@ if (sys.version_info < (3, 3)):
 
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import MonitorHandler
-from heartbeat.modules import NotificationHandler
 from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import Topics
@@ -40,33 +39,22 @@ logger.addHandler(termhandler)
 
 def main():
     threads = []
+    active_plugins = []
 
     logger.debug("Loading configuration")
     settings = get_config_manager()
-
-    dispatcher = EventServer()
 
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
     notifiers = load_notifiers(settings.heartbeat.notifiers)
 
-    notificationHandler = NotificationHandler(
-            notifiers,
-            notifyPool,
-            )
+    dispatcher = EventServer(notifyPool)
 
-    dispatcher.attach(
-        Topics.INFO,
-        notificationHandler.receive_event
-        )
-    dispatcher.attach(
-        Topics.WARNING,
-        notificationHandler.receive_event
-        )
-    dispatcher.attach(
-        Topics.DEBUG,
-        notificationHandler.receive_event
-        )
+    for n in notifiers:
+        notifier = n()
+        active_plugins.append(notifier)
+        for t, c in notifier.get_subscriptions().items():
+            dispatcher.attach(t, c)
 
     if (settings.heartbeat.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
@@ -113,4 +101,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-

@@ -9,45 +9,6 @@ from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
 import logging
 
 
-class EventServer(object):
-
-    """
-    Handles dispatching events based on hooks and signals
-    """
-
-    __slots__ = ('topics')
-
-    def __init__(self):
-        self.topics = {}
-        for s in Topics:
-            self.topics[s] = []
-
-    def put_event(self, event):
-        """
-        Passes an Event to the dispatcher
-
-        Parameters:
-            Event event
-            SignalType signal_type: signal type associated with the
-                event. Defaults to NEW_HUM_EVENT if not provided
-        """
-
-        for c in self.topics[event.type]:
-            c(event)
-
-    def attach(self, topic, callback):
-        """
-        Attaches a hook for a type of signal
-
-        Parameters:
-            SignalType signal_type: the signal that will trigger
-                the hook
-            Callable call: A method to call when triggered. This will
-                be called with a Signal instance passed as a param
-        """
-        self.topics[topic].append(callback)
-
-
 class Heartbeat(object):
 
     """
@@ -179,14 +140,14 @@ class MonitorHandler(object):
         self.event_callback(event)
 
 
-class NotificationHandler(object):
+class EventServer(object):
 
     """
     A class that holds a list of notifiers and allows them to
     all be kicked off in succession
     """
 
-    def __init__(self, notifiers, threadpool, limit_strategy=None, logger=None):
+    def __init__(self, threadpool, limit_strategy=None, logger=None):
         """
         Constructor
 
@@ -203,13 +164,9 @@ class NotificationHandler(object):
         else:
             self.logger = logger
 
-        self.notifiers = []
-        for n in notifiers:
-            notifier = n()
-            self.notifiers.append(notifier)
-
-        self.queue = Queue(50)
-        self.processing = False
+        self.topics = {}
+        for t in Topics:
+            self.topics[t] = []
 
         self.monitorPreviousEvent = LockingDictionary()
         self.eventTime = LockingDictionary()
@@ -220,7 +177,20 @@ class NotificationHandler(object):
 
         self.threadpool = threadpool
 
-    def receive_event(self, event):
+    def attach(self, topic, callback):
+        """
+        Allows other systems to subscribe to events
+        of different topics.
+
+        Params:
+            Topic topic: topic to subscribe to
+            Callable callback: Method to call when a new event of the topic
+                is received
+        """
+        self.logger.debug(str(callback) + " has subscribed to " + str(topic))
+        self.topics[topic].append(callback)
+
+    def put_event(self, event):
         """
         Starts the thread to push notifications
 
@@ -229,8 +199,8 @@ class NotificationHandler(object):
         """
         self.logger.info("Received event: " + str(event))
         if (self.limit_strategy(event)):
-            self.logger.debug("Dispatching notification")
-            self.run(event)
+            self.logger.debug("Dispatching event")
+            self._forward_event(event)
         else:
             self.logger.debug(
                 "Skipping notification dispatch per limit strategy")
@@ -269,22 +239,13 @@ class NotificationHandler(object):
         self.eventTime.write(event.__hash__(), event.timestamp)
         self.monitorPreviousEvent.write(event.source, event)
 
-    def run(self, event):
+    def _forward_event(self, event):
         """
-        Sends a notification to each configured
-        notifier passed in for the given host
-        and event.
-
-        Params:
-            array  notifiers: the notifiers to sent a notification through
-            string host:      the hostname the notification applies to
-            dict   event:     the event (contains a message and title)
+        Forwards an event to all the handlers subscribed to
+        the topic the event is categorized as
         """
-        for n in self.notifiers:
-            n.load(event)
-            self.threadpool.submit(n.run)
-
-        self.log_event(event)
+        for t in self.topics[event.type]:
+            self.threadpool.submit(t, event)
 
 
 if __name__ == "__main__":
