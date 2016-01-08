@@ -26,26 +26,20 @@ class TestMonitorHandler(unittest.TestCase):
 
         self.hwmonitors[0].realtime=False
 
-        notifyHandler = MagicMock(name="dispatcher", spec=EventServer)
+        self.notifyHandler = MagicMock(name="dispatcher", spec=EventServer)
 
         pool = MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor)
 
         self.monitor_handler = MonitorHandler(
-                self.hwmonitors,
-                notifyHandler.put_event,
+                self.notifyHandler.put_event,
                 pool
                 )
 
         self.monitor_handler.hwmonitors = self.hwmonitors
 
     def test_scan(self):
+        self.monitor_handler.add_periodic_monitor(self.hwmonitors[1].run)
         self.monitor_handler.scan()
-        self.monitor_handler.threadpool.submit.assert_called_with(self.hwmonitors[1].run)
-
-    def test_receive_event(self):
-        e = Event()
-        self.monitor_handler.receive_event(e)
-
-        self.monitor_handler.event_callback.assert_called_once_with(e)
-
-
+        self.monitor_handler.threadpool.submit.assert_called_with(
+            self.hwmonitors[1].run, self.notifyHandler.put_event
+        )

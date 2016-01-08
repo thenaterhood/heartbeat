@@ -71,7 +71,7 @@ class MonitorHandler(object):
     an interval
     """
 
-    def __init__(self, hwmonitors, event_callback, threadpool, logger=None, timer=None):
+    def __init__(self, event_callback, threadpool, logger=None, timer=None):
         """
         Constructor
 
@@ -80,20 +80,16 @@ class MonitorHandler(object):
                 instances
             NotificationHandler notifyHandler:  notification handler
         """
-        self.hwmonitors = []
-        self.rtMonitors = []
+        self.realtime_plugins = []
+        self.periodic_plugins = []
+        self.started = False
+
         if (logger == None):
             self.logger = logging.getLogger(
                 __name__ + "." + self.__class__.__name__
             )
         else:
             self.logger = logger
-        for m in hwmonitors:
-            monitor = m(self.receive_event)
-            if monitor.realtime:
-                self.rtMonitors.append(monitor)
-            else:
-                self.hwmonitors.append(monitor)
 
         self.event_callback = event_callback
         self.logger.debug("Bringing up threadpool")
@@ -103,13 +99,28 @@ class MonitorHandler(object):
         else:
             self.timer = timer
 
+    def add_realtime_monitor(self, call):
+        if self.started:
+            raise Exception(
+                "Plugins cannot be added to a running handler"
+                )
+        self.realtime_plugins.append(call)
+
+    def add_periodic_monitor(self, call):
+        if self.started:
+            raise Exception(
+                "Plugins cannot be added to a running handler"
+                )
+        self.periodic_plugins.append(call)
+
     def start(self):
         """
         Run method, generally called from the parent start()
         """
+        self.started = True
         self.logger.debug("Starting realtime monitors")
-        for m in self.rtMonitors:
-            self.threadpool.submit(m.run)
+        for m in self.realtime_plugins:
+            self.threadpool.submit(m, self.event_callback)
 
         self.scan()
         self.timer.start()
@@ -119,9 +130,9 @@ class MonitorHandler(object):
         Runs each monitor thread and waits for it to complete
         """
         self.logger.debug("Starting periodic query to monitors")
-        for m in self.hwmonitors:
-            self.logger.debug("Querying " + m.__class__.__name__)
-            self.threadpool.submit(m.run)
+        for m in self.periodic_plugins:
+            self.logger.debug("Querying " + str(m))
+            self.threadpool.submit(m, self.event_callback)
 
     def terminate(self):
         """
@@ -129,13 +140,6 @@ class MonitorHandler(object):
         """
         self.timer.stop()
         self.threadpool.terminate()
-
-    def receive_event(self, event):
-        """
-        A callback method for monitors to call to. Currently just a
-        wrapper for the notifier.push
-        """
-        self.event_callback(event)
 
 
 class EventServer(object):

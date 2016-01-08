@@ -10,6 +10,7 @@ from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import Topics
 from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
+from heartbeat.monitoring import MonitorType
 import threading
 import time
 import logging, logging.handlers
@@ -78,11 +79,21 @@ def main():
                 max_workers=len(settings.heartbeat.monitors)
                     )
         hwmon = MonitorHandler(
-                monitors,
                 dispatcher.put_event,
                 monitorPool,
                 logger
                 )
+
+        for m in monitors:
+            # TODO: new architecture will not accept callback as a param here
+            monitor = m(callback=None)
+            producers = monitor.get_producers()
+            for t, c in producers.items():
+                if t == MonitorType.REALTIME:
+                    hwmon.add_realtime_monitor(c)
+                elif t == MonitorType.PERIODIC:
+                    hwmon.add_periodic_monitor(c)
+
         hwmon.start()
         threads.append(hwmon)
 

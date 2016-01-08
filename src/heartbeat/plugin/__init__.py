@@ -42,10 +42,26 @@ class PluginRegistry(type):
 
 class Plugin(object, metaclass=PluginRegistry):
 
-    work_queue = None
+    def get_subscriptions(self):
+        """
+        Returns a dictionary of topics mapped to
+        callbacks which heartbeat will set up.
+        The default at this level is an empty
+        dictionary.
 
-    def queue_work(self, work):
-        self.work_queue.put(work)
+        Returns:
+            dict(Topic: Callback)
+        """
+        return {}
 
-    def get_signal_hook(self, signal):
-        return None
+    def get_producers(self):
+        """
+        Returns a dictionary of producers and types
+        (realtime and otherwise) that will produce
+        Events that heartbeat will dispatch. The default
+        at this level is an empty dictionary.
+
+        Returns:
+            dict(MonitorType: Callback)
+        """
+        return {}

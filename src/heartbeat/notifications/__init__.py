@@ -65,4 +65,13 @@ class Notifier(Plugin):
         return subs
 
     def run(self):
+        """
+        @deprecated
+
+        This method is deprecated and will no longer be defined by
+        the parent class. It can still be defined by the inheriting
+        classes if desired. Heartbeat will request the method to
+        call for each subscription instead
+        """
+
         raise NotImplementedError
