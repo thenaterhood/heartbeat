@@ -8,7 +8,6 @@ from heartbeat.modules import Heartbeat
 from heartbeat.modules import MonitorHandler
 from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
-from heartbeat.platform import Topics
 from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
 from heartbeat.monitoring import MonitorType
 from heartbeat.plugin import PluginRegistry
@@ -88,7 +87,6 @@ def main():
 
     if (settings.heartbeat.enable_hwmonitor):
         logger.info("Bringing up monitoring")
-        monitors = load_monitors(settings.heartbeat.monitors)
         monitorPool = concurrent.futures.ThreadPoolExecutor(
                 max_workers=len(settings.heartbeat.monitors)
                     )
