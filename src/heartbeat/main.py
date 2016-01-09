@@ -10,13 +10,14 @@ from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
 from heartbeat.monitoring import MonitorType
-from heartbeat.plugin import PluginRegistry
+from heartbeat.plugin import PluginRegistry, ModuleLoader
 import threading
 import time
 import logging, logging.handlers
 import concurrent.futures
 
 # Temporary include until full API upgrade TODO
+# @deprecated
 import inspect
 
 
@@ -50,11 +51,18 @@ def main():
 
     logger.debug("Loading plugins")
 
+    if settings.heartbeat.plugins is not None and len(settings.heartbeat.plugins) > 0:
+        PluginRegistry.populate_whitelist(settings.heartbeat.plugins)
+        for p in settings.heartbeat.plugins:
+            ModuleLoader.load(p, full_classpath=True)
+
     load_notifiers(settings.heartbeat.notifiers)
     load_monitors(settings.heartbeat.monitors)
 
     for name, plugin in PluginRegistry.plugins.items():
         # TODO
+
+        # @deprecated
         if len(inspect.getargspec(plugin.__init__).args) > 1:
             active_plugins.append(plugin(None))
         else:

@@ -64,6 +64,12 @@ class PluginRegistry(type):
 
         return filtered
 
+    def populate_whitelist(allowed_plugins):
+        if PluginRegistry.whitelist == []:
+            PluginRegistry.whitelist = allowed_plugins
+        else:
+            raise Exception("The PluginRegistry whitelist has already been configured")
+
 
 class Plugin(object, metaclass=PluginRegistry):
 

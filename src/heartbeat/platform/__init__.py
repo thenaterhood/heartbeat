@@ -156,7 +156,8 @@ def get_config_manager(path = None):
 
     _default_config = {
         'heartbeat': {
-            'monitor_server': None
+            'monitor_server': None,
+            'plugins': {}
         },
         'notifiers': {
         },
@@ -179,6 +180,9 @@ def get_config_manager(path = None):
 
 
 def load_trusted_plugins(modules, package='', full_classpath=True):
+    """
+    @deprecated
+    """
 
     for m in modules:
         modulepath = ".".join([package] + m.split("."))
@@ -186,12 +190,15 @@ def load_trusted_plugins(modules, package='', full_classpath=True):
         ModuleLoader.load(modulepath, full_classpath)
 
 def load_notifiers(notifiers):
+    """
+    @deprecated
+    """
 
     load_trusted_plugins(notifiers, package="heartbeat.notifications")
-    return PluginRegistry.filter_by_package("heartbeat.notifications").values()
-
 
 def load_monitors(monitors):
+    """
+    @deprecated
+    """
 
     load_trusted_plugins(monitors, package="heartbeat.monitoring")
-    return PluginRegistry.filter_by_package("heartbeat.monitoring").values()
