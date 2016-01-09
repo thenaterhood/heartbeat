@@ -40,7 +40,7 @@ else:
 
 
 setup(name='heartbeat',
-    version='2.6.0',
+    version='2.7.0',
     description='Minimalist network monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
