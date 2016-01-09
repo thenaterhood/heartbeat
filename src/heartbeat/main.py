@@ -11,10 +11,14 @@ from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import Topics
 from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
 from heartbeat.monitoring import MonitorType
+from heartbeat.plugin import PluginRegistry
 import threading
 import time
 import logging, logging.handlers
 import concurrent.futures
+
+# Temporary include until full API upgrade TODO
+import inspect
 
 
 logger = logging.getLogger("heartbeat")
@@ -45,16 +49,26 @@ def main():
     logger.debug("Loading configuration")
     settings = get_config_manager()
 
+    logger.debug("Loading plugins")
+
+    load_notifiers(settings.heartbeat.notifiers)
+    load_monitors(settings.heartbeat.monitors)
+
+    for name, plugin in PluginRegistry.plugins.items():
+        # TODO
+        if len(inspect.getargspec(plugin.__init__).args) > 1:
+            active_plugins.append(plugin(None))
+        else:
+            active_plugins.append(plugin())
+
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
     notifiers = load_notifiers(settings.heartbeat.notifiers)
 
     dispatcher = EventServer(notifyPool)
 
-    for n in notifiers:
-        notifier = n()
-        active_plugins.append(notifier)
-        for t, c in notifier.get_subscriptions().items():
+    for plugin in active_plugins:
+        for t, c in plugin.get_subscriptions().items():
             dispatcher.attach(t, c)
 
     if (settings.heartbeat.enable_heartbeat):
@@ -73,7 +87,7 @@ def main():
         threads.append(server)
 
     if (settings.heartbeat.enable_hwmonitor):
-        logger.info("Bringing up monitoring subsystem")
+        logger.info("Bringing up monitoring")
         monitors = load_monitors(settings.heartbeat.monitors)
         monitorPool = concurrent.futures.ThreadPoolExecutor(
                 max_workers=len(settings.heartbeat.monitors)
@@ -84,10 +98,9 @@ def main():
                 logger
                 )
 
-        for m in monitors:
-            # TODO: new architecture will not accept callback as a param here
-            monitor = m(callback=None)
-            producers = monitor.get_producers()
+        for plugin in active_plugins:
+
+            producers = plugin.get_producers()
             for t, c in producers.items():
                 if t == MonitorType.REALTIME:
                     hwmon.add_realtime_monitor(c)

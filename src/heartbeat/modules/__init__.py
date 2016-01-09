@@ -76,9 +76,10 @@ class MonitorHandler(object):
         Constructor
 
         Params:
-            array[Monitor] hwmonitors: an array of HardwareWorker
-                instances
-            NotificationHandler notifyHandler:  notification handler
+            Callable event_callback: method to call when a new Event is received
+            Threadpool threadpool: threadpool for running tasks.
+            Logger logger: logger
+            BackgroundTimer timer: Timer instance for running periodic queries
         """
         self.realtime_plugins = []
         self.periodic_plugins = []
@@ -100,6 +101,12 @@ class MonitorHandler(object):
             self.timer = timer
 
     def add_realtime_monitor(self, call):
+        """
+        Adds a realtime monitoring plugin
+
+        Params:
+            Callable call: the start or run method of the plugin
+        """
         if self.started:
             raise Exception(
                 "Plugins cannot be added to a running handler"
@@ -107,6 +114,12 @@ class MonitorHandler(object):
         self.realtime_plugins.append(call)
 
     def add_periodic_monitor(self, call):
+        """
+        Adds a periodic monitoring plugin
+
+        Params:
+            Callable call: the run method of the plugin
+        """
         if self.started:
             raise Exception(
                 "Plugins cannot be added to a running handler"
