@@ -4,7 +4,18 @@ import importlib
 
 class ModuleLoader(object):
 
+    """
+    Dynamically loads modules at runtime for loading plugins.
+    """
+
     def load_multiple(paths, full_classpath=False):
+        """
+        Loads multiple modules from a module path or a full classpath
+
+        Params:
+            Array paths: A list of paths to load
+            Bool full_classpath: Whether the paths provided are a full classpath
+        """
         modules = []
         for p in paths:
             modules.append(ModuleLoader.load_module(p, full_classpath))
@@ -12,6 +23,13 @@ class ModuleLoader(object):
         return modules
 
     def load(path, full_classpath=False):
+        """
+        Loads a single module from a path
+
+        Params:
+            String path: the path to load
+            Bool full_classpath: Whether the path provided is a full classpath
+        """
         if full_classpath:
             path = ".".join(path.split(".")[:-1])
 
@@ -20,6 +38,14 @@ class ModuleLoader(object):
 
 
 class PluginRegistry(type):
+
+    """
+    Registry of loaded plugins. This is populated automatically
+    when plugins are imported.
+
+    This relies on a whitelist, populated from the configuration and
+    will attempt to only import plugins that are configured.
+    """
 
     plugins = {}
     whitelist = []
@@ -41,6 +67,13 @@ class PluginRegistry(type):
 
 
 class Plugin(object, metaclass=PluginRegistry):
+
+    """
+    The base heartbeat Plugin class that all plugins are
+    required to inherit from. When inheriting classes are
+    imported, they will automatically be registered with
+    the PluginRegistry if they appear in the configuration.
+    """
 
     def get_subscriptions(self):
         """
