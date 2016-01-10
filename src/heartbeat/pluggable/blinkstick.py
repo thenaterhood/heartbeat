@@ -48,10 +48,10 @@ class Color(Plugin):
 
         """
 
-        subs = dict(
+        subs = {
                 Topics.INFO: self.info_callback,
                 Topics.WARNING: self.warning_callback,
-            )
+                }
 
         return subs
 

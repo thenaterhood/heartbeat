@@ -34,11 +34,11 @@ class Dweet(Plugin):
         Overrides Plugin.get_subscriptions
         """
 
-        subs = dict(
+        subs = {
             Topics.INFO: self._push_dweet,
             Topics.WARNING: self._push_dweet,
             Topics.DEBUG: self._push_dweet
-            )
+            }
 
         return subs
 
