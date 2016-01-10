@@ -4,7 +4,9 @@ from heartbeat.network import NetworkInfo
 
 
 class LANIp(Monitor):
-
+    """
+    @deprecated: use heartbeat.pluggable.network.LANIp
+    """
     def __init__(self, callback):
         super(LANIp, self).__init__(callback)
         self.ipv4 = '0.0.0.0'
@@ -23,7 +25,9 @@ class LANIp(Monitor):
 
 
 class WANIp(Monitor):
-
+    """
+    @deprecated: use heartbeat.pluggable.network.WANIp
+    """
     def __init__(self, callback):
         super(WANIp, self).__init__(callback)
         self.ipv4 = '0.0.0.0'

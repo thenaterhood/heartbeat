@@ -63,3 +63,110 @@ class Sender(Plugin):
 
         broadcaster.push(bytes(data.encode("UTF-8")))
 
+
+class Listener(Plugin):
+
+    """
+    A monitor class to listen for and handle events received from devices
+    using the HeartbeatServer monitor.
+    """
+
+    def __init__(self):
+        """
+        constructor
+
+        Params:
+            int port: the port to listen on. Must match that of the heartbeats
+               this is intended to watch
+            string secret: a secret string to identify the heartbeat. Must
+               match that of the heartbeats this is intended to watch
+            Notificationhandler notifyHandler: notification handler
+        """
+        self.settings = get_config_manager()
+        secret = self.settings.heartbeat.secret_key
+
+        self.callback = callback
+        self.secret = bytes(secret.encode("UTF-8"))
+        self.listener = SocketListener(22000, self.receive)
+
+        super(Listener, self).__init__()
+        self.realtime = True
+        self.shutdown = False
+
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+
+        prods = {
+            MonitorType.REALTIME: self.run
+            }
+
+        return prods
+
+    def _bcastIsOwn(self, host):
+        """
+        Determines if a received broadcast is from the same machine
+
+        Params:
+            string host: the host the broadcast originated from (fqdn)
+        Returns:
+            boolean: whether the broadcast originated from ourselves
+        """
+        netinfo = NetworkInfo()
+        return host == netinfo.fqdn
+
+    def receive(self, data, addr):
+        """
+        Receives the data and address from a broadcast. Used for the
+        SocketListener to call back to when it receives something.
+
+        Params:
+            binary data: the undecoded data from the broadcast
+            binary addr:
+        """
+        if data.startswith(self.secret):
+            eventJson = data[len(self.secret):].decode("UTF-8")
+
+            event_loaded = False
+
+            if (self._bcastIsOwn(event.host)):
+                return
+
+            if (self.settings.accept_plaintext or not self.settings.use_encryption):
+                try:
+                    event = Event.from_json(eventJson)
+                    event_loaded = True
+                except:
+                    pass
+
+            if (not event_loaded and self.settings.use_encryption):
+                try:
+                    encryptor = Encryptor(self.settings.enc_password)
+                    event = Event.from_json(encryptor.decrypt(eventJson))
+                    event_loaded = True
+                except:
+                    pass
+
+            if (event_loaded):
+                self.callback(event)
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        self.listener.shutdown = True
+
+    def run(self, callback):
+        """
+        Runs the monitor. Usually called by the parent start()
+        """
+        self.callback = callback
+        self.listener.start()
+
+        while not self.shutdown:
+            sleep(4)
+
+        self.terminate()
+
+
