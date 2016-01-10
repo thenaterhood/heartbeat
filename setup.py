@@ -63,7 +63,8 @@ setup(name='heartbeat',
         'heartbeat.platform',
         'heartbeat.plugin',
         'heartbeat.multiprocessing',
-        'heartbeat.security'
+        'heartbeat.security',
+        'heartbeat.pluggable'
         ],
     data_files=data_files
     )
