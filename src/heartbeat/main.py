@@ -95,6 +95,7 @@ def main():
 
     if (settings.heartbeat.enable_hwmonitor):
         logger.info("Bringing up monitoring")
+        required_workers = 1
         monitorPool = concurrent.futures.ThreadPoolExecutor(
                 max_workers=len(settings.heartbeat.monitors)
                     )
@@ -108,10 +109,15 @@ def main():
 
             producers = plugin.get_producers()
             for t, c in producers.items():
+                required_workers += 1
                 if t == MonitorType.REALTIME:
                     hwmon.add_realtime_monitor(c)
                 elif t == MonitorType.PERIODIC:
                     hwmon.add_periodic_monitor(c)
+
+        hwmon.threadpool = concurrent.futures.ThreadPoolExecutor(
+                max_workers = required_workers
+                )
 
         hwmon.start()
         threads.append(hwmon)
