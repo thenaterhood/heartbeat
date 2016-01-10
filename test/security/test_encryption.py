@@ -16,11 +16,17 @@ class EncryptorTest(unittest.TestCase):
         self.encryptor = Encryptor(self.password)
 
     def test_init(self):
+        """
+        Encryptor can be instantiated
+        """
         e = Encryptor(self.password)
 
         self.assertEqual(e.password, self.password)
 
     def test_pad_text(self):
+        """
+        Encryptor correctly pads short text
+        """
         text = 'foo_bar'
 
         padded_text = self.encryptor._pad_text(text)
@@ -28,6 +34,9 @@ class EncryptorTest(unittest.TestCase):
         self.assertEqual(padded_text, 'foo_bar*********')
 
     def test_pad_text_long(self):
+        """
+        Encryptor correctly pads long text (len between multiples of 16)
+        """
         text = 'foo_bar_foo_bar_foo_bar'
 
         padded_text = self.encryptor._pad_text(text)
@@ -35,18 +44,27 @@ class EncryptorTest(unittest.TestCase):
         self.assertEqual(padded_text, 'foo_bar_foo_bar_foo_bar*********')
 
     def test_unpad_text(self):
+        """
+        Encryptor correctly removes padding from text
+        """
         padded_text = 'foo_bar*********'
 
         unpadded_text = self.encryptor._unpad_text(padded_text)
         self.assertEqual(unpadded_text, 'foo_bar')
 
     def test_generate_key(self):
+        """
+        Encryptor correctly generates keys from the password
+        """
         correct_key = b'\x1b\x95\xf2\xd9j|\xf7\xff\xbc\x1f\xdb\xe2\xb2\xe6\x82\rq\xd9\xdf4\xbc\xad3\xa1P\xe8\xe8\xab.\xfc\x8f\xa2'
 
         key = self.encryptor.generate_key(b'heartbeat', 20)
         self.assertEqual(key, correct_key)
 
     def test_encrypt(self):
+        """
+        Encryptor correctly encrypts text
+        """
         plaintext = 'test_text'
         correct_encrypted = b'aGVhcnRiZWF0aGVhcnRiZd5sZecsTA83iQ5TDpvJ65w='
 
@@ -54,6 +72,9 @@ class EncryptorTest(unittest.TestCase):
         self.assertEqual(encrypted, correct_encrypted)
 
     def test_encrypt_16(self):
+        """
+        Strings requiring 0 padding are encrypted correctly
+        """
         plaintext = 'test_text_16_now'
         correct_encrypted = b'aGVhcnRiZWF0aGVhcnRiZct2fh0EhS3LRnxKJkFWsdFG9+RffOSPDIzvndEoNGfZ'
         encrypted = self.encryptor.encrypt(plaintext, True, b'heartbeatheartbe')
@@ -61,6 +82,9 @@ class EncryptorTest(unittest.TestCase):
         self.assertEqual(encrypted, correct_encrypted)
 
     def test_decrypt(self):
+        """
+        Encryptor correctly decrypts text
+        """
         correct_plaintext = 'test_text'
         encrypted = b'aGVhcnRiZWF0aGVhcnRiZd5sZecsTA83iQ5TDpvJ65w='
 
@@ -69,9 +93,7 @@ class EncryptorTest(unittest.TestCase):
 
     def test_decrypt_16(self):
         """
-        This method ensures that a string that requires 0 padding
-        will be handled correctly, since that constitutes an
-        edge case
+        Strings requiring 0 padding are decrypted correctly
         """
         correct_plaintext = 'test_text_16_now'
         encrypted = b'aGVhcnRiZWF0aGVhcnRiZct2fh0EhS3LRnxKJkFWsdFG9+RffOSPDIzvndEoNGfZ'
