@@ -12,6 +12,11 @@ class Notifier(Plugin):
 
     Extends:
         threading.Thread
+
+    @deprecated: Classes should now inherit directly
+    from the Plugin class. This Notifier class will
+    be removed in a future version, but is still
+    provided as scaffolding for legacy versions.
     """
 
     def __init__(self):

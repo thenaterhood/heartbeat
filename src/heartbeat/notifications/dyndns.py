@@ -5,7 +5,9 @@ import urllib.request
 
 
 class UrlPull(Notifier):
-
+    """
+    @deprecated: use heartbeat.pluggable.dyndns.UrlPull
+    """
     __slots__ = ('current_ip', 'new_ip', 'url')
 
     def __init__(self):

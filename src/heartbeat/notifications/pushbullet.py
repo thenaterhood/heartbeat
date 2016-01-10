@@ -6,6 +6,9 @@ from datetime import datetime
 
 class pushbullet(Notifier):
 
+    """
+    @deprecated: use heartbeat.pluggable.pushbullet.NotePush
+    """
     __slots__ = ('api_key', 'message', 'title', 'api_keys')
 
     def __init__(self):

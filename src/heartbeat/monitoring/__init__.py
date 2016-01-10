@@ -20,6 +20,11 @@ class Monitor(Plugin):
         Params:
             Function callback: A method to call when the MonitorWorker
                 discovers something of note, or just feels lonely
+
+        @deprecated: Plugins should now inherit directly from
+        the Plugin class. This Monitor class will be removed
+        in a future version and is provided only as scaffolding
+        so legacy plugins continue to work.
         """
         self.callback = None
         self.realtime = False

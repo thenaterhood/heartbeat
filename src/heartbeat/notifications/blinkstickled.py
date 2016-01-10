@@ -5,7 +5,9 @@ from datetime import datetime
 
 
 class BlinkStickColor(Notifier):
-
+    """
+    @deprecated: use heartbeat.pluggable.blinkstick.Color
+    """
     __slots__ = ('message', 'title', 'serial', 'warning', 'okay',
                  'alert', 'use_color', 'previous_warnings')
 

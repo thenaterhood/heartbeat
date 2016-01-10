@@ -9,7 +9,9 @@ community_name = net.ip_wan
 
 
 class dweet(Notifier):
-
+    """
+    @deprecated: use heartbeat.pluggable.dweetio.Dweet
+    """
     __slots__ = ('message', 'title', 'host')
 
     def __init__(self):

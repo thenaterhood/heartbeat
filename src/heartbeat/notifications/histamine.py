@@ -8,6 +8,8 @@ from heartbeat.security import Encryptor
 class Histamine(Notifier):
 
     """
+    @deprecated: use heartbeat.pluggable.histamine.Sender
+
     Calls up and sends hardware events to a monitoring server
     """
 
