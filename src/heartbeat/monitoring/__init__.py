@@ -1,6 +1,7 @@
 from heartbeat.plugin import Plugin
 from enum import Enum
 from heartbeat.multiprocessing import BackgroundTimer
+import logging
 
 
 class MonitorType(Enum):
