@@ -76,6 +76,7 @@ def main():
         for t, c in plugin.get_subscriptions().items():
             dispatcher.attach(t, c)
 
+    # @deprecated: functionality moved to a plugin
     if (settings.heartbeat.enable_heartbeat):
         logger.info("Bringing up system heartbeat")
         broadcaster = SocketBroadcaster(
@@ -91,6 +92,9 @@ def main():
         server.start()
         threads.append(server)
 
+    # @deprecated: this option will be removed in the future and will
+    # always be enabled, overwise there will be no Events. This also means
+    # the two for loops handling plugins can be combined into one.
     if (settings.heartbeat.enable_hwmonitor):
         logger.info("Bringing up monitoring")
         required_workers = 1
