@@ -193,12 +193,12 @@ def load_notifiers(notifiers):
     """
     @deprecated
     """
-
-    load_trusted_plugins(notifiers, package="heartbeat.notifications")
+    if notifiers is not None:
+        load_trusted_plugins(notifiers, package="heartbeat.notifications")
 
 def load_monitors(monitors):
     """
     @deprecated
     """
-
-    load_trusted_plugins(monitors, package="heartbeat.monitoring")
+    if monitors is not None:
+        load_trusted_plugins(monitors, package="heartbeat.monitoring")

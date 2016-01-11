@@ -95,12 +95,10 @@ def main():
     if (settings.heartbeat.enable_hwmonitor):
         logger.info("Bringing up monitoring")
         required_workers = 1
-        monitorPool = concurrent.futures.ThreadPoolExecutor(
-                max_workers=len(settings.heartbeat.monitors)
-                    )
+
         hwmon = MonitorHandler(
                 dispatcher.put_event,
-                monitorPool,
+                None,
                 logger
                 )
 
