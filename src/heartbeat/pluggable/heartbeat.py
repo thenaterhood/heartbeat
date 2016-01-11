@@ -55,7 +55,8 @@ class Monitor(Plugin):
         """
 
         prods = {
-                MonitorType.REALTIME: self.run
+                MonitorType.REALTIME: self.run,
+                MonitorType.PERIODIC: self.cleanup_hosts
             }
 
         return prods
@@ -126,7 +127,7 @@ class Monitor(Plugin):
 
         self.known_hosts.write(host, datetime.datetime.now())
 
-    def _cleanup_hosts(self):
+    def cleanup_hosts(self):
         """
         Cleans up the known heartbeats and notifies of any that haven't
         been heard for a while, then dumps them.
@@ -134,7 +135,7 @@ class Monitor(Plugin):
         sorted_hosts = sorted(
             self.known_hosts.items(), key=operator.itemgetter(1))
         i = 0
-        while (i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=60)):
+        while (i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=90)):
             event = Event(
                 "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
             self.callback(event)
@@ -153,7 +154,6 @@ class Monitor(Plugin):
         self.callback = callback
 
         while not self.shutdown:
-            sleep(40)
-            self._cleanup_hosts()
+            sleep(10)
 
         self.terminate()
