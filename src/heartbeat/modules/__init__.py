@@ -15,6 +15,9 @@ class Heartbeat(object):
     Defines a heartbeat thread which will send a broadcast
     over the network every given interval (plus a small random margin
     so as to avoid flooding the network)
+
+    @deprecated: use the plugin instead; heartbeat.pluggable.heartbeat.Heartbeat
+    Do not enable the plugin and the heartbeat at the same time.
     """
 
     def __init__(self, interval, secret, bcaster, logger=None, timer=None):

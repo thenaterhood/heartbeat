@@ -51,7 +51,7 @@ class Event(object):
         if (type == None):
             self.type = Topics.INFO
         else:
-            if (not isinstance(self.type, Topics)):
+            if (not isinstance(type, Topics)):
                 raise Exception("Topic received was not recognized")
             self.type = type
         stack = inspect.stack()

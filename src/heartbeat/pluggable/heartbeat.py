@@ -7,12 +7,78 @@ import os
 import datetime
 import operator
 from time import sleep
+from random import randint
 from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.platform import get_config_manager, Event
-from heartbeat.multiprocessing import LockingDictionary
+from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
 from heartbeat.security import Encryptor
 from heartbeat.plugin import Plugin
 from heartbeat.monitoring import MonitorType
+from heartbeat.network import SocketBroadcaster
+
+
+class Heartbeat(Plugin):
+
+    """
+    Defines a heartbeat thread which will send a broadcast
+    over the network every given interval (plus a small random margin
+    so as to avoid flooding the network)
+    """
+
+    def __init__(self, bcaster=None, timer=None):
+        """
+        constructor
+
+        Params:
+            int    port:     the port number to broadcast on
+            int    interval: the base interval to use for beats
+            string secret:   a secret string to identify the heartbeat
+        """
+        settings = get_config_manager()
+        self.secret = bytes(settings.heartbeat.secret_key.encode("UTF-8"))
+
+        self.bcaster = bcaster
+        if (bcaster is None):
+            self.bcaster = SocketBroadcaster(
+                settings.heartbeat.port,
+                settings.heartbeat.monitor_server
+            )
+
+        self.timer = timer
+        if (timer is None):
+            self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
+
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+
+        prods = {
+            MonitorType.REALTIME: self.start
+        }
+
+        return prods
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        self.timer.stop()
+
+    def _beat(self):
+        """
+        Broadcasts a single beat
+        """
+        netinfo = NetworkInfo()
+        data = self.secret + bytes(netinfo.fqdn.encode("UTF-8"))
+        self.bcaster.push(data)
+
+    def start(self, callback):
+        """
+        Runs the heartbeat (typically started by the thread start() call)
+        """
+        self.callback = callback
+        self.timer.start()
 
 
 class Monitor(Plugin):
