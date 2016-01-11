@@ -1,5 +1,6 @@
 from heartbeat.plugin import Plugin
 from enum import Enum
+from heartbeat.multiprocessing import BackgroundTimer
 
 
 class MonitorType(Enum):
@@ -9,6 +10,97 @@ class MonitorType(Enum):
 
     REALTIME = 'realtime'
     PERIODIC = 'periodic'
+
+
+class MonitorHandler(object):
+
+    """
+    Monitoring class handling running multiple monitors on
+    an interval
+    """
+
+    def __init__(self, event_callback, threadpool, logger=None, timer=None):
+        """
+        Constructor
+
+        Params:
+            Callable event_callback: method to call when a new Event is received
+            Threadpool threadpool: threadpool for running tasks.
+            Logger logger: logger
+            BackgroundTimer timer: Timer instance for running periodic queries
+        """
+        self.realtime_plugins = []
+        self.periodic_plugins = []
+        self.started = False
+
+        if (logger == None):
+            self.logger = logging.getLogger(
+                __name__ + "." + self.__class__.__name__
+            )
+        else:
+            self.logger = logger
+
+        self.event_callback = event_callback
+        self.logger.debug("Bringing up threadpool")
+        self.threadpool = threadpool
+        if (timer is None):
+            self.timer = BackgroundTimer(60, True, self.scan)
+        else:
+            self.timer = timer
+
+    def add_realtime_monitor(self, call):
+        """
+        Adds a realtime monitoring plugin
+
+        Params:
+            Callable call: the start or run method of the plugin
+        """
+        if self.started:
+            raise Exception(
+                "Plugins cannot be added to a running handler"
+                )
+        self.realtime_plugins.append(call)
+
+    def add_periodic_monitor(self, call):
+        """
+        Adds a periodic monitoring plugin
+
+        Params:
+            Callable call: the run method of the plugin
+        """
+        if self.started:
+            raise Exception(
+                "Plugins cannot be added to a running handler"
+                )
+        self.periodic_plugins.append(call)
+
+    def start(self):
+        """
+        Run method, generally called from the parent start()
+        """
+        self.started = True
+        self.logger.debug("Starting realtime monitors")
+        for m in self.realtime_plugins:
+            self.threadpool.submit(m, self.event_callback)
+
+        self.scan()
+        self.timer.start()
+
+    def scan(self):
+        """
+        Runs each monitor thread and waits for it to complete
+        """
+        self.logger.debug("Starting periodic query to monitors")
+        for m in self.periodic_plugins:
+            self.logger.debug("Querying " + str(m))
+            self.threadpool.submit(m, self.event_callback)
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        self.timer.stop()
+        self.threadpool.terminate()
 
 
 class Monitor(Plugin):

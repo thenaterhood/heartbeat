@@ -5,11 +5,10 @@ if (sys.version_info < (3, 3)):
     sys.path.append('/lib/python3.2/site-packages')
 
 from heartbeat.modules import Heartbeat
-from heartbeat.modules import MonitorHandler
 from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
-from heartbeat.monitoring import MonitorType
+from heartbeat.monitoring import MonitorType, MonitorHandler
 from heartbeat.plugin import PluginRegistry, ModuleLoader
 import threading
 import time
