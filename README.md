@@ -4,77 +4,79 @@ heartbeat
 [![Code Climate](https://codeclimate.com/github/thenaterhood/heartbeat/badges/gpa.svg)](https://codeclimate.com/github/thenaterhood/heartbeat)
 [![Code Health](https://landscape.io/github/thenaterhood/heartbeat/master/landscape.svg?style=flat)](https://landscape.io/github/thenaterhood/heartbeat/master)
 
-What Heartbeat is
--------------
-Heartbeat is a dead simple network monitoring tool. Set it up, start it with
-your init system (systemd or sysvinit), or manually with the `startheart`
-command. It will send a notification whenever a new heartbeat is detected,
-whenever a host appears to flatline, or when a hardware monitor reports an
-error. It is designed for quick notifications if problems happen, geared
-towards a relatively small fleet of servers.
+Heartbeat is a super simple and minimalistic plugin-based monitoring and
+notification tool. Heartbeat comes with a handful of monitoring and notification
+plugins and provides a simple API for developing your own.
 
-What Heartbeat is NOT
--------------
-Heartbeat is NOT intended to be used as a full-fledged monitoring, management,
-or logging tool. Rather, it is a tiny application intended to provide another,
-extremely lightweight method of keeping tabs on servers with minimal overhead.
-Tools like Nagios and Observium require a database and keep track of much
-more information over time, which Heartbeat is not designed to do.
+Heartbeat is intended to be highly flexible and adaptable to suit various
+applications. The core of Heartbeat is designed for asynchronous routing of
+information from producers (which can be anything) to handlers (which can
+also be anything). Heartbeat can be used for anything from monitoring a fleet
+of servers to developing an IoT system. The PubSub architecture in Heartbeat
+allows the same Heartbeat community to send information to both humans and
+other computers, without stepping on each others' toes.
 
-Setup
-============
-If you're on ArchLinux, a pkgbuild is provided with the occasional package
-in the releases under the releases tab here on Github.
+Heartbeat is not designed with huge-scale systems in mind. Although Heartbeat
+can, in theory, handle such situations, it has not been tested that way. Heartbeat
+provides basic security for encrypting data in transit over a network, but has
+not been tested for security thoroughly; use Heartbeat at your own risk.
 
-If you're not on ArchLinux, you can build and install the package using make. By default, heartbeat will be configured assuming that systemd is the system init system. To use sysvinit instead, run make with the argument INIT_SYSTEM=sysvinit, which will instead set up heartbeat with an init script. To manually build and install the package, run:
+# Usage
+Heartbeat supports Linux and Linux-like operating systems running Python 3.2
+and newer. Support for Windows is in progress, but is still experimental.
 
-        make [[BUILD_PATH=build-heartbeat] INIT_SYSTEM=sysvinit]
-        sudo make [[[BUILD_PATH=build-heartbeat] INSTALL_PATH=/] PRESERVE_CFG=no] install
+## Installation
+Heartbeat can be installed directly through Python using the provided setup.py
+file in the repository. Installing Heartbeat through this requires setuptools
+to be installed but should otherwise work on any platform Python is able to
+run on. Once the repository is cloned to a local location, you can install
+Heartbeat by running `python setup.py install`
 
-The BUILD_PATH, INIT_SYSTEM, and INSTALL_PATH are optional parameters. The make
-install command MUST use the same BUILD_PATH value as the make command. The
-PRESERVE_CFG will check for and avoid overwriting an existing configuration on
-install if specified as yes.
+For ArchLinux users, a pkgbuild is available in the repository for those
+interested in building their own package, and a pre-built package installable
+with pacman is provided with each release. Some manual intervention may be
+required to install Heartbeat's requirements, as some are not available in
+the AUR or Arch repositories. You can install a pre-built package by running
+`sudo pacman -U heartbeat-<your_version>.pkg.xz`.
 
-Once installed, configure a port and secret string in the /etc/heartbeat.yml
-file. This is used for the monitor to identify heartbeats so that multiple
-heartbeats can be on the same network with different monitors.
+For Windows users, an experimental installer generated using setuptools is
+provided with most releases. This installer will not install Heartbeat's
+dependencies, so manual intervention is required. All of Heartbeat's
+dependencies are available through pip.
 
-See the [wiki](https://github.com/thenaterhood/heartbeat/wiki/Configuration)
-and the inline comments in the
-[/etc/heartbeat.yml](https://github.com/thenaterhood/heartbeat/blob/master/dist/_etc/heartbeat.yml)
-file for more detailed setup instructions.
+For more information about installing and configuring Heartbeat, visit the Wiki:
+[installation](https://github.com/thenaterhood/heartbeat/wiki/Installation) and
+[configuration](https://github.com/thenaterhood/heartbeat/wiki/Configuration).
 
-Notifiers
-============
-Right now only pushbullet, dweetio and the builtin histamine. More will be a
-thing eventually. Make one? drop it in the notifiers directory with some brief
-instructions and put in a pull if you feel inclined to share.
+## Using Heartbeat
+Heartbeat should be configured prior to use. See the [configuration information](https://github.com/thenaterhood/heartbeat/wiki/Configuration) on
+the Wiki.
 
-While heartbeat can be used in a decentralized way by configuring notifiers
-for each individual node, it can also be used with a central monitoring node.
-To use heartbeat with a central node, enable the Histamine notifier in
-the settings (histamine.Histamine) and enable histamine in the server settings.
-Histamine will broadcast notification events from a node which will be
-received by any histamine server on the network using a matching secret key.
-Histamine nodes will forward the notification to all the configured notifiers.
+On all platforms, Heartbeat can be started manually by issuing the command
+`startheart`. Depending on your needs and the plugins you're using, you may
+need to grant Heartbeat root access.
 
-Also see [the wiki](https://github.com/thenaterhood/heartbeat/wiki/Notifiers)
+On Linux systems using systemd or sysvinit, Heartbeat can be run as a service.
+Service files and initscripts are provided in the repository in `dist/_lib` and
+`dist/_etc` respectively. If you install using the provided ArchLinux package
+or a conversion of it to another package manager's format, the systemd service
+file will be automatically installed. Currently, no service definitions are
+provided for other init systems or operating systems but pull requests are
+welcome.
 
-Hardware Monitors
-============
-Heartbeat is also capable of notifying of hardware changes or problems with
-added hardware monitors. They use the same notification framework as
-heartbeat for new/flatlined hosts.
+# Developing Plugins
+Heartbeat is based around plugins to provide additional services to suit
+your needs. Plugins can be producers, subcribers, or both. Heartbeat ships
+with a small collection of plugins based on monitoring servers, which you
+can use as examples for building your own.
 
-Also see [the wiki](https://github.com/thenaterhood/heartbeat/wiki/Monitoring)
+More documentation is provided
+[in the Wiki](https://github.com/thenaterhood/heartbeat/wiki/Building-Plugins).
 
-License
-============
+# License
 Included software is distributed under the BSD 3-clause license. See LICENSE
 for full license text.
 
-Though not required by the license terms, please consider contributing,
-providing feedback, or simply dropping a line to say that this software was
-useful to you. Pull requests are always welcome.
-
+If you find Heartbeat useful, please consider contributing, providing feedback
+or simply dropping a line to say that Heartbeat was useful to you. If you've
+done something cool, let me know!
