@@ -29,7 +29,7 @@ class NotePush(Plugin):
     def __init__(self):
         config = get_config_manager()
         self.api_keys = config.notifying.pushbullet.api_keys
-        super(pushbullet, self).__init__()
+        super(NotePush, self).__init__()
 
     def get_subscriptions(self):
         """

@@ -48,6 +48,8 @@ class Heartbeat(Plugin):
         if (timer is None):
             self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
 
+        super(Heartbeat, self).__init__()
+
     def get_producers(self):
         """
         Overrides Plugin.get_producers
