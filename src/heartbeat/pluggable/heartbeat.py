@@ -40,7 +40,6 @@ class Monitor(Plugin):
         self.port = settings.heartbeat.port
         self.known_hosts = []
         self.secret = bytes(secret.encode("UTF-8"))
-        self.callback = callback
         self.listener = SocketListener(self.port, self.receive)
         self.cachefile = settings.heartbeat.cache_dir + "/heartbeats"
         self.shutdown = False
@@ -127,7 +126,7 @@ class Monitor(Plugin):
 
         self.known_hosts.write(host, datetime.datetime.now())
 
-    def cleanup_hosts(self):
+    def cleanup_hosts(self, callback):
         """
         Cleans up the known heartbeats and notifies of any that haven't
         been heard for a while, then dumps them.
@@ -138,7 +137,7 @@ class Monitor(Plugin):
         while (i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=90)):
             event = Event(
                 "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
-            self.callback(event)
+            callback(event)
             self.known_hosts.remove(sorted_hosts[i][0])
             i += 1
 
