@@ -49,8 +49,8 @@ For more information about installing and configuring Heartbeat, visit the Wiki:
 [configuration](https://github.com/thenaterhood/heartbeat/wiki/Configuration).
 
 ## Using Heartbeat
-Heartbeat should be configured prior to use. See the [configuration information](https://github.com/thenaterhood/heartbeat/wiki/Configuration) on
-the Wiki.
+Heartbeat should be configured prior to use. See the [configuration information](https://github.com/thenaterhood/heartbeat/wiki/Configuration) and
+[list of provided plugins](https://github.com/thenaterhood/heartbeat/wiki/Packaged-Plugins)
 
 On all platforms, Heartbeat can be started manually by issuing the command
 `startheart`. Depending on your needs and the plugins you're using, you may
