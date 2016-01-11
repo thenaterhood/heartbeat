@@ -9,7 +9,7 @@ in the Plugin it pertains to.
 
 from heartbeat.plugin import Plugin
 from datetime import datetime
-from heartbeat.platform import get_config_manager, Topics
+from heartbeat.platform import get_config_manager, Topics, Event
 from heartbeat.network import SocketBroadcaster
 from heartbeat.security import Encryptor
 
@@ -127,6 +127,7 @@ class Listener(Plugin):
         """
         if data.startswith(self.secret):
             eventJson = data[len(self.secret):].decode("UTF-8")
+            event = Event.from_json(eventJson)
 
             event_loaded = False
 
@@ -168,5 +169,3 @@ class Listener(Plugin):
             sleep(4)
 
         self.terminate()
-
-

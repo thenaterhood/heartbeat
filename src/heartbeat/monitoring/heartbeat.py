@@ -64,6 +64,7 @@ class HistamineNode(Monitor):
         """
         if data.startswith(self.secret):
             eventJson = data[len(self.secret):].decode("UTF-8")
+            event = Event.from_json(eventJson)
 
             event_loaded = False
 
