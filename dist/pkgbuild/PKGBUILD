@@ -1,6 +1,6 @@
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=2.8.0
+pkgver=2.9.0
 pkgrel=1
 epoch=
 pkgdesc=""
