@@ -212,13 +212,13 @@ class EventServer(object):
         Params:
             Event event: The event to notify of
         """
-        self.logger.info("Received event: " + str(event))
+        self.logger.info("Event Generated: " + str(event))
         if (self.limit_strategy(event)):
-            self.logger.debug("Dispatching event")
+            self.logger.debug("Dispatching Event")
             self._forward_event(event)
         else:
             self.logger.debug(
-                "Skipping notification dispatch per limit strategy")
+                "Skipping dispatch per limit strategy")
 
     def event_different_from_previous(self, event):
         """
