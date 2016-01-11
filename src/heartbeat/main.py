@@ -70,7 +70,6 @@ def main():
 
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
-    notifiers = load_notifiers(settings.heartbeat.notifiers)
 
     dispatcher = EventServer(notifyPool)
 
