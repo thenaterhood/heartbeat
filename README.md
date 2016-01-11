@@ -3,6 +3,7 @@ heartbeat
 [![Build Status](https://travis-ci.org/thenaterhood/heartbeat.svg?branch=master)](https://travis-ci.org/thenaterhood/heartbeat)
 [![Code Climate](https://codeclimate.com/github/thenaterhood/heartbeat/badges/gpa.svg)](https://codeclimate.com/github/thenaterhood/heartbeat)
 [![Code Health](https://landscape.io/github/thenaterhood/heartbeat/master/landscape.svg?style=flat)](https://landscape.io/github/thenaterhood/heartbeat/master)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/d2ed1f70fd774c6f9111a96b12d8dcac)](https://www.codacy.com/app/thenaterhood/heartbeat)
 
 Heartbeat is a super simple and minimalistic plugin-based monitoring and
 notification tool. Heartbeat comes with a handful of monitoring and notification
