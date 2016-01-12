@@ -2,6 +2,7 @@ from heartbeat.plugin import Plugin
 from enum import Enum
 from heartbeat.multiprocessing import BackgroundTimer
 import logging
+import traceback
 
 
 class MonitorType(Enum):
@@ -94,7 +95,8 @@ class MonitorHandler(object):
         self.logger.debug("Starting periodic query to monitors")
         for m in self.periodic_plugins:
             self.logger.debug("Querying " + str(m))
-            self.threadpool.submit(m, self.event_callback)
+            f = self.threadpool.submit(m, self.event_callback)
+            f.add_done_callback(self._check_call_status)
 
     def terminate(self):
         """
@@ -102,6 +104,25 @@ class MonitorHandler(object):
         """
         self.timer.stop()
         self.threadpool.terminate()
+
+    def _check_call_status(self, f):
+        """
+        Checks the status of a completed (or crashed)
+        submission to the handler threadpool. This
+        method is intended to be submitted to the Future
+        via add_done_callback, rather than being
+        called directly.
+
+        Params:
+            Future f
+        """
+        error = f.exception(5)
+        if error is None:
+            return
+        else:
+            framesummary = traceback.extract_tb(error.__traceback__)[-1]
+            location = "{:s}:{:d}".format(framesummary.filename, framesummary.lineno)
+            self.logger.error("Producer: " + str(error) + " at " + location)
 
 
 class Monitor(Plugin):

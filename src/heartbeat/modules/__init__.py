@@ -7,6 +7,7 @@ from heartbeat.network import NetworkInfo
 from heartbeat.platform import Topics
 from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
 import logging
+import traceback
 
 
 class Heartbeat(object):
@@ -172,7 +173,27 @@ class EventServer(object):
         the topic the event is categorized as
         """
         for t in self.topics[event.type]:
-            self.threadpool.submit(t, event)
+            f = self.threadpool.submit(t, event)
+            f.add_done_callback(self._check_call_status)
+
+    def _check_call_status(self, f):
+        """
+        Checks the status of a completed (or crashed)
+        submission to the handler threadpool. This
+        method is intended to be submitted to the Future
+        via add_done_callback, rather than being
+        called directly.
+
+        Params:
+            Future f
+        """
+        error = f.exception(5)
+        if error is None:
+            return
+        else:
+            framesummary = traceback.extract_tb(error.__traceback__)[-1]
+            location = "{:s}:{:d}".format(framesummary.filename, framesummary.lineno)
+            self.logger.error("Handler: " + str(error) + " at " + location)
 
 
 if __name__ == "__main__":
