@@ -28,7 +28,7 @@ class Sender(Plugin):
         settings = get_config_manager()
         self.monitor_server = settings.heartbeat.monitor_server
         self.secret_key = settings.heartbeat.secret_key
-        self.use_encryption = settings.use_encryption
+        self.use_encryption = settings.heartbeat.use_encryption
         self.enc_password = settings.heartbeat.enc_password
 
         super(Sender, self).__init__()

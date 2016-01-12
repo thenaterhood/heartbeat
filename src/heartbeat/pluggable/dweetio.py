@@ -48,7 +48,7 @@ class Dweet(Plugin):
         """
         payload = {
                 'title': event.title + ": " + event.host,
-                'message': host + ": " + event.message + " at " + \
+                'message': event.host + ": " + event.message + " at " + \
                         event.timestamp.strftime("%H:%M:%S %m/%d/%y")
                 }
         payload_url = urllib.parse.urlencode(payload)

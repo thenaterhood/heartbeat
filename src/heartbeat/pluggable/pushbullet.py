@@ -51,9 +51,8 @@ class NotePush(Plugin):
         host = event.host
         title = event.title + ": " + host
         message = host + ": " + event.message + " at " + \
-                event.timestamp.stftime("%H:%M:%S %m/%d/%y")
+                event.timestamp.strftime("%H:%M:%S %m/%d/%y")
 
         for key in self.api_keys:
             pb = PushBullet(key)
-            success, push = pb.push_note(self.title, self.message)
-
+            success, push = pb.push_note(title, message)
