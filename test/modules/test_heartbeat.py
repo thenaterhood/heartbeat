@@ -12,7 +12,7 @@ else:
 from heartbeat.modules import Heartbeat
 from heartbeat.network import SocketBroadcaster
 from heartbeat.modules import EventServer
-from heartbeat.modules import MonitorHandler
+from heartbeat.monitoring import MonitorHandler
 from heartbeat.monitoring import Monitor
 
 import concurrent.futures
