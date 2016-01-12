@@ -14,6 +14,7 @@ import threading
 import time
 import logging, logging.handlers
 import concurrent.futures
+import traceback
 
 # Temporary include until full API upgrade TODO
 # @deprecated
@@ -60,12 +61,16 @@ def main():
 
     for name, plugin in PluginRegistry.plugins.items():
         # TODO
-
-        # @deprecated
-        if len(inspect.getargspec(plugin.__init__).args) > 1:
-            active_plugins.append(plugin(None))
-        else:
-            active_plugins.append(plugin())
+        try:
+            # @deprecated
+            if len(inspect.getargspec(plugin.__init__).args) > 1:
+                active_plugins.append(plugin(None))
+            else:
+                active_plugins.append(plugin())
+        except Exception as err:
+            summary = traceback.extract_tb(err.__traceback__)[-1]
+            location = "{:s}:{:d}".format(summary.filename, summary.lineno)
+            logger.error("Plugin Instantiation: " + str(err) + " at " + location)
 
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
