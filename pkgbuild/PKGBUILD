@@ -51,7 +51,8 @@ package() {
         echo $pkgdir
         cd $srcdir/heartbeat-$pkgver
         python setup.py install --root="$pkgdir/" --optimize=1
-        mkdir -p $pkgdir/etc
+        mkdir -p $pkgdir/etc/heartbeat
         mkdir -p $pkgdir/usr/lib/systemd/system
-        python src/heartbeat/install.py --root="$pkgdir/" --install-cfg --install-systemd
+        cp src/heartbeat/resources/service/systemd $pkgdir/usr/lib/systemd/system/heartbeat.service
+        cp src/heartbeat/resources/cfg/*.conf $pkgdir/etc/heartbeat/
 }
