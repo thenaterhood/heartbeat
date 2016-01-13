@@ -68,9 +68,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(conf['notifying']['pushbullet']['api_keys'][0], 'api_key_1')
 
     def test_config(self):
-        conf = get_config_manager('dist/_etc/heartbeat')
+        conf = get_config_manager('src/heartbeat/resources/cfg')
         self.assertEqual(conf.heartbeat.secret_key, 'heartbeat3477')
         self.assertEqual(conf.heartbeat.port, 21999)
         self.assertEqual(conf.notifying.pushbullet.api_keys, ['api_key_1', 'api_key_2'])
-
-
