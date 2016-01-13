@@ -42,8 +42,8 @@ setup(name='heartbeat',
     },
     entry_points={
         'console_scripts': [
-            'startheart = heartbeat.main:main',
-            'heartbeat-install = heartbeat.install:main'
+            'startheart = heartbeat.__main__:main',
+            'heartbeat-install = heartbeat.__install__:main'
             ]
     },
     packages=[
