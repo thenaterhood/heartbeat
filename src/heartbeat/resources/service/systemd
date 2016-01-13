@@ -1,0 +1,11 @@
+[Unit]
+Description=Heartbeat
+After=network.target
+
+[Service]
+ExecStart=/bin/startheart
+Restart=always
+
+[Install]
+Alias=heartbeat.service
+WantedBy=multi-user.target

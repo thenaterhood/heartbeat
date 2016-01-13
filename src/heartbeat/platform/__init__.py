@@ -135,7 +135,7 @@ def _get_config_path(path = None):
     if (path is not None):
         return path
     elif (sys.platform == 'win32'):
-        return os.path.join(os.path.split(sys.executable)[0], 'ProgramData', 'Heartbeat', 'Settings')
+        return os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat', 'etc', 'heartbeat')
     else:
         linux_paths = [
                 os.path.join(os.path.expanduser('~'), '.heartbeat'),
@@ -164,6 +164,9 @@ def get_config_manager(path = None):
         'monitors': {
         }
     }
+
+    if not os.path.exists(config_dir) and not os.path.exists(config_dir+'.yml'):
+        raise Exception("Configuration data could not be found. You can install the base configuration for Heartbeat using `heartbeat-install --install-cfg`")
 
     if (not os.path.exists(config_dir)):
         config_dict = _translate_legacy_config(

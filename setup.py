@@ -23,22 +23,6 @@ suggested = {
 if (sys.version_info < (3, 4)):
     install_requires.append('enum34')
 
-if (sys.platform == 'win32'):
-    data_location = os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat')
-    data_files=[
-        (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/heartbeat.conf']),
-        (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/monitoring.conf']),
-        (os.path.join(data_location, 'Settings'), ['dist/_etc/heartbeat/notifying.conf']),
-        ]
-else:
-    data_files=[
-        ('etc/heartbeat', ['dist/_etc/heartbeat/heartbeat.conf']),
-        ('etc/heartbeat', ['dist/_etc/heartbeat/monitoring.conf']),
-        ('etc/heartbeat', ['dist/_etc/heartbeat/notifying.conf']),
-        ('lib/systemd/system', ['dist/_lib/systemd/system/heartbeat.service']),
-        ]
-
-
 setup(name='heartbeat',
     version='2.10.0',
     description='Minimalist network monitoring tool',
@@ -49,9 +33,17 @@ setup(name='heartbeat',
     tests_require=test_requires,
     test_suite='nose.collector',
     package_dir={'':'src'},
+    package_data={
+        '': [
+            '*.conf',
+            'systemd',
+            'sysvinit'
+        ]
+    },
     entry_points={
         'console_scripts': [
-            'startheart = heartbeat.main:main'
+            'startheart = heartbeat.main:main',
+            'heartbeat-install = heartbeat.install:main'
             ]
     },
     packages=[
@@ -64,7 +56,12 @@ setup(name='heartbeat',
         'heartbeat.plugin',
         'heartbeat.multiprocessing',
         'heartbeat.security',
-        'heartbeat.pluggable'
+        'heartbeat.pluggable',
+        # Heartbeat file resources
+        'heartbeat.resources',
+        'heartbeat.resources.cfg',
+        'heartbeat.resources.service'
         ],
-    data_files=data_files
     )
+
+print("Run `heartbeat-install --install-cfg` to install Heartbeat's default configuration files in order to complete your installation.")
