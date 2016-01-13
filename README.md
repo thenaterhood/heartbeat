@@ -45,6 +45,11 @@ provided with most releases. This installer will not install Heartbeat's
 dependencies, so manual intervention is required. All of Heartbeat's
 dependencies are available through pip.
 
+After installing, you will need to use the Heartbeat helper script to install
+at a minimum, Heartbeat's base configuration files, and service files if
+desired. Run `heartbeat-install --install-cfg`, and `heartbeat-install --help`
+to see more options.
+
 For more information about installing and configuring Heartbeat, visit the Wiki:
 [installation](https://github.com/thenaterhood/heartbeat/wiki/Installation) and
 [configuration](https://github.com/thenaterhood/heartbeat/wiki/Configuration).
