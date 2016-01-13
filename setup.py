@@ -24,7 +24,7 @@ if (sys.version_info < (3, 4)):
     install_requires.append('enum34')
 
 setup(name='heartbeat',
-    version='2.10.0',
+    version='2.11.0',
     description='Minimalist network monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
