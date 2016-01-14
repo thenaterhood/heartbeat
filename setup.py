@@ -64,4 +64,3 @@ setup(name='heartbeat',
         ],
     )
 
-print("Run `heartbeat-install --install-cfg` to install Heartbeat's default configuration files in order to complete your installation.")
