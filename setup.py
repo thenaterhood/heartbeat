@@ -23,6 +23,11 @@ suggested = {
 if (sys.version_info < (3, 4)):
     install_requires.append('enum34')
 
+# Pymlconf 0.3.21+ breaks on old versions of Python
+if (sys.version_info < (3, 3)):
+    del(install_requires[0])
+    install_requires.append("pymlconf <= 0.3.20")
+
 setup(name='heartbeat',
     version='2.11.1',
     description='Minimalist network monitoring tool',
@@ -63,4 +68,3 @@ setup(name='heartbeat',
         'heartbeat.resources.service'
         ],
     )
-
