@@ -25,7 +25,7 @@ class Heartbeat(Plugin):
     so as to avoid flooding the network)
     """
 
-    def __init__(self, bcaster=None, timer=None):
+    def __init__(self, bcaster=None, timer=None, settings=None):
         """
         constructor
 
@@ -34,7 +34,9 @@ class Heartbeat(Plugin):
             int    interval: the base interval to use for beats
             string secret:   a secret string to identify the heartbeat
         """
-        settings = get_config_manager()
+        if settings is None:
+            settings = get_config_manager()
+
         self.secret = bytes(settings.heartbeat.secret_key.encode("UTF-8"))
 
         self.bcaster = bcaster
