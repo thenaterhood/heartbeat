@@ -4,7 +4,6 @@ import sys, os
 if (sys.version_info < (3, 3)):
     sys.path.append('/lib/python3.2/site-packages')
 
-from heartbeat.modules import Heartbeat
 from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import get_config_manager
@@ -53,6 +52,7 @@ def main():
             ModuleLoader.load(p, full_classpath=True)
 
     for name, plugin in PluginRegistry.plugins.items():
+        try:
             active_plugins.append(plugin())
         except Exception as err:
             summary = traceback.extract_tb(err.__traceback__)[-1]
