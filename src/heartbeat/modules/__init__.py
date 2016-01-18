@@ -10,64 +10,6 @@ import logging
 import traceback
 
 
-class Heartbeat(object):
-
-    """
-    Defines a heartbeat thread which will send a broadcast
-    over the network every given interval (plus a small random margin
-    so as to avoid flooding the network)
-
-    @deprecated: use the plugin instead; heartbeat.pluggable.heartbeat.Heartbeat
-    Do not enable the plugin and the heartbeat at the same time.
-    """
-
-    def __init__(self, interval, secret, bcaster, logger=None, timer=None):
-        """
-        constructor
-
-        Params:
-            int    port:     the port number to broadcast on
-            int    interval: the base interval to use for beats
-            string secret:   a secret string to identify the heartbeat
-        """
-        self.interval = interval
-        self.secret = bytes(secret.encode("UTF-8"))
-        self.bcaster = bcaster
-
-        self.timer = timer
-        if (timer is None):
-            self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
-
-        if (logger == None):
-            self._logger = logging.getLogger(
-                __name__ + "." + self.__class__.__name__
-            )
-        else:
-            self._logger = logger
-
-    def terminate(self):
-        """
-        Shuts down the thread cleanly
-        """
-        self._logger.info("Shutting down heartbeat broadcast")
-        self.timer.stop()
-
-    def _beat(self):
-        """
-        Broadcasts a single beat
-        """
-        netinfo = NetworkInfo()
-        data = self.secret + bytes(netinfo.fqdn.encode("UTF-8"))
-        self._logger.info("Broadcasting heartbeat")
-        self.bcaster.push(data)
-
-    def start(self):
-        """
-        Runs the heartbeat (typically started by the thread start() call)
-        """
-        self.timer.start()
-
-
 class EventServer(object):
 
     """

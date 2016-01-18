@@ -14,12 +14,11 @@ class ModuleLoaderTest(unittest.TestCase):
         # This is a tainted test because it does not
         # mock everything involved.
 
-        ModuleLoader.load('heartbeat.notifications')
-        self.assertTrue('heartbeat.notifications' in sys.modules)
+        ModuleLoader.load('heartbeat.pluggable')
+        self.assertTrue('heartbeat.pluggable' in sys.modules)
 
     def test_load_bad_path(self):
         """
         ModuleLoader correctly throws an error on importing a bad path
         """
         self.assertRaises(ImportError, lambda: ModuleLoader.load('foo.bar'))
-

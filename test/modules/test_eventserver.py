@@ -7,13 +7,11 @@ else:
     from unittest.mock import MagicMock
     from unittest.mock import Mock
 
-from heartbeat.modules import Heartbeat
 from heartbeat.network import SocketBroadcaster
 from heartbeat.modules import EventServer
 from heartbeat.monitoring import MonitorHandler
-from heartbeat.monitoring import Monitor
-from heartbeat.notifications import Notifier
 from heartbeat.platform import Event, Topics
+from heartbeat.plugin import Plugin
 import datetime
 
 import concurrent.futures
@@ -23,7 +21,7 @@ class TestDispatcher(unittest.TestCase):
     def setUp(self):
         self.tp = MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor)
         self.event = Event()
-        self.notifier = Mock(name="n1", spec=Notifier)
+        self.notifier = Mock(name="n1", spec=Plugin)
         self.event.type = Topics.DEBUG
         self.ran_compare = False
         self.eventserver = EventServer(self.tp)

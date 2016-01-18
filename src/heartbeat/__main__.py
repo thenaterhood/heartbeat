@@ -7,7 +7,7 @@ if (sys.version_info < (3, 3)):
 from heartbeat.modules import Heartbeat
 from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
-from heartbeat.platform import get_config_manager, load_notifiers, load_monitors
+from heartbeat.platform import get_config_manager
 from heartbeat.monitoring import MonitorType, MonitorHandler
 from heartbeat.plugin import PluginRegistry, ModuleLoader
 import threading
@@ -15,10 +15,6 @@ import time
 import logging, logging.handlers
 import concurrent.futures
 import traceback
-
-# Temporary include until full API upgrade TODO
-# @deprecated
-import inspect
 
 
 logger = logging.getLogger("heartbeat")
@@ -56,17 +52,8 @@ def main():
         for p in settings.heartbeat.plugins:
             ModuleLoader.load(p, full_classpath=True)
 
-    load_notifiers(settings.heartbeat.notifiers)
-    load_monitors(settings.heartbeat.monitors)
-
     for name, plugin in PluginRegistry.plugins.items():
-        # TODO
-        try:
-            # @deprecated
-            if len(inspect.getargspec(plugin.__init__).args) > 1:
-                active_plugins.append(plugin(None))
-            else:
-                active_plugins.append(plugin())
+            active_plugins.append(plugin())
         except Exception as err:
             summary = traceback.extract_tb(err.__traceback__)[-1]
             location = "{:s}:{:d}".format(summary.filename, summary.lineno)
@@ -76,56 +63,30 @@ def main():
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
     dispatcher = EventServer(notifyPool)
+    hwmon = MonitorHandler(
+        dispatcher.put_event,
+        None,
+        logger
+    )
+
+    required_workers = 1
 
     for plugin in active_plugins:
         for t, c in plugin.get_subscriptions().items():
             dispatcher.attach(t, c)
+        for t, c in plugin.get_producers().items():
+            required_workers += 1
+            if t == MonitorType.REALTIME:
+                hwmon.add_realtime_monitor(c)
+            elif t == MonitorType.PERIODIC:
+                hwmon.add_periodic_monitor(c)
 
-    # @deprecated: functionality moved to a plugin
-    if (settings.heartbeat.enable_heartbeat):
-        logger.info("Bringing up system heartbeat")
-        broadcaster = SocketBroadcaster(
-                settings.heartbeat.port,
-                settings.heartbeat.monitor_server
-                )
-        server = Heartbeat(
-            2,
-            settings.heartbeat.secret_key,
-            broadcaster,
-            logger
+    hwmon.threadpool = concurrent.futures.ThreadPoolExecutor(
+            max_workers = required_workers
             )
-        server.start()
-        threads.append(server)
 
-    # @deprecated: this option will be removed in the future and will
-    # always be enabled, overwise there will be no Events. This also means
-    # the two for loops handling plugins can be combined into one.
-    if (settings.heartbeat.enable_hwmonitor):
-        logger.info("Bringing up monitoring")
-        required_workers = 1
-
-        hwmon = MonitorHandler(
-                dispatcher.put_event,
-                None,
-                logger
-                )
-
-        for plugin in active_plugins:
-
-            producers = plugin.get_producers()
-            for t, c in producers.items():
-                required_workers += 1
-                if t == MonitorType.REALTIME:
-                    hwmon.add_realtime_monitor(c)
-                elif t == MonitorType.PERIODIC:
-                    hwmon.add_periodic_monitor(c)
-
-        hwmon.threadpool = concurrent.futures.ThreadPoolExecutor(
-                max_workers = required_workers
-                )
-
-        hwmon.start()
-        threads.append(hwmon)
+    hwmon.start()
+    threads.append(hwmon)
 
     try:
         while 1:

@@ -3,7 +3,6 @@ import sys
 import json
 import pymlconf
 from heartbeat.platform import Event
-from heartbeat.platform import _translate_legacy_config
 from heartbeat.platform import get_config_manager
 
 class EventTest(unittest.TestCase):
@@ -54,18 +53,6 @@ class ConfigTest(unittest.TestCase):
 
     def setUp(self):
         self.config_file = 'test/heartbeat.yml'
-
-    def test_legacy_config(self):
-        conf = _translate_legacy_config(self.config_file, {'heartbeat': {}, 'monitoring': {}, 'notifying': {}})
-        print(conf)
-        self.assertTrue('heartbeat' in conf)
-        self.assertEqual(conf['heartbeat']['secret_key'], 'heartbeat3477')
-
-        self.assertTrue('monitoring' in conf)
-        self.assertEqual(conf['monitoring']['smartctl']['drives'][0], '/dev/sda')
-
-        self.assertTrue('notifying' in conf)
-        self.assertEqual(conf['notifying']['pushbullet']['api_keys'][0], 'api_key_1')
 
     def test_config(self):
         conf = get_config_manager('src/heartbeat/resources/cfg')

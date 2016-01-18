@@ -22,9 +22,6 @@ class Topics(Enum):
     VIRT = "virtual"
     HEARTBEAT = "heartbeat"
 
-# Keeps backward compatibility for enum name
-# TODO: Remove when API is upgraded (breaking change)
-EventType = Topics
 
 class Event(object):
 
@@ -96,41 +93,6 @@ class Event(object):
     def __str__(self):
         return self.title + ": " + self.host + ": " + self.message
 
-
-def _translate_legacy_config(config_file, config_skeleton):
-
-    with open(config_file, 'r') as stream:
-        y = yaml.load(stream)
-
-    for key in y.keys():
-        if (not '.' in key):
-            config_skeleton['heartbeat'][key] = y[key]
-
-        else:
-            path = key.split('.')
-            if path[0] == 'heartbeat':
-                path = path[1:]
-            if path[0] == 'hwmonitors':
-                path[0] = 'monitors'
-
-            config_location = config_skeleton
-
-            for element in path:
-                if (element == "notifiers"):
-                    element = "notifying"
-
-                if (element == "monitors"):
-                    element = "monitoring"
-
-                if (not element in config_location):
-                    config_location[element] = {}
-
-                config_location = config_location[element]
-            for setting in y[key].keys():
-                config_location[setting] = y[key][setting]
-
-    return config_skeleton
-
 def _get_config_path(path = None):
     if (path is not None):
         return path
@@ -158,50 +120,12 @@ def get_config_manager(path = None):
         'heartbeat': {
             'monitor_server': None,
             'plugins': {}
-        },
-        'notifiers': {
-        },
-        'monitors': {
         }
     }
 
-    if not os.path.exists(config_dir) and not os.path.exists(config_dir+'.yml'):
+    if not os.path.exists(config_dir) or  not os.path.exists(os.path.join(config_dir, "heartbeat.conf")):
         raise Exception("Configuration data could not be found. You can install the base configuration for Heartbeat using `heartbeat-install --install-cfg`")
 
-    if (not os.path.exists(config_dir)):
-        config_dict = _translate_legacy_config(
-            (config_dir + '.yml'),
-            _default_config
-        )
-
-        cfg = ConfigManager(config_dict, [], [])
-
-    else:
-        cfg = ConfigManager(_default_config, [config_dir])
+    cfg = ConfigManager(_default_config, [config_dir])
 
     return cfg
-
-
-def load_trusted_plugins(modules, package='', full_classpath=True):
-    """
-    @deprecated
-    """
-
-    for m in modules:
-        modulepath = ".".join([package] + m.split("."))
-        PluginRegistry.whitelist.append(modulepath)
-        ModuleLoader.load(modulepath, full_classpath)
-
-def load_notifiers(notifiers):
-    """
-    @deprecated
-    """
-    if notifiers is not None:
-        load_trusted_plugins(notifiers, package="heartbeat.notifications")
-
-def load_monitors(monitors):
-    """
-    @deprecated
-    """
-    if monitors is not None:
-        load_trusted_plugins(monitors, package="heartbeat.monitoring")

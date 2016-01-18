@@ -7,12 +7,11 @@ else:
     from unittest.mock import MagicMock
     from unittest.mock import Mock
 
-from heartbeat.modules import Heartbeat
 from heartbeat.network import SocketBroadcaster
 from heartbeat.modules import EventServer
 from heartbeat.monitoring import MonitorHandler
-from heartbeat.monitoring import Monitor
 from heartbeat.platform import Event
+from heartbeat.plugin import Plugin
 
 import concurrent.futures
 
@@ -21,8 +20,8 @@ class TestMonitorHandler(unittest.TestCase):
 
     def setUp(self):
         self.hwmonitors = []
-        self.hwmonitors.append(Mock(name="m1", spec=Monitor))
-        self.hwmonitors.append(Mock(name="m2", spec=Monitor))
+        self.hwmonitors.append(Mock(name="m1", spec=Plugin))
+        self.hwmonitors.append(Mock(name="m2", spec=Plugin))
 
         self.hwmonitors[0].realtime=False
 
@@ -38,8 +37,10 @@ class TestMonitorHandler(unittest.TestCase):
         self.monitor_handler.hwmonitors = self.hwmonitors
 
     def test_scan(self):
-        self.monitor_handler.add_periodic_monitor(self.hwmonitors[1].run)
+        # This is a lazy workaround to building a custom mock class, when
+        # we only need to check one simple method call
+        self.monitor_handler.add_periodic_monitor(self.hwmonitors[1].get_producers)
         self.monitor_handler.scan()
         self.monitor_handler.threadpool.submit.assert_called_with(
-            self.hwmonitors[1].run, self.notifyHandler.put_event
+            self.hwmonitors[1].get_producers, self.notifyHandler.put_event
         )
