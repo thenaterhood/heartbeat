@@ -4,7 +4,7 @@ import hashlib
 import base64
 
 
-class Encryptor():
+class Encryptor(object):
 
     """
     Encryptor class to handle encrypting and decrypting

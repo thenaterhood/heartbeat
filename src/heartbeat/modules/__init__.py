@@ -4,10 +4,77 @@ from random import randint
 import datetime
 from queue import Queue
 from heartbeat.network import NetworkInfo
-from heartbeat.platform import Topics
+from heartbeat.platform import Topics, get_config_manager
 from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
+from heartbeat.security import Encryptor
 import logging
 import traceback
+import os
+import json
+from hashlib import sha256
+
+
+class Cache(LockingDictionary):
+
+    """
+    Handles a persistant cache for storing key-value
+    pairs.
+    """
+
+    def __init__(self, cache_name, reset=False, settings=None, encryptor=None):
+        """
+        Parameters:
+            str name: The name of the cache
+            bool reset: If the cache should be reset if its artifacts already exist
+        """
+        if settings is None:
+            settings = get_config_manager()
+
+        self.directory = settings.heartbeat.cache_dir
+
+        if encryptor is None:
+            self.encryptor = Encryptor(settings.heartbeat.secret_key)
+        else:
+            self.encryptor = encryptor
+
+        super(Cache, self).__init__()
+        self.cache_name = cache_name
+        if not reset:
+            self._load_from_disk()
+
+    def writeToDisk(self):
+        """
+        Writes the cache out to disk
+        """
+        print("Writing cache to disk")
+        try:
+            with open(self._get_filename(), "wb") as cacheFile:
+                data = self.encryptor.encrypt(json.dumps(self._dictionary))
+                cacheFile.write(data)
+        except Exception as e:
+            print(e)
+
+    def _load_from_disk(self):
+        """
+        Loads the cache from disk
+        """
+        try:
+            with open(self._get_filename(), "r") as cachefile:
+                fcontents = cachefile.read()
+                decrypted = self.encryptor.decrypt(fcontents)
+                self._dictionary = json.loads(decrypted)
+        except Exception as e:
+            print(e)
+            self._dictionary = {}
+
+    def _get_filename(self):
+        """
+        Generates the filename for the cache
+        """
+        return os.path.join(
+            self.directory,
+            sha256(self.cache_name.encode("UTF-8")).hexdigest()
+            )
 
 
 class EventServer(object):

@@ -1,5 +1,6 @@
 import threading
 from time import sleep
+from copy import deepcopy
 
 
 class LockingDictionary(object):
@@ -9,11 +10,17 @@ class LockingDictionary(object):
     """
     __slots__ = ('_semaphore', '_dictionary')
 
-    def __init__(self):
+    def __init__(self, initial_values=None):
         """
         constructor
+
+        Parameters:
+            dict initial_values: Initial values for the dictionary
         """
-        self._dictionary = dict()
+        if initial_values is None:
+            self._dictionary = dict()
+        else:
+            self._dictionary = initial_values
         self._semaphore = threading.Semaphore()
 
     def read(self, key):

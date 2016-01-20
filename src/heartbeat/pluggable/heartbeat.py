@@ -6,7 +6,7 @@ import threading
 import os
 import datetime
 import operator
-from time import sleep
+from time import sleep, time
 from random import randint
 from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.platform import get_config_manager, Event
@@ -15,6 +15,7 @@ from heartbeat.security import Encryptor
 from heartbeat.plugin import Plugin
 from heartbeat.monitoring import MonitorType
 from heartbeat.network import SocketBroadcaster
+from heartbeat.modules import Cache
 
 
 class Heartbeat(Plugin):
@@ -92,7 +93,7 @@ class Monitor(Plugin):
     network.
     """
 
-    def __init__(self):
+    def __init__(self, cache=None):
         """
         constructor
 
@@ -107,11 +108,14 @@ class Monitor(Plugin):
         settings = get_config_manager()
         secret = settings.heartbeat.secret_key
 
+        if cache is None:
+            self.cache = Cache('known-heartbeats')
+        else:
+            self.cache = cache
+
         self.port = settings.heartbeat.port
-        self.known_hosts = []
         self.secret = bytes(secret.encode("UTF-8"))
         self.listener = SocketListener(self.port, self.receive)
-        self.cachefile = settings.heartbeat.cache_dir + "/heartbeats"
         self.shutdown = False
 
         super(Monitor, self).__init__()
@@ -141,22 +145,7 @@ class Monitor(Plugin):
         """
         Saves the cache out to disk
         """
-        hosts = self.known_hosts.keys()
-        try:
-            fileHandle = open(self.cachefile, 'w')
-            for h in hosts:
-                fileHandle.write(h + "\n")
-            fileHandle.close()
-        except Exception:
-            pass
-
-    def loadCache(self):
-        """
-        Loads the cache from file
-        """
-        if (os.path.isfile(self.cachefile)):
-            for h in open(self.cachefile, 'r'):
-                self.known_hosts.write(h.strip(), datetime.datetime.now())
+        self.cache.writeToDisk()
 
     def _bcastIsOwn(self, host):
         """
@@ -190,11 +179,11 @@ class Monitor(Plugin):
         Params:
             string host: the host the broadcast originated from
         """
-        if (host not in self.known_hosts.keys()):
+        if (host not in self.cache.keys()):
             event = Event("New Heartbeat", "New heartbeat discovered", host)
             self.callback(event)
 
-        self.known_hosts.write(host, datetime.datetime.now())
+        self.cache.write(host, time())
 
     def cleanup_hosts(self, callback):
         """
@@ -202,13 +191,15 @@ class Monitor(Plugin):
         been heard for a while, then dumps them.
         """
         sorted_hosts = sorted(
-            self.known_hosts.items(), key=operator.itemgetter(1))
+            self.cache.items(), key=operator.itemgetter(1))
         i = 0
-        while (i < len(sorted_hosts) and datetime.datetime.now() - sorted_hosts[i][1] > datetime.timedelta(seconds=90)):
+        time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
+        
+        while (i < len(sorted_hosts) and time_difference > datetime.timedelta(seconds=90)):
             event = Event(
                 "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
             callback(event)
-            self.known_hosts.remove(sorted_hosts[i][0])
+            self.cache.remove(sorted_hosts[i][0])
             i += 1
 
         self.saveCache()
@@ -217,8 +208,6 @@ class Monitor(Plugin):
         """
         Runs the monitor. Usually called by the parent start()
         """
-        self.known_hosts = LockingDictionary()
-        self.loadCache()
         self.listener.start()
         self.callback = callback
 
