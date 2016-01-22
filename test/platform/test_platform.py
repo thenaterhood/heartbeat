@@ -58,4 +58,3 @@ class ConfigTest(unittest.TestCase):
         conf = get_config_manager('src/heartbeat/resources/cfg')
         self.assertEqual(conf.heartbeat.secret_key, 'heartbeat3477')
         self.assertEqual(conf.heartbeat.port, 21999)
-        self.assertEqual(conf.notifying.pushbullet.api_keys, ['api_key_1', 'api_key_2'])
