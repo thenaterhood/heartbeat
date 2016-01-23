@@ -46,8 +46,10 @@ class Cache(LockingDictionary):
         """
         Resets all the cache values to a specified value
         """
-        for k in self.items():
-            self.write(k, value)
+        self._semaphore.acquire()
+        for k in self._dictionary.keys():
+            self._dictionary[k] = value
+        self._semaphore.release()
 
     def writeToDisk(self):
         """
@@ -65,6 +67,7 @@ class Cache(LockingDictionary):
         """
         Loads the cache from disk
         """
+        self._semaphore.acquire()
         try:
             with open(self._get_filename(), "r") as cachefile:
                 fcontents = cachefile.read()
@@ -73,6 +76,7 @@ class Cache(LockingDictionary):
         except Exception as e:
             print(e)
             self._dictionary = {}
+        self._semaphore.release()
 
     def _get_filename(self):
         """
