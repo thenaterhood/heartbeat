@@ -1,14 +1,12 @@
 import datetime
 import json
 import inspect
-import importlib
 import os
 import sys
 import yaml
 from enum import Enum
 import logging
 from pymlconf import ConfigManager
-from heartbeat.plugin import ModuleLoader, PluginRegistry
 
 
 class Topics(Enum):
