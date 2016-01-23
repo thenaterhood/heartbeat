@@ -45,19 +45,7 @@ def main():
     settings = get_config_manager()
 
     logger.debug("Loading plugins")
-
-    if settings.heartbeat.plugins is not None and len(settings.heartbeat.plugins) > 0:
-        PluginRegistry.populate_whitelist(settings.heartbeat.plugins)
-        for p in settings.heartbeat.plugins:
-            ModuleLoader.load(p, full_classpath=True)
-
-    for name, plugin in PluginRegistry.plugins.items():
-        try:
-            active_plugins.append(plugin())
-        except Exception as err:
-            summary = traceback.extract_tb(err.__traceback__)[-1]
-            location = "{:s}:{:d}".format(summary.filename, summary.lineno)
-            logger.error("Plugin Instantiation: " + str(err) + " at " + location)
+    PluginRegistry.populate_from_settings(settings)
 
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
@@ -71,7 +59,15 @@ def main():
 
     required_workers = 1
 
-    for plugin in active_plugins:
+    for name, p in PluginRegistry.plugins.items():
+        try:
+            plugin = p()
+        except Exception as err:
+            summary = traceback.extract_tb(err.__traceback__)[-1]
+            location = "{:s}:{:d}".format(summary.filename, summary.lineno)
+            logger.error("Plugin Instantiation: " + str(err) + " at " + location)
+            continue
+
         for t, c in plugin.get_subscriptions().items():
             dispatcher.attach(t, c)
         for t, c in plugin.get_producers().items():

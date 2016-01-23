@@ -55,6 +55,12 @@ class PluginRegistry(type):
             PluginRegistry.plugins[cls.__module__ + "." + name] = cls
 
     def filter_by_package(package):
+        """
+        Returns a list of plugins contained within a particular package
+
+        Parameters:
+            str package
+        """
 
         filtered = {}
 
@@ -65,10 +71,34 @@ class PluginRegistry(type):
         return filtered
 
     def populate_whitelist(allowed_plugins):
+        """
+        Populates the plugin whitelist with a list of allowed plugins
+
+        Parameters:
+            Array[str] allowed_plugins
+        """
         if PluginRegistry.whitelist == []:
             PluginRegistry.whitelist = allowed_plugins
         else:
             raise Exception("The PluginRegistry whitelist has already been configured")
+
+    def populate_from_settings(settings=None):
+        """
+        Populates the plugin registry from the settings
+
+        Paremeters:
+            ConfigManager settings: defaults to None
+        """
+        if settings is None:
+            settings = get_config_manager()
+
+        if settings.heartbeat.plugins is None:
+            return None
+
+        PluginRegistry.populate_whitelist(settings.heartbeat.plugins)
+
+        for p in settings.heartbeat.plugins:
+            ModuleLoader.load(p, full_classpath=True)
 
 
 class Plugin(object, metaclass=PluginRegistry):
