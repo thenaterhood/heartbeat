@@ -113,6 +113,7 @@ class Monitor(Plugin):
         else:
             self.cache = cache
 
+        self.cache.resetValuesTo(time())
         self.port = settings.heartbeat.port
         self.secret = bytes(secret.encode("UTF-8"))
         self.listener = SocketListener(self.port, self.receive)
@@ -194,7 +195,7 @@ class Monitor(Plugin):
             self.cache.items(), key=operator.itemgetter(1))
         i = 0
         time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
-        
+
         while (i < len(sorted_hosts) and time_difference > datetime.timedelta(seconds=90)):
             event = Event(
                 "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])

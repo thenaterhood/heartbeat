@@ -42,6 +42,13 @@ class Cache(LockingDictionary):
         if not reset:
             self._load_from_disk()
 
+    def resetValuesTo(self, value):
+        """
+        Resets all the cache values to a specified value
+        """
+        for k in self.items():
+            self.write(k, value)
+
     def writeToDisk(self):
         """
         Writes the cache out to disk
