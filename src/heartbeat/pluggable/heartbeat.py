@@ -202,6 +202,7 @@ class Monitor(Plugin):
             callback(event)
             self.cache.remove(sorted_hosts[i][0])
             i += 1
+            time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
 
         self.saveCache()
 
