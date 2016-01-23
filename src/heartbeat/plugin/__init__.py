@@ -1,4 +1,6 @@
 import importlib
+import logging
+import traceback
 
 
 class ModuleLoader(object):
@@ -47,12 +49,40 @@ class PluginRegistry(type):
     """
 
     plugins = {}
+    active_plugins = {}
     whitelist = []
+    logger = logging.getLogger(
+        __name__ + ".PluginRegistry"
+        )
 
     def __init__(cls, name, bases, attrs):
         full_class = cls.__module__ + "." + name
         if name != 'Plugin' and full_class in PluginRegistry.whitelist:
+            PluginRegistry.logger.debug(
+                "Discovered plugin {:s}.{:s}".format(cls.__module__, name)
+            )
             PluginRegistry.plugins[cls.__module__ + "." + name] = cls
+
+    def activate_plugins():
+        """
+        Instantiates all the plugins in the plugin registry
+        """
+        for name, plugin in PluginRegistry.plugins.items():
+            try:
+                PluginRegistry.active_plugins[name] = plugin()
+                PluginRegistry.logger.debug(
+                    "Activated plugin {:s}".format(name)
+                    )
+            except Exception as err:
+                summary = traceback.extract_tb(err.__traceback__)[-1]
+                PluginRegistry.logger.error(
+                    "Failed to activate plugin {:s}: {:s} at {:s}:{:d}".format(
+                        name,
+                        str(err),
+                        summary.filename,
+                        summary.lineno
+                    )
+                )
 
     def filter_by_package(package):
         """
@@ -98,7 +128,10 @@ class PluginRegistry(type):
         PluginRegistry.populate_whitelist(settings.heartbeat.plugins)
 
         for p in settings.heartbeat.plugins:
-            ModuleLoader.load(p, full_classpath=True)
+            try:
+                ModuleLoader.load(p, full_classpath=True)
+            except ImportError as err:
+                PluginRegistry.logger.warning("Failed to import plugin " + p)
 
 
 class Plugin(object, metaclass=PluginRegistry):

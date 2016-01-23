@@ -8,13 +8,11 @@ from heartbeat.modules import EventServer
 from heartbeat.network import SocketBroadcaster
 from heartbeat.platform import get_config_manager
 from heartbeat.monitoring import MonitorType, MonitorHandler
-from heartbeat.plugin import PluginRegistry, ModuleLoader
+from heartbeat.plugin import PluginRegistry
 import threading
 import time
 import logging, logging.handlers
 import concurrent.futures
-import traceback
-
 
 logger = logging.getLogger("heartbeat")
 logger.setLevel(logging.DEBUG)
@@ -39,13 +37,13 @@ logger.addHandler(termhandler)
 
 def main():
     threads = []
-    active_plugins = []
 
     logger.debug("Loading configuration")
     settings = get_config_manager()
 
     logger.debug("Loading plugins")
     PluginRegistry.populate_from_settings(settings)
+    PluginRegistry.activate_plugins()
 
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
@@ -59,15 +57,7 @@ def main():
 
     required_workers = 1
 
-    for name, p in PluginRegistry.plugins.items():
-        try:
-            plugin = p()
-        except Exception as err:
-            summary = traceback.extract_tb(err.__traceback__)[-1]
-            location = "{:s}:{:d}".format(summary.filename, summary.lineno)
-            logger.error("Plugin Instantiation: " + str(err) + " at " + location)
-            continue
-
+    for name, plugin in PluginRegistry.active_plugins.items():
         for t, c in plugin.get_subscriptions().items():
             dispatcher.attach(t, c)
         for t, c in plugin.get_producers().items():
