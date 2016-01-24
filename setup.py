@@ -25,6 +25,12 @@ if (sys.version_info < (3, 4)):
 
 # Pymlconf 0.3.21+ breaks on old versions of Python
 if (sys.version_info < (3, 3)):
+    print("========================================================")
+    print("======================= WARNING ========================")
+    print("========================================================")
+    print("Support for Python older than 3.3 will be dropped soon.")
+    print("========================================================")
+    print("========================================================")
     del(install_requires[0])
     install_requires.append("pymlconf <= 0.3.20")
 
