@@ -36,6 +36,9 @@ termhandler.setLevel(logging.INFO)
 logger.addHandler(termhandler)
 
 def main():
+    if (sys.version_info < (3, 3)):
+        logger.info("Support for Python 3.2 will be dropped soon!")
+
     threads = []
 
     logger.debug("Loading configuration")
