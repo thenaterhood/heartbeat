@@ -4,7 +4,30 @@ from pkg_resources import resource_string
 import argparse
 import os
 import sys
+import shutil
 import stat
+
+
+def uninstall_all(root):
+    hb_cfg_dir = os.path.join(root, "etc", "heartbeat")
+    systemd_service = os.path.join(root, "usr", "lib", "systemd", "system", "heartbeat.service")
+    sysvinit_service = os.path.join(root, "etc", "init.d", "heartbeat")
+
+    try:
+        os.remove(systemd_service)
+    except OSError as err:
+        print("Error removing systemd service: {:s}".format(err.strerror))
+
+    try:
+        os.remove(sysvinit_service)
+    except OSError as err:
+        print("Error removing Sysvinit service: {:s}".format(err.strerror))
+
+    try:
+        shutil.copy(hb_cfg_dir, os.path.expanduser(os.path.join("~", "heartbeat-cfg-backup")))
+        shutil.rmtree(hb_cfg_dir)
+    except OSError as err:
+        print("Error removing cfg directory: {:s}".format(err.strerror))
 
 def install_cfg_dir(root, overwrite):
     hbconf = resource_string(
@@ -122,8 +145,18 @@ def main():
         action='store_true',
         help="Pass this flag to force the install script to overwrite existing files. If not passed, the install script will avoid overwriting anything."
     )
+    parser.add_argument(
+        '--uninstall-all',
+        required=False,
+        default=False,
+        action='store_true',
+        help="Uninstall the service and config files. Config files will be backed up to your home directory. This will not disable the services if enabled."
+    )
 
     args = parser.parse_args()
+
+    if args.uninstall_all:
+        uninstall_all(root=args.root)
 
     if args.install_cfg:
         install_cfg_dir(root=args.root, overwrite=args.overwrite)
