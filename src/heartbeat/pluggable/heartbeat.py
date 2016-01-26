@@ -10,12 +10,11 @@ from time import sleep, time
 from random import randint
 from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.platform import get_config_manager, Event
-from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
+from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer, Cache
 from heartbeat.security import Encryptor
 from heartbeat.plugin import Plugin
 from heartbeat.monitoring import MonitorType
 from heartbeat.network import SocketBroadcaster
-from heartbeat.modules import Cache
 
 
 class Heartbeat(Plugin):
