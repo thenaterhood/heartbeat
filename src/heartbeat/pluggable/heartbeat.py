@@ -92,7 +92,7 @@ class Monitor(Plugin):
     network.
     """
 
-    def __init__(self, cache=None):
+    def __init__(self, cache=None, settings=None, listener=None):
         """
         constructor
 
@@ -104,7 +104,10 @@ class Monitor(Plugin):
             NotificationHandler notifyHandler: an array of notifier classes to call to send
                 notifications of events
         """
-        settings = get_config_manager()
+        if settings is None:
+            settings = get_config_manager()
+        else:
+            settings = settings
         secret = settings.heartbeat.secret_key
 
         if cache is None:
@@ -115,7 +118,10 @@ class Monitor(Plugin):
         self.cache.resetValuesTo(time())
         self.port = settings.heartbeat.port
         self.secret = bytes(secret.encode("UTF-8"))
-        self.listener = SocketListener(self.port, self.receive)
+        if listener is None:
+            self.listener = SocketListener(self.port, self.receive)
+        else:
+            self.listener = listener
         self.shutdown = False
 
         super(Monitor, self).__init__()
@@ -196,12 +202,13 @@ class Monitor(Plugin):
         time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
 
         while (i < len(sorted_hosts) and time_difference > datetime.timedelta(seconds=90)):
+            time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
             event = Event(
                 "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
             callback(event)
             self.cache.remove(sorted_hosts[i][0])
             i += 1
-            time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
+
 
         self.saveCache()
 
