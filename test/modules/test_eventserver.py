@@ -12,6 +12,7 @@ from heartbeat.modules import EventServer
 from heartbeat.monitoring import MonitorHandler
 from heartbeat.platform import Event, Topics
 from heartbeat.plugin import Plugin
+import logging
 import datetime
 
 import concurrent.futures
@@ -19,7 +20,11 @@ import concurrent.futures
 class TestDispatcher(unittest.TestCase):
 
     def setUp(self):
-        self.tp = MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor)
+        self.tp = MagicMock(
+                name="threadpool",
+                spec=concurrent.futures.ThreadPoolExecutor,
+                logger=Mock(name='logger', spec=logging.Logger)
+                )
         self.event = Event()
         self.notifier = Mock(name="n1", spec=Plugin)
         self.event.type = Topics.DEBUG
@@ -54,6 +59,17 @@ class TestDispatcher(unittest.TestCase):
         hours_ago = e.timestamp - delta
         self.eventserver.eventTime.write(e.__hash__(), hours_ago)
         self.assertTrue(self.eventserver.event_delay_passed(e))
+
+    def test__check_call_status(self):
+        f = concurrent.futures.Future()
+        f.set_exception(None)
+        self.eventserver.logger.error = MagicMock(return_value=None)
+
+        self.eventserver._check_call_status(f)
+        e = Exception("test exception")
+        f.set_exception(e)
+        self.eventserver._check_call_status(f)
+        self.eventserver.logger.error.assert_called_once_with("Handler: " + str(e) + " at " + " -- ")
 
     def _compare_event_from_sig(self, e):
         self.ran_compare = True

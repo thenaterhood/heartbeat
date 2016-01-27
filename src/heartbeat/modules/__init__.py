@@ -137,8 +137,11 @@ class EventServer(object):
         if error is None:
             return
         else:
-            framesummary = traceback.extract_tb(error.__traceback__)[-1]
-            location = "{:s}:{:d}".format(framesummary.filename, framesummary.lineno)
+            try:
+                framesummary = traceback.extract_tb(error.__traceback__)[-1]
+                location = "{:s}:{:d}".format(framesummary.filename, framesummary.lineno)
+            except (AttributeError, IndexError):
+                location = " -- "
             self.logger.error("Handler: " + str(error) + " at " + location)
 
 

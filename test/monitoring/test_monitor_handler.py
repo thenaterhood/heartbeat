@@ -13,6 +13,7 @@ from heartbeat.monitoring import MonitorHandler
 from heartbeat.platform import Event
 from heartbeat.plugin import Plugin
 
+import logging
 import concurrent.futures
 
 
@@ -31,7 +32,8 @@ class TestMonitorHandler(unittest.TestCase):
 
         self.monitor_handler = MonitorHandler(
                 self.notifyHandler.put_event,
-                pool
+                pool,
+                MagicMock(name="logger", spec=logging.Logger)
                 )
 
         self.monitor_handler.hwmonitors = self.hwmonitors
@@ -44,3 +46,14 @@ class TestMonitorHandler(unittest.TestCase):
         self.monitor_handler.threadpool.submit.assert_called_with(
             self.hwmonitors[1].get_producers, self.notifyHandler.put_event
         )
+
+    def test__check_call_status(self):
+        f = concurrent.futures.Future()
+        f.set_exception(None)
+        self.monitor_handler.logger.error = MagicMock(return_value=None)
+
+        self.monitor_handler._check_call_status(f)
+        e = Exception("test exception")
+        f.set_exception(e)
+        self.monitor_handler._check_call_status(f)
+        self.monitor_handler.logger.error.assert_called_once_with("Producer: " + str(e) + " at " + " -- ")
