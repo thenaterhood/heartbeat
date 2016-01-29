@@ -52,12 +52,12 @@ class TestDispatcher(unittest.TestCase):
     def test_event_delay_passed(self):
         e = Event()
 
-        self.eventserver.eventTime.write(e.__hash__(), e.timestamp)
+        self.eventserver.eventTime.write(e.__hash__(), e.when)
         self.assertFalse(self.eventserver.event_delay_passed(e))
 
         delta = datetime.timedelta(hours=2)
         hours_ago = e.timestamp - delta
-        self.eventserver.eventTime.write(e.__hash__(), hours_ago)
+        self.eventserver.eventTime.write(e.__hash__(), hours_ago.timestamp())
         self.assertTrue(self.eventserver.event_delay_passed(e))
 
     def test__check_call_status(self):

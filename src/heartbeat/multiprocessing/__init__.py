@@ -1,6 +1,8 @@
 import threading
 from time import sleep
 from copy import deepcopy
+from heartbeat.platform import get_config_manager
+from heartbeat.security import Encryptor
 
 
 class LockingDictionary(object):

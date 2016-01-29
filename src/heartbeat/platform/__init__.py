@@ -7,6 +7,7 @@ import yaml
 from enum import Enum
 import logging
 from pymlconf import ConfigManager
+from time import time
 
 
 class Topics(Enum):
@@ -27,7 +28,7 @@ class Event(object):
     An event to notify of. Contains a title, message, and timestamp
     """
     __slots__ = ('title', 'message', 'timestamp', 'host',
-                 'one_time', 'source', 'payload', 'type')
+                 'one_time', 'source', 'payload', 'type', 'when')
 
     def __init__(self, title='', message='', host="localhost", type=None):
         """
@@ -39,7 +40,8 @@ class Event(object):
         """
         self.title = title
         self.message = message
-        self.timestamp = datetime.datetime.now()
+        self.when = time()
+        self.timestamp = datetime.datetime.fromtimestamp(self.when)
         self.host = host
         self.payload = {}
         self.one_time = False

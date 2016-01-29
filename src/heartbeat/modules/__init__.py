@@ -5,13 +5,12 @@ import datetime
 from queue import Queue
 from heartbeat.network import NetworkInfo
 from heartbeat.platform import Topics, get_config_manager
-from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer
+from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer, Cache
 from heartbeat.security import Encryptor
 import logging
 import traceback
 import os
 import json
-from hashlib import sha256
 
 
 class EventServer(object):
@@ -42,8 +41,10 @@ class EventServer(object):
         for t in Topics:
             self.topics[t] = []
 
-        self.monitorPreviousEvent = LockingDictionary()
-        self.eventTime = LockingDictionary()
+        self.monitorPreviousEvent = Cache(
+            self.__class__.__name__ + "event-previous-cache"
+            )
+        self.eventTime = Cache(self.__class__.__name__ + "event-time-cache")
         if (limit_strategy == None):
             self.limit_strategy = self.event_different_from_previous
         else:
@@ -99,7 +100,9 @@ class EventServer(object):
         delay_passed = True
 
         if (self.eventTime.exists(event.__hash__())):
-            lastSeen = self.eventTime.read(event.__hash__())
+            lastSeen = datetime.datetime.fromtimestamp(
+                self.eventTime.read(event.__hash__())
+                )
             two_hours_ago = datetime.timedelta(hours=2)
             delay_passed = (datetime.datetime.now() - lastSeen) > two_hours_ago
 
@@ -110,8 +113,10 @@ class EventServer(object):
         Stores the event time and logs the event as the latest
         from the particular monitor (no duplicate events in a row)
         """
-        self.eventTime.write(event.__hash__(), event.timestamp)
+        self.eventTime.write(event.__hash__(), event.when)
         self.monitorPreviousEvent.write(event.source, event)
+        self.eventTime.writeToDisk()
+        self.monitorPreviousEvent.writeToDisk()
 
     def _forward_event(self, event):
         """
