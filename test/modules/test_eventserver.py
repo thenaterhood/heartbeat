@@ -41,7 +41,14 @@ class TestDispatcher(unittest.TestCase):
         self.eventserver.monitorPreviousEvent = self.event_cache
 
     def test_init(self):
-        d = EventServer(MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor))
+        d = EventServer(
+                MagicMock(
+                    name="threadpool",
+                    spec=concurrent.futures.ThreadPoolExecutor
+                    ),
+                event_cache=self.event_cache,
+                event_time_cache=self.event_time_cache
+                )
 
     def test_attach(self):
         self.eventserver.attach(Topics.DEBUG, self._compare_event_from_sig)
