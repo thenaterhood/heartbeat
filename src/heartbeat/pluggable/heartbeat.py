@@ -9,12 +9,57 @@ import operator
 from time import sleep, time
 from random import randint
 from heartbeat.network import SocketListener, NetworkInfo
-from heartbeat.platform import get_config_manager, Event
+from heartbeat.platform import get_config_manager, Event, Topics
 from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer, Cache
 from heartbeat.security import Encryptor
 from heartbeat.plugin import Plugin
 from heartbeat.monitoring import MonitorType
 from heartbeat.network import SocketBroadcaster
+
+
+class Startup(Plugin):
+
+    """
+    Sends an event when heartbeat starts
+    """
+
+    def __init__(self, netinfo=None):
+        """
+        Constructor
+
+        Params:
+            Settings settings
+        """
+        if netinfo is None:
+            netinfo = NetworkInfo()
+
+        self.fqdn = netinfo.get_fqdn()
+
+        super(Startup, self).__init__()
+
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+        prods = {
+            MonitorType.REALTIME: self.run
+            }
+
+        return prods
+
+    def run(self, callback):
+        """
+        Run method. Runs a single time then
+        exits as this monitor doesn't need to
+        run persistently.
+        """
+        e = Event(
+                title="Startup Notification",
+                message="Heartbeat has started",
+                host=self.fqdn,
+                type=Topics.INFO
+                )
+        callback(e)
 
 
 class Heartbeat(Plugin):
