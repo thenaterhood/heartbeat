@@ -95,7 +95,7 @@ class Cache(LockingDictionary):
             settings = get_config_manager()
 
         if path is None:
-            path = get_cache_path()
+            path = get_cache_path(settings)
 
         self.directory = path
 
