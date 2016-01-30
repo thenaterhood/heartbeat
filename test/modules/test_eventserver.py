@@ -10,6 +10,7 @@ else:
 from heartbeat.network import SocketBroadcaster
 from heartbeat.modules import EventServer
 from heartbeat.monitoring import MonitorHandler
+from heartbeat.multiprocessing import Cache
 from heartbeat.platform import Event, Topics
 from heartbeat.plugin import Plugin
 import logging
@@ -25,11 +26,15 @@ class TestDispatcher(unittest.TestCase):
                 spec=concurrent.futures.ThreadPoolExecutor,
                 logger=Mock(name='logger', spec=logging.Logger)
                 )
+        self.event_cache = Mock(name='eventcache', spec=Cache)
+        self.event_time_cache = Mock(name='eventcache', spec=Cache)
         self.event = Event()
         self.notifier = Mock(name="n1", spec=Plugin)
         self.event.type = Topics.DEBUG
         self.ran_compare = False
         self.eventserver = EventServer(self.tp)
+        self.eventserver.eventTime = self.event_time_cache
+        self.eventserver.monitorPreviousEvent = self.event_cache
 
     def test_init(self):
         d = EventServer(MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor))
@@ -52,12 +57,14 @@ class TestDispatcher(unittest.TestCase):
     def test_event_delay_passed(self):
         e = Event()
 
-        self.eventserver.eventTime.write(e.__hash__(), e.when)
+        self.eventserver.eventTime.read = MagicMock(return_value=e.when)
         self.assertFalse(self.eventserver.event_delay_passed(e))
 
         delta = datetime.timedelta(hours=2)
         hours_ago = e.timestamp - delta
-        self.eventserver.eventTime.write(e.__hash__(), hours_ago.timestamp())
+        self.eventserver.eventTime.read = MagicMock(
+                return_value=hours_ago.timestamp()
+                )
         self.assertTrue(self.eventserver.event_delay_passed(e))
 
     def test__check_call_status(self):
