@@ -32,7 +32,11 @@ class TestDispatcher(unittest.TestCase):
         self.notifier = Mock(name="n1", spec=Plugin)
         self.event.type = Topics.DEBUG
         self.ran_compare = False
-        self.eventserver = EventServer(self.tp)
+        self.eventserver = EventServer(
+                self.tp,
+                event_cache=self.event_cache,
+                event_time_cache=self.event_time_cache
+                )
         self.eventserver.eventTime = self.event_time_cache
         self.eventserver.monitorPreviousEvent = self.event_cache
 

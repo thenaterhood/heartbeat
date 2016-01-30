@@ -20,7 +20,7 @@ class EventServer(object):
     of the event.
     """
 
-    def __init__(self, threadpool, limit_strategy=None, logger=None):
+    def __init__(self, threadpool, limit_strategy=None, logger=None, event_cache=None, event_time_cache=None):
         """
         Constructor
 
@@ -41,10 +41,18 @@ class EventServer(object):
         for t in Topics:
             self.topics[t] = []
 
-        self.monitorPreviousEvent = Cache(
-            self.__class__.__name__ + "event-previous-cache"
-            )
-        self.eventTime = Cache(self.__class__.__name__ + "event-time-cache")
+        if event_cache is None:
+            self.monitorPreviousEvent = Cache(
+                self.__class__.__name__ + "event-previous-cache"
+                )
+        else:
+            self.monitorPreviousEvent = event_cache
+
+        if event_time_cache is None:
+            self.eventTime = Cache(self.__class__.__name__ + "event-time-cache")
+        else:
+            self.eventTime = event_time_cache
+
         if (limit_strategy == None):
             self.limit_strategy = self.event_different_from_previous
         else:
