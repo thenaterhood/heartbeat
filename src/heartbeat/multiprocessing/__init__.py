@@ -119,7 +119,6 @@ class Cache(LockingDictionary):
         """
         Writes the cache out to disk
         """
-        print("Writing cache to disk")
         try:
             with open(self._get_filename(), "wb") as cacheFile:
                 data = self.encryptor.encrypt(json.dumps(self._dictionary))

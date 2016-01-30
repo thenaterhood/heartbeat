@@ -8,6 +8,7 @@ from enum import Enum
 import logging
 from pymlconf import ConfigManager
 from time import time
+import hashlib
 
 
 class Topics(Enum):
@@ -59,7 +60,9 @@ class Event(object):
             self.source = None
 
     def __hash__(self):
-        return hash((self.title, self.message, self.source, self.host, self.type))
+        as_bytes = (self.title + self.message + self.source + self.host + self.type.name).encode("UTF-8")
+
+        return hashlib.sha512(as_bytes).hexdigest()
 
     def to_json(self):
         dictionary = dict()

@@ -75,6 +75,7 @@ class EventServer(object):
         self.logger.info("Event Generated: " + str(event))
         if (self.limit_strategy(event)):
             self.logger.debug("Dispatching Event")
+            self.log_event(event)
             self._forward_event(event)
         else:
             self.logger.debug(
@@ -89,7 +90,7 @@ class EventServer(object):
 
         if (self.monitorPreviousEvent.exists(event.source)):
             previous = self.monitorPreviousEvent.read(event.source)
-            duplicate = (previous.__hash__() == event.__hash__())
+            duplicate = (previous == event.__hash__())
 
         return not duplicate
 
@@ -114,7 +115,7 @@ class EventServer(object):
         from the particular monitor (no duplicate events in a row)
         """
         self.eventTime.write(event.__hash__(), event.when)
-        self.monitorPreviousEvent.write(event.source, event)
+        self.monitorPreviousEvent.write(event.source, event.__hash__())
         self.eventTime.writeToDisk()
         self.monitorPreviousEvent.writeToDisk()
 
