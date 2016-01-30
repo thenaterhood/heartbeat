@@ -1,7 +1,7 @@
 import threading
 from time import sleep
 from copy import deepcopy
-from heartbeat.platform import get_config_manager
+from heartbeat.platform import get_config_manager, get_cache_path
 from heartbeat.security import Encryptor
 import os
 from hashlib import sha256
@@ -85,7 +85,7 @@ class Cache(LockingDictionary):
     pairs.
     """
 
-    def __init__(self, cache_name, reset=False, settings=None, encryptor=None):
+    def __init__(self, cache_name, reset=False, settings=None, encryptor=None, path=None):
         """
         Parameters:
             str name: The name of the cache
@@ -94,7 +94,10 @@ class Cache(LockingDictionary):
         if settings is None:
             settings = get_config_manager()
 
-        self.directory = settings.heartbeat.cache_dir
+        if path is None:
+            path = get_cache_path()
+
+        self.directory = path
 
         if encryptor is None:
             self.encryptor = Encryptor(settings.heartbeat.secret_key)
@@ -124,7 +127,7 @@ class Cache(LockingDictionary):
                 data = self.encryptor.encrypt(json.dumps(self._dictionary))
                 cacheFile.write(data)
         except Exception as e:
-            print(e)
+            pass
 
     def _load_from_disk(self):
         """
@@ -137,7 +140,7 @@ class Cache(LockingDictionary):
                 decrypted = self.encryptor.decrypt(fcontents)
                 self._dictionary = json.loads(decrypted)
         except Exception as e:
-            print(e)
+            pass
             self._dictionary = {}
         self._semaphore.release()
 

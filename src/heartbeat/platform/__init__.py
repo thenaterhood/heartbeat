@@ -114,6 +114,27 @@ def _get_config_path(path = None):
 
         return os.path.join('/', 'etc', 'heartbeat')
 
+def get_cache_path(settings=None):
+    if settings is None:
+        settings = get_config_manager()
+
+    cache_path = settings.heartbeat.cache_dir
+
+    if not os.access(cache_path, os.W_OK):
+        print("No access to cache path, using user directory")
+        cache_path = os.path.join(
+                os.path.expanduser('~'),
+                '.cache',
+                'heartbeat'
+                )
+        if not os.path.exists(cache_path):
+            try:
+                os.makedirs(cache_path, exist_ok=True)
+            except Exception as err:
+                pass
+
+    return cache_path
+
 
 def get_config_manager(path = None):
 
