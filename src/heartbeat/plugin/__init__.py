@@ -166,3 +166,22 @@ class Plugin(object, metaclass=PluginRegistry):
             dict(MonitorType: Callback)
         """
         return {}
+
+    def get_dependencies(self):
+        """
+        Returns a dictionary of dependencies and what
+        what service they provide. The format of the
+        dictionary is the full class path of the required
+        plugin, mapped to a unique name for the service
+        provided by said plugin that your plugin requires.
+        Although not yet implemented, the intent is that
+        plugins can depend on other plugins, but a different
+        plugin can provide the same service...eventually.
+
+        Dependencies must be explicitly enabled by the
+        user or they will not be made available.
+
+        Returns:
+            dict(class.path.to.plugin.you.need: unique_service_name)
+        """
+        return {}
