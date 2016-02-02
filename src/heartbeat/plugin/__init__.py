@@ -68,8 +68,15 @@ class PluginRegistry(type):
         Instantiates all the plugins in the plugin registry
         """
         for name, plugin in PluginRegistry.plugins.items():
+            activated_plugin = plugin()
             try:
                 PluginRegistry.active_plugins[name] = plugin()
+
+                for d in activated_plugin.get_dependencies().items():
+                    if d[0] not in PluginRegistry.plugins:
+                        raise Exception("Unfulfilled dependency: " + d[1])
+
+                PluginRegistry.active_plugins[name] = activated_plugin
                 PluginRegistry.logger.debug(
                     "Activated plugin {:s}".format(name)
                     )
@@ -172,7 +179,8 @@ class Plugin(object, metaclass=PluginRegistry):
         Returns a dictionary of dependencies and what
         what service they provide. The format of the
         dictionary is the full class path of the required
-        plugin, mapped to a unique name for the service
+        plugin, mapped to a unique name for the service,
+        either based on the plugin name or a uuid,
         provided by said plugin that your plugin requires.
         Although not yet implemented, the intent is that
         plugins can depend on other plugins, but a different
@@ -180,6 +188,12 @@ class Plugin(object, metaclass=PluginRegistry):
 
         Dependencies must be explicitly enabled by the
         user or they will not be made available.
+
+        Plugins should not interact with each other directly,
+        but certain plugins may listen for events produced by
+        specific other plugins, such as a heartbeat monitor
+        requiring a plugin that will listen to network
+        heartbeats.
 
         Returns:
             dict(class.path.to.plugin.you.need: unique_service_name)
