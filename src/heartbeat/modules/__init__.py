@@ -1,16 +1,10 @@
 from time import sleep
 import threading
-from random import randint
 import datetime
-from queue import Queue
-from heartbeat.network import NetworkInfo
-from heartbeat.platform import Topics, get_config_manager
-from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer, Cache
-from heartbeat.security import Encryptor
+from heartbeat.platform import Topics
+from heartbeat.multiprocessing import LockingDictionary, Cache
 import logging
 import traceback
-import os
-import json
 
 
 class EventServer(object):
