@@ -34,7 +34,7 @@ class MonitorHandler(object):
         self.periodic_plugins = []
         self.started = False
 
-        if (logger == None):
+        if logger is None:
             self.logger = logging.getLogger(
                 __name__ + "." + self.__class__.__name__
             )
