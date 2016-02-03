@@ -18,7 +18,6 @@ blinkstick:
 
 from blinkstick import blinkstick
 from heartbeat.platform import get_config_manager, Topics
-from datetime import datetime
 from heartbeat.plugin import Plugin
 
 
