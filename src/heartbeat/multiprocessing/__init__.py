@@ -1,5 +1,4 @@
 import threading
-from time import sleep
 from heartbeat.platform import get_config_manager, get_cache_path
 from heartbeat.security import Encryptor
 import os
