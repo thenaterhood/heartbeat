@@ -45,7 +45,7 @@ class NetworkInfo(object):
             sock.connect(("google.com", 80))
             ip = sock.getsockname()[0]
             sock.close()
-        except:
+        except Exception:
             ip = "0.0.0.0"
 
         return ip
@@ -61,7 +61,7 @@ class NetworkInfo(object):
             filehandle = url_lib.request.urlopen(
                 'http://icanhazip.com', timeout=5)
             ip = filehandle.readlines()[0].decode('UTF-8').strip()
-        except:
+        except Exception:
             ip = '0.0.0.0'
 
         return ip
@@ -157,7 +157,7 @@ class SocketBroadcaster(object):
             pusher.sendto(data, (self._dest, self._port))
             success = True
             pusher.shutdown(1)
-        except:
+        except Exception:
             pass
 
         pusher.close()
