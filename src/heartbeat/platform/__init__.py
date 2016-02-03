@@ -3,7 +3,6 @@ import json
 import inspect
 import os
 import sys
-import yaml
 from enum import Enum
 import logging
 from pymlconf import ConfigManager
@@ -130,7 +129,7 @@ def get_cache_path(settings=None):
         if not os.path.exists(cache_path):
             try:
                 os.makedirs(cache_path, exist_ok=True)
-            except Exception as err:
+            except Exception:
                 pass
 
     return cache_path
