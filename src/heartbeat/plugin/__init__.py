@@ -1,6 +1,7 @@
 import importlib
 import logging
 import traceback
+from random import shuffle
 
 
 class ModuleLoader(object):
@@ -48,9 +49,10 @@ class PluginRegistry(type):
     will attempt to only import plugins that are configured.
     """
 
-    plugins = {}
-    active_plugins = {}
+    plugins = []
+    active_plugins = []
     whitelist = []
+    available_services = []
     logger = logging.getLogger(
         __name__ + ".PluginRegistry"
         )
@@ -61,51 +63,54 @@ class PluginRegistry(type):
             PluginRegistry.logger.debug(
                 "Discovered plugin {:s}.{:s}".format(cls.__module__, name)
             )
-            PluginRegistry.plugins[cls.__module__ + "." + name] = cls
+            PluginRegistry.plugins.append(cls)
 
     def activate_plugins():
         """
         Instantiates all the plugins in the plugin registry
         """
-        for name, plugin in PluginRegistry.plugins.items():
-            activated_plugin = plugin()
+        waiting_plugins = PluginRegistry.plugins
+        i = 0
+        tries = 0
+
+        while len(waiting_plugins) > 0 and tries < 10:
+            if i >= len(waiting_plugins):
+                i = 0
+                tries += 1
+                shuffle(waiting_plugins)
+
             try:
-                PluginRegistry.active_plugins[name] = plugin()
-
-                for d in activated_plugin.get_dependencies().items():
-                    if d[0] not in PluginRegistry.plugins:
-                        raise Exception("Unfulfilled dependency: " + d[1])
-
-                PluginRegistry.active_plugins[name] = activated_plugin
-                PluginRegistry.logger.debug(
-                    "Activated plugin {:s}".format(name)
-                    )
+                plugin = waiting_plugins[i]()
+                if set(plugin.get_service_requirements()).issubset(PluginRegistry.available_services):
+                    PluginRegistry.active_plugins.append(plugin)
+                    PluginRegistry.logger.debug(
+                            "Activated plugin {:s}".format(
+                                str(waiting_plugins[i])
+                                )
+                            )
+                    PluginRegistry.available_services += plugin.get_services()
+                    del(waiting_plugins[i])
+                else:
+                    i += 1
             except Exception as err:
                 summary = traceback.extract_tb(err.__traceback__)[-1]
                 PluginRegistry.logger.error(
-                    "Failed to activate plugin {:s}: {:s} at {:s}:{:d}".format(
-                        name,
-                        str(err),
-                        summary.filename,
-                        summary.lineno
+                        "Failed to activate {:s}: {:s} at {:s}:{:d}".format(
+                            str(waiting_plugins[i]),
+                            str(err),
+                            summary.filename,
+                            summary.lineno
+                            )
+                        )
+                i += 1
+
+        for i in waiting_plugins:
+            PluginRegistry.logger.error(
+                    "Failed to activate {:s}, {:s}".format(
+                        str(i),
+                        "Requirements could not be satisfied"
+                        )
                     )
-                )
-
-    def filter_by_package(package):
-        """
-        Returns a list of plugins contained within a particular package
-
-        Parameters:
-            str package
-        """
-
-        filtered = {}
-
-        for pkg, c in PluginRegistry.plugins.items():
-            if pkg.startswith(package):
-                filtered[pkg] = c
-
-        return filtered
 
     def populate_whitelist(allowed_plugins):
         """
@@ -174,17 +179,31 @@ class Plugin(object, metaclass=PluginRegistry):
         """
         return {}
 
-    def get_dependencies(self):
+    def get_services(self):
         """
-        Returns a dictionary of dependencies and what
-        what service they provide. The format of the
-        dictionary is the full class path of the required
-        plugin, mapped to a unique name for the service,
-        either based on the plugin name or a uuid,
-        provided by said plugin that your plugin requires.
-        Although not yet implemented, the intent is that
-        plugins can depend on other plugins, but a different
-        plugin can provide the same service...eventually.
+        Returns a list of services provided by the plugin.
+        This is a list of strings that match with the
+        service requirements of other plugins.
+
+        Multiple plugins can provide the same service.
+        Service names are arbitrary and only observed for
+        matching plugin dependencies with the providers.
+
+        Returns:
+            String[] services
+        """
+        return []
+
+    def get_service_requirements(self):
+        """
+        Returns a list of required services. Service names
+        should be unique, either by using a unique name or
+        something like a uuid. When heartbeat loads plugins,
+        it expects the service requirements to be fulfilled
+        by another Plugin. Multiple Plugins can provide the
+        same service, but they need to provide compatible
+        payloads (additional data for another service is fine,
+        but missing data is not).
 
         Dependencies must be explicitly enabled by the
         user or they will not be made available.
@@ -196,6 +215,6 @@ class Plugin(object, metaclass=PluginRegistry):
         heartbeats.
 
         Returns:
-            dict(class.path.to.plugin.you.need: unique_service_name)
+            String[] services
         """
-        return {}
+        return []
