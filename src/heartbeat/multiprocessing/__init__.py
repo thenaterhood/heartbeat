@@ -1,6 +1,5 @@
 import threading
 from time import sleep
-from copy import deepcopy
 from heartbeat.platform import get_config_manager, get_cache_path
 from heartbeat.security import Encryptor
 import os
@@ -126,7 +125,7 @@ class Cache(LockingDictionary):
             with open(self._get_filename(), "wb") as cacheFile:
                 data = self.encryptor.encrypt(json.dumps(self._dictionary))
                 cacheFile.write(data)
-        except Exception as e:
+        except Exception:
             pass
 
     def _load_from_disk(self):
@@ -139,9 +138,9 @@ class Cache(LockingDictionary):
                 fcontents = cachefile.read()
                 decrypted = self.encryptor.decrypt(fcontents)
                 self._dictionary = json.loads(decrypted)
-        except Exception as e:
-            pass
+        except Exception:
             self._dictionary = {}
+
         self._semaphore.release()
 
     def _get_filename(self):
