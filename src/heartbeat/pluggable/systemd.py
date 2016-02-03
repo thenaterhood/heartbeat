@@ -65,5 +65,5 @@ class Service(Plugin):
             return (
                 "Active: active (running)" in str(out) or
                 "Active: active (listening)" in str(out))
-        except:
+        except Exception:
             return False
