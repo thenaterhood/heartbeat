@@ -81,7 +81,7 @@ class PluginRegistry(type):
 
             try:
                 plugin = waiting_plugins[i]()
-                if set(plugin.get_service_requirements()).issubset(PluginRegistry.available_services):
+                if plugin.requirements_satisfied(PluginRegistry.available_services):
                     PluginRegistry.active_plugins.append(plugin)
                     PluginRegistry.logger.debug(
                             "Activated plugin {:s}".format(
@@ -193,6 +193,26 @@ class Plugin(object, metaclass=PluginRegistry):
             String[] services
         """
         return []
+
+    def requirements_satisfied(self, avail_services=None):
+        """
+        Returns whether the plugin's requirements are
+        satisfied. This method is implemented fully here,
+        but Plugin subclasses may wish to override it
+        for their specific needs (such as considering
+        their requirements fulfilled by multiple services
+        or optional requirements).
+
+        Params:
+            String[] avail_services: services available
+
+        Returns:
+            bool
+        """
+        if set(self.get_service_requirements()).issubset(avail_services):
+            return True
+
+        return False
 
     def get_service_requirements(self):
         """
