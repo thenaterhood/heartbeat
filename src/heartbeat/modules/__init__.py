@@ -22,7 +22,7 @@ class EventServer(object):
                 should be thrown or not. None defaults to monitor-based
                 (doesn't throw the same event twice in a row from a monitor)
         """
-        if (logger == None):
+        if (logger is None):
             self.logger = logging.getLogger(
                 __name__ + "." + self.__class__.__name__
             )
@@ -45,7 +45,7 @@ class EventServer(object):
         else:
             self.eventTime = event_time_cache
 
-        if (limit_strategy == None):
+        if (limit_strategy is None):
             self.limit_strategy = self.event_different_from_previous
         else:
             self.limit_strategy = limit_strategy

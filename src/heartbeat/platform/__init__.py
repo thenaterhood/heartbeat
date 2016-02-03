@@ -45,7 +45,7 @@ class Event(object):
         self.host = host
         self.payload = {}
         self.one_time = False
-        if (type == None):
+        if (type is None):
             self.type = Topics.INFO
         else:
             if (not isinstance(type, Topics)):

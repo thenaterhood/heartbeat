@@ -90,7 +90,7 @@ class Color(Plugin):
         """
 
         bstick = blinkstick.find_by_serial(self.serial)
-        if (bstick == None):
+        if (bstick is None):
             pass
         else:
             bstick.set_color(hex=color)
