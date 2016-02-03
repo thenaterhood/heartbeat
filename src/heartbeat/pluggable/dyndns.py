@@ -63,6 +63,6 @@ class UrlPull(Plugin):
                 try:
                     urllib.request.urlopen(self.url, timeout=5)
                     self.current_ip = ip
-                except:
+                except Exception:
                     pass
 
