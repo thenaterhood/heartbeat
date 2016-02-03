@@ -8,10 +8,11 @@ in the Plugin it pertains to.
 """
 
 from heartbeat.plugin import Plugin
-from datetime import datetime
 from heartbeat.platform import get_config_manager, Topics, Event
-from heartbeat.network import SocketBroadcaster
+from heartbeat.network import SocketBroadcaster, SocketListener, NetworkInfo
 from heartbeat.security import Encryptor
+from heartbeat.monitoring import MonitorType
+from time import sleep
 
 
 class Sender(Plugin):
@@ -85,10 +86,9 @@ class Listener(Plugin):
         self.settings = get_config_manager()
         secret = self.settings.heartbeat.secret_key
 
-        self.callback = callback
         self.secret = bytes(secret.encode("UTF-8"))
         self.listener = SocketListener(22000, self.receive)
-
+        self.callback = None
         super(Listener, self).__init__()
         self.realtime = True
         self.shutdown = False
@@ -138,7 +138,7 @@ class Listener(Plugin):
                 try:
                     event = Event.from_json(eventJson)
                     event_loaded = True
-                except:
+                except Exception:
                     pass
 
             if (not event_loaded and self.settings.use_encryption):
@@ -146,7 +146,7 @@ class Listener(Plugin):
                     encryptor = Encryptor(self.settings.enc_password)
                     event = Event.from_json(encryptor.decrypt(eventJson))
                     event_loaded = True
-                except:
+                except Exception:
                     pass
 
             if (event_loaded):
