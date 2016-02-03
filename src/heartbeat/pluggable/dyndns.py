@@ -47,6 +47,12 @@ class UrlPull(Plugin):
 
         return subs
 
+    def get_required_services(self):
+        """
+        Overrides Plugin.get_required_services
+        """
+        return ['f21fc976-d53d-462f-a90f-38e2c564e989']
+
     def update_dyndns(self, event):
         if ('ip_type' in event.payload
                 and event.payload['ip_type'] == 'WAN'

@@ -30,6 +30,12 @@ class LANIp(Plugin):
 
         return prods
 
+    def get_services(self):
+        """
+        Overrides Plugin.get_services
+        """
+        return ['f21fc976-d53d-462f-a90f-38e2c564e989']
+
     def check_ip(self, callback):
         """
         Checks the IP and calls back if it has
@@ -68,6 +74,12 @@ class WANIp(Plugin):
             MonitorType.PERIODIC: self.check_ip
             }
         return prods
+
+    def get_services(self):
+        """
+        Overrides Plugin.get_services
+        """
+        return ['f21fc976-d53d-462f-a90f-38e2c564e989']
 
     def check_ip(self, callback):
         """
