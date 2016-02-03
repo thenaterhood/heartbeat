@@ -61,7 +61,9 @@ class PluginRegistry(type):
         full_class = cls.__module__ + "." + name
         if name != 'Plugin' and full_class in PluginRegistry.whitelist:
             PluginRegistry.logger.debug(
-                "Discovered plugin {:s}.{:s}".format(cls.__module__, name)
+                "Discovered plugin %s.%s;",
+                cls.__module__,
+                name
             )
             PluginRegistry.plugins.append(cls)
 
@@ -84,9 +86,8 @@ class PluginRegistry(type):
                 if plugin.requirements_satisfied(PluginRegistry.available_services):
                     PluginRegistry.active_plugins.append(plugin)
                     PluginRegistry.logger.debug(
-                            "Activated plugin {:s}".format(
-                                str(waiting_plugins[i])
-                                )
+                            "Activated plugin %s",
+                            str(waiting_plugins[i])
                             )
                     PluginRegistry.available_services += plugin.get_services()
                     del(waiting_plugins[i])
@@ -95,21 +96,19 @@ class PluginRegistry(type):
             except Exception as err:
                 summary = traceback.extract_tb(err.__traceback__)[-1]
                 PluginRegistry.logger.error(
-                        "Failed to activate {:s}: {:s} at {:s}:{:d}".format(
-                            str(waiting_plugins[i]),
-                            str(err),
-                            summary.filename,
-                            summary.lineno
-                            )
+                        "Failed to activate %s: %s at %s:%d",
+                        str(waiting_plugins[i]),
+                        str(err),
+                        summary.filename,
+                        summary.lineno
                         )
                 i += 1
 
         for i in waiting_plugins:
             PluginRegistry.logger.error(
-                    "Failed to activate {:s}, {:s}".format(
-                        str(i),
-                        "Requirements could not be satisfied"
-                        )
+                    "Failed to activate %s, %s",
+                    str(i),
+                    "Requirements could not be satisfied"
                     )
 
     def populate_whitelist(allowed_plugins):
@@ -143,7 +142,7 @@ class PluginRegistry(type):
             try:
                 ModuleLoader.load(p, full_classpath=True)
             except ImportError as err:
-                PluginRegistry.logger.warning("Failed to import plugin " + p)
+                PluginRegistry.logger.warning("Failed to import plugin %s", p)
 
 
 class Plugin(object, metaclass=PluginRegistry):
