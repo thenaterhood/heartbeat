@@ -2,6 +2,7 @@ import importlib
 import logging
 import traceback
 from random import shuffle
+from heartbeat.platform import get_config_manager
 
 
 class ModuleLoader(object):
@@ -141,7 +142,7 @@ class PluginRegistry(type):
         for p in settings.heartbeat.plugins:
             try:
                 ModuleLoader.load(p, full_classpath=True)
-            except ImportError as err:
+            except ImportError:
                 PluginRegistry.logger.warning("Failed to import plugin %s", p)
 
 
