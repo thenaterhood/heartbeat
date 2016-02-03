@@ -1,8 +1,6 @@
-from time import sleep
-import threading
 import datetime
 from heartbeat.platform import Topics
-from heartbeat.multiprocessing import LockingDictionary, Cache
+from heartbeat.multiprocessing import Cache
 import logging
 import traceback
 
