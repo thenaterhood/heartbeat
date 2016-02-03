@@ -2,7 +2,6 @@
 Heartbeat's Heartbeat plugins
 """
 
-import threading
 import os
 import datetime
 import operator
@@ -11,7 +10,6 @@ from random import randint
 from heartbeat.network import SocketListener, NetworkInfo
 from heartbeat.platform import get_config_manager, Event, Topics
 from heartbeat.multiprocessing import LockingDictionary, BackgroundTimer, Cache
-from heartbeat.security import Encryptor
 from heartbeat.plugin import Plugin
 from heartbeat.monitoring import MonitorType
 from heartbeat.network import SocketBroadcaster
