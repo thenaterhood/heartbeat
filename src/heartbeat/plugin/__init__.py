@@ -209,12 +209,12 @@ class Plugin(object, metaclass=PluginRegistry):
         Returns:
             bool
         """
-        if set(self.get_service_requirements()).issubset(avail_services):
+        if set(self.get_required_services()).issubset(avail_services):
             return True
 
         return False
 
-    def get_service_requirements(self):
+    def get_required_services(self):
         """
         Returns a list of required services. Service names
         should be unique, either by using a unique name or
