@@ -54,9 +54,7 @@ class UrlPull(Plugin):
         return ['f21fc976-d53d-462f-a90f-38e2c564e989']
 
     def update_dyndns(self, event):
-        if ('ip_type' in event.payload
-                and event.payload['ip_type'] == 'WAN'
-                ):
+        if ('ip_type' in event.payload and event.payload['ip_type'] == 'WAN'):
 
             ip = event.payload['ip']
             if ip != self.current_ip or self.current_ip is None:
