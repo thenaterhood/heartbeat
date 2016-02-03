@@ -5,7 +5,6 @@ This plugin will send dweets for events received from heartbeat.
 This module does not have any configurable options.
 """
 
-from datetime import datetime
 from heartbeat.network import NetworkInfo
 from heartbeat.plugin import Plugin
 from heartbeat.platform import Topics
@@ -57,6 +56,6 @@ class Dweet(Plugin):
         try:
             full_url = 'https://dweet.io/dweet/for/' + name + '?' + payload_url
             urllib.request.urlopen(full_url, timeout=5)
-        except:
+        except Exception:
             pass
 
