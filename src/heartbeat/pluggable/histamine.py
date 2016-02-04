@@ -43,7 +43,7 @@ class Sender(Plugin):
             Topics.INFO: self.send_event,
             Topics.WARNING: self.send_event,
             Topics.DEBUG: self.send_event,
-            Topics.VIRTUAL: self.send_event,
+            Topics.VIRT: self.send_event,
             Topics.HEARTBEAT: self.send_event
             }
 

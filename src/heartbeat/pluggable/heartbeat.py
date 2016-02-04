@@ -151,7 +151,7 @@ class PulseMonitor(Plugin):
     def get_subscriptions(self):
         """ Overrides Plugin.get_subscriptions """
         subs = {
-                Topics.HEARTBEAT: self.receive_heartbeat
+                Topics.HEARTBEAT: self.receive
             }
 
         return subs
