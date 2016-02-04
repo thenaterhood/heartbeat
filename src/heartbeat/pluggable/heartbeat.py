@@ -59,6 +59,184 @@ class Startup(Plugin):
         callback(e)
 
 
+class Pulse(Plugin):
+
+    """
+    Produces a network heartbeat (Event-powered)
+    which other systems can monitor
+    """
+
+    def __init__(self, timer=None, netinfo=None):
+        """
+        Constructor
+
+        Params:
+            BackgroundTimer timer (optional)
+        """
+        self.timer = timer
+        if timer is None:
+            self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
+
+        if netinfo is None:
+            netinfo = NetworkInfo()
+
+        self.fqdn = netinfo.get_fqdn()
+
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+
+        prods = {
+            MonitorType.REALTIME: self.run
+            }
+
+        return prods
+
+    def get_required_services(self):
+        """ Overrides Plugin.get_required_services """
+        return ['5be95170-2279-4db4-9c07-862ad3c9dfb3']
+
+    def terminate(self):
+        """ Terminates the heartbeat """
+        self.timer.stop()
+
+    def _beat(self):
+        """ Sends a heartbeat """
+        e = Event(
+                title="System heartbeat",
+                message="",
+                type=Topics.HEARTBEAT,
+                host=self.fqdn
+            )
+
+        self.callback(e)
+
+    def run(self, callback):
+        """ Starts the heartbeat """
+
+        self.callback = callback
+        self.timer.start()
+
+
+class PulseMonitor(Plugin):
+
+    """
+    A monitor class to listen for and handle the known heartbeats on the
+    network.
+
+    This class is Event-driven and will ignore heartbeats on the legacy
+    (non-event) system. This class listens to Pulses.
+    """
+
+    def __init__(self, cache=None):
+        """
+        constructor
+
+        Params:
+            Cache cache (optional)
+        """
+        if cache is None:
+            self.cache = Cache('known-heartbeats')
+        else:
+            self.cache = cache
+
+        self.cache.resetValuesTo(time())
+        self.shutdown = False
+
+        super(PulseMonitor, self).__init__()
+
+        self.realtime = True
+
+    def get_subscriptions(self):
+        """ Overrides Plugin.get_subscriptions """
+        subs = {
+                Topics.HEARTBEAT: self.receive_heartbeat
+            }
+
+        return subs
+
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+
+        prods = {
+                MonitorType.PERIODIC: self.cleanup_hosts
+            }
+
+        return prods
+
+    def get_required_services(self):
+        """ Overrides Plugin.get_required_services """
+        return ['dbb651d2-bce4-466b-9c01-2c5df2ead863']
+
+    def terminate(self):
+        """
+        Shuts down the thread cleanly
+        """
+        self.saveCache()
+
+    def saveCache(self):
+        """
+        Saves the cache out to disk
+        """
+        self.cache.writeToDisk()
+
+    def _bcastIsOwn(self, host):
+        """
+        Determines if a received broadcast is from the same machine
+
+        Params:
+            string host: the host the broadcast originated from (fqdn)
+        Returns:
+            boolean: whether the broadcast originated from ourselves
+        """
+        netinfo = NetworkInfo()
+        return host == netinfo.fqdn
+
+    def receive(self, event):
+        """
+        Receives a heartbeat event
+        """
+        if not self._bcastIsOwn(event.host):
+            self._log_host(event.host)
+
+    def _log_host(self, host):
+        """
+        Notifies of and adds a newly discovered heartbeat on the network
+
+        Params:
+            string host: the host the broadcast originated from
+        """
+        if (host not in self.cache.keys()):
+            event = Event("New Heartbeat", "New heartbeat discovered", host)
+            self.callback(event)
+
+        self.cache.write(host, time())
+
+    def cleanup_hosts(self, callback):
+        """
+        Cleans up the known heartbeats and notifies of any that haven't
+        been heard for a while, then dumps them.
+        """
+        sorted_hosts = sorted(
+            self.cache.items(), key=operator.itemgetter(1))
+        i = 0
+        time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
+
+        while (i < len(sorted_hosts) and time_difference > datetime.timedelta(seconds=90)):
+            time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
+            event = Event(
+                "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
+            callback(event)
+            self.cache.remove(sorted_hosts[i][0])
+            i += 1
+
+
+        self.saveCache()
+
+
 class Heartbeat(Plugin):
 
     """

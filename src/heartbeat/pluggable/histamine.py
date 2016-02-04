@@ -43,10 +43,15 @@ class Sender(Plugin):
             Topics.INFO: self.send_event,
             Topics.WARNING: self.send_event,
             Topics.DEBUG: self.send_event,
-            Topics.VIRTUAL: self.send_event
+            Topics.VIRTUAL: self.send_event,
+            Topics.HEARTBEAT: self.send_event
             }
 
         return subs
+
+    def get_services(self):
+        """ Overrides Plugin.get_services """
+        return ['5be95170-2279-4db4-9c07-862ad3c9dfb3']
 
     def send_event(self, event):
         """
@@ -103,6 +108,10 @@ class Listener(Plugin):
             }
 
         return prods
+
+    def get_services(self):
+        """ Overrides Plugin.get_services """
+        return ['dbb651d2-bce4-466b-9c01-2c5df2ead863']
 
     def _bcastIsOwn(self, host):
         """
