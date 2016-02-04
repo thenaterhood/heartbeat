@@ -23,7 +23,7 @@ provides basic security for encrypting data in transit over a network, but has
 not been tested for security thoroughly; use Heartbeat at your own risk.
 
 # Usage
-Heartbeat supports Linux and Linux-like operating systems running Python 3.2
+Heartbeat supports Linux and Linux-like operating systems running Python 3.3
 and newer. Support for Windows is in progress, but is still experimental.
 
 ## Installation
