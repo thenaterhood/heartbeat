@@ -58,7 +58,7 @@ class TestPulse(unittest.TestCase):
         self.hb = Pulse(self.timer, self.netinfo)
 
     def test_instantiate(self):
-        hb = Heartbeat(self.timer, self.netinfo)
+        hb = Pulse(self.timer, self.netinfo)
 
     def test_beat(self):
         func = MagicMock(return_value=None)
