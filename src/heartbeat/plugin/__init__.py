@@ -209,7 +209,12 @@ class Plugin(object, metaclass=PluginRegistry):
         Returns:
             bool
         """
-        if set(self.get_required_services()).issubset(avail_services):
+        requirements = self.get_required_services()
+
+        if avail_services is None:
+            avail_services = []
+
+        if set(requirements).issubset(avail_services):
             return True
 
         return False
