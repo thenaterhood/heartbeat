@@ -7,7 +7,12 @@ class TestPluginRegistry(unittest.TestCase):
 
     def setUp(self):
         PluginRegistry.whitelist = []
+
+    def tearDown(self):
+        PluginRegistry.whitelist = []
         PluginRegistry.plugins = []
+        PluginRegistry.active_plugins = []
+        PluginRegistry.available_services = []
 
     def test_auto_register(self):
         """
@@ -56,4 +61,88 @@ class TestPluginRegistry(unittest.TestCase):
             pass
 
         self.assertTrue(MockPlugin in PluginRegistry.plugins)
+
+    def test_simple_activate_plugins(self):
+
+        whitelist = [
+                'plugin.test_pluginregistry.MockPlugin1',
+                'plugin.test_pluginregistry.MockPlugin2'
+                ]
+
+
+        PluginRegistry.populate_whitelist(whitelist)
+
+        class MockPlugin1(Plugin):
+            pass
+
+        class MockPlugin2(Plugin):
+            pass
+
+        PluginRegistry.activate_plugins()
+        print(PluginRegistry.active_plugins)
+        self.assertTrue(len(PluginRegistry.active_plugins) == 2)
+
+    def test_activate_with_deps(self):
+
+        PluginRegistry.whitelist = []
+        whitelist = [
+                'plugin.test_pluginregistry.MockPluginDeps1',
+                'plugin.test_pluginregistry.MockPluginDeps2'
+                ]
+
+        PluginRegistry.populate_whitelist(whitelist)
+
+        class MockPluginDeps1(Plugin):
+            def get_services(self):
+                return ['foobar']
+
+        class MockPluginDeps2(Plugin):
+            def get_required_services(self):
+                return ['foobar']
+
+        PluginRegistry.activate_plugins()
+        self.assertTrue(len(PluginRegistry.active_plugins) == 2)
+
+    def test_activate_with_deps_out_of_order(self):
+
+        PluginRegistry.whitelist = []
+        whitelist = [
+                'plugin.test_pluginregistry.MockPluginDeps1',
+                'plugin.test_pluginregistry.MockPluginDeps2'
+                ]
+
+        PluginRegistry.populate_whitelist(whitelist)
+
+        class MockPluginDeps2(Plugin):
+            def get_required_services(self):
+                return ['foobar']
+
+        class MockPluginDeps1(Plugin):
+            def get_services(self):
+                return ['foobar']
+
+        PluginRegistry.activate_plugins()
+        self.assertTrue(len(PluginRegistry.active_plugins) == 2)
+
+    def test_activate_with_bad_deps(self):
+
+        whitelist = [
+                'plugin.test_pluginregistry.MockPlugin1',
+                'plugin.test_pluginregistry.MockPlugin2',
+                ]
+
+        PluginRegistry.populate_whitelist(whitelist)
+
+        class MockPlugin1(Plugin):
+            def get_services(self):
+                return ['foobar']
+
+        class MockPlugin2(Plugin):
+            def get_required_services(self):
+                return ['barbaz']
+
+        PluginRegistry.activate_plugins()
+
+        self.assertEqual(len(PluginRegistry.active_plugins), 1)
+
 
