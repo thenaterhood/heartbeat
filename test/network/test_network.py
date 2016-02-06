@@ -29,6 +29,11 @@ class NetworkInfoTest(unittest.TestCase):
 
         self.assertEqual('1.2.3.4', ip)
 
+        sock.getsockname.side_effect = Exception('foo')
+
+        ip = n.get_local_ip(sock=sock)
+        self.assertEqual('0.0.0.0', ip)
+
     def test_get_hostname(self):
         n = NetworkInfo(caching=False)
 
@@ -47,6 +52,8 @@ class SocketListenerTest(unittest.TestCase):
 
     def setUp(self):
         self.expected_data = 'foobar'
+        self.sock = MagicMock(name='socket', spec=socket.socket)
+        self.listener = SocketListener(0, None, daemon=True, timeout=None, sock=self.sock)
 
     def socket_callback(self, data, addr):
         self.assertEqual(self.exected_data, data)
@@ -56,6 +63,16 @@ class SocketListenerTest(unittest.TestCase):
         sock.recvfrom.return_value = [self.expected_data, 'somewhere']
 
         n = SocketListener(0, self.socket_callback, daemon=True, timeout=None, sock=sock)
+
+    def test_listen(self):
+        self.listener.listen_socket.recvfrom = MagicMock(return_value=['foo', 'bar'])
+        cb = Mock(return_value=None)
+        self.listener.callback = cb
+
+        self.listener._listen()
+
+        cb.assert_called_with('foo', 'bar')
+
 
 class SocketBroadcasterTest(unittest.TestCase):
 
