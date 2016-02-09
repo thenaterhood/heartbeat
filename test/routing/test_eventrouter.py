@@ -80,6 +80,7 @@ class RateLimitHandlerTest(unittest.TestCase):
         self.event_time_cache = Mock(name='eventcache', spec=Cache)
 
         self.limiter = RateLimitHandler(
+                    None,
                     self.event_cache,
                     self.event_time_cache
                 )
