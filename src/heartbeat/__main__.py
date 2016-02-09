@@ -4,7 +4,7 @@ import sys, os
 if (sys.version_info < (3, 3)):
     sys.path.append('/lib/python3.2/site-packages')
 
-from heartbeat.modules import EventServer
+from heartbeat.routing import EventRouter
 from heartbeat.platform import get_config_manager
 from heartbeat.monitoring import MonitorType, MonitorHandler
 from heartbeat.plugin import PluginRegistry
@@ -49,7 +49,7 @@ def main():
     logger.info("Bringing up notification/event handling")
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
-    dispatcher = EventServer(notifyPool)
+    dispatcher = EventRouter(notifyPool)
     hwmon = MonitorHandler(
         dispatcher.put_event,
         None,

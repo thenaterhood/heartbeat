@@ -8,10 +8,10 @@ else:
     from unittest.mock import Mock
 
 from heartbeat.network import SocketBroadcaster
-from heartbeat.modules import EventServer
 from heartbeat.monitoring import MonitorHandler
 from heartbeat.platform import Event
 from heartbeat.plugin import Plugin
+from heartbeat.routing import EventRouter
 
 import logging
 import concurrent.futures
@@ -26,7 +26,7 @@ class TestMonitorHandler(unittest.TestCase):
 
         self.hwmonitors[0].realtime=False
 
-        self.notifyHandler = MagicMock(name="dispatcher", spec=EventServer)
+        self.notifyHandler = MagicMock(name="dispatcher", spec=EventRouter)
 
         pool = MagicMock(name="threadpool", spec=concurrent.futures.ThreadPoolExecutor)
 

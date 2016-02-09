@@ -8,7 +8,7 @@ else:
     from unittest.mock import Mock
 
 from heartbeat.network import SocketBroadcaster
-from heartbeat.modules import EventServer
+from heartbeat.routing import EventRouter, RateLimitHandler
 from heartbeat.monitoring import MonitorHandler
 from heartbeat.multiprocessing import Cache
 from heartbeat.platform import Event, Topics
@@ -26,28 +26,21 @@ class TestDispatcher(unittest.TestCase):
                 spec=concurrent.futures.ThreadPoolExecutor,
                 logger=Mock(name='logger', spec=logging.Logger)
                 )
-        self.event_cache = Mock(name='eventcache', spec=Cache)
-        self.event_time_cache = Mock(name='eventcache', spec=Cache)
         self.event = Event()
         self.notifier = Mock(name="n1", spec=Plugin)
         self.event.type = Topics.DEBUG
         self.ran_compare = False
-        self.eventserver = EventServer(
+        self.limiter = Mock(name="limiter", spec=RateLimitHandler)
+        self.eventserver = EventRouter(
                 self.tp,
-                event_cache=self.event_cache,
-                event_time_cache=self.event_time_cache
+                self.limiter
                 )
-        self.eventserver.eventTime = self.event_time_cache
-        self.eventserver.monitorPreviousEvent = self.event_cache
+
 
     def test_init(self):
-        d = EventServer(
-                MagicMock(
-                    name="threadpool",
-                    spec=concurrent.futures.ThreadPoolExecutor
-                    ),
-                event_cache=self.event_cache,
-                event_time_cache=self.event_time_cache
+        d = EventRouter(
+                self.tp,
+                self.limiter
                 )
 
     def test_attach(self):
@@ -65,19 +58,6 @@ class TestDispatcher(unittest.TestCase):
        self.eventserver.put_event(self.event)
        self.tp.submit.assert_called_once_with(self.eventserver.topics[Topics.DEBUG][0], self.event)
 
-    def test_event_delay_passed(self):
-        e = Event()
-
-        self.eventserver.eventTime.read = MagicMock(return_value=e.when)
-        self.assertFalse(self.eventserver.event_delay_passed(e))
-
-        delta = datetime.timedelta(hours=2)
-        hours_ago = e.timestamp - delta
-        self.eventserver.eventTime.read = MagicMock(
-                return_value=hours_ago.timestamp()
-                )
-        self.assertTrue(self.eventserver.event_delay_passed(e))
-
     def test__check_call_status(self):
         f = concurrent.futures.Future()
         f.set_exception(None)
@@ -92,3 +72,30 @@ class TestDispatcher(unittest.TestCase):
     def _compare_event_from_sig(self, e):
         self.ran_compare = True
         self.assertEquals(self.event.__hash__(), e.__hash__())
+
+class RateLimitHandlerTest(unittest.TestCase):
+
+    def setUp(self):
+        self.event_cache = Mock(name='eventcache', spec=Cache)
+        self.event_time_cache = Mock(name='eventcache', spec=Cache)
+
+        self.limiter = RateLimitHandler(
+                    self.event_cache,
+                    self.event_time_cache
+                )
+
+    def test_event_delay_passed(self):
+        e = Event()
+
+        self.limiter.time_cache.exists = MagicMock(return_value=True)
+        self.limiter.time_cache.read = MagicMock(return_value=e.when)
+        self.assertFalse(self.limiter.event_delay_passed(e))
+
+        delta = datetime.timedelta(hours=2)
+        hours_ago = e.timestamp - delta
+        self.limiter.time_cache.read = MagicMock(
+                return_value=hours_ago.timestamp()
+                )
+        self.assertTrue(self.limiter.event_delay_passed(e))
+
+
