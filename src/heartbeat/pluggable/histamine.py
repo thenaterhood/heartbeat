@@ -44,7 +44,8 @@ class Sender(Plugin):
             Topics.WARNING: self.send_event,
             Topics.DEBUG: self.send_event,
             Topics.VIRT: self.send_event,
-            Topics.HEARTBEAT: self.send_event
+            Topics.HEARTBEAT: self.send_event,
+            Topics.STARTUP: self.send_event
             }
 
         return subs

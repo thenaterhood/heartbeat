@@ -36,7 +36,8 @@ class Dweet(Plugin):
         subs = {
             Topics.INFO: self._push_dweet,
             Topics.WARNING: self._push_dweet,
-            Topics.DEBUG: self._push_dweet
+            Topics.DEBUG: self._push_dweet,
+            Topics.STARTUP: self._push_dweet
             }
 
         return subs
@@ -58,4 +59,3 @@ class Dweet(Plugin):
             urllib.request.urlopen(full_url, timeout=5)
         except Exception:
             pass
-

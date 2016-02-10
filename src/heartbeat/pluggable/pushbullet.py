@@ -39,6 +39,7 @@ class NotePush(Plugin):
         subs = {
             Topics.INFO: self.push_note,
             Topics.WARNING: self.push_note,
+            Topics.STARTUP: self.push_note
             }
 
         return subs

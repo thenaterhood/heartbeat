@@ -54,7 +54,7 @@ class Startup(Plugin):
                 title="Startup Notification",
                 message="Heartbeat has started",
                 host=self.fqdn,
-                type=Topics.INFO
+                type=Topics.STARTUP
                 )
         callback(e)
 

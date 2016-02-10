@@ -20,6 +20,7 @@ class Topics(Enum):
     DEBUG = "debug"
     VIRT = "virtual"
     HEARTBEAT = "heartbeat"
+    STARTUP = "startup"
 
 
 class Event(object):
