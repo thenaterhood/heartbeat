@@ -220,19 +220,20 @@ class PulseMonitor(Plugin):
         Cleans up the known heartbeats and notifies of any that haven't
         been heard for a while, then dumps them.
         """
-        sorted_hosts = sorted(
-            self.cache.items(), key=operator.itemgetter(1))
-        i = 0
-        time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
+        logged_hosts = self.cache.items()
 
-        while (i < len(sorted_hosts) and time_difference > datetime.timedelta(seconds=90)):
-            time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
-            event = Event(
-                "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
-            callback(event)
-            self.cache.remove(sorted_hosts[i][0])
-            i += 1
+        for host, logged_time in logged_hosts:
+            difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(logged_time)
 
+            if difference > datetime.timedelta(seconds=90):
+                event = Event(
+                    "Flatlined Host",
+                    "Host flatlined (heartbeat lost)",
+                    host,
+                )
+
+                callback(event)
+                self.cache.remove(host)
 
         self.saveCache()
 
@@ -416,19 +417,21 @@ class Monitor(Plugin):
         Cleans up the known heartbeats and notifies of any that haven't
         been heard for a while, then dumps them.
         """
-        sorted_hosts = sorted(
-            self.cache.items(), key=operator.itemgetter(1))
-        i = 0
-        time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
 
-        while (i < len(sorted_hosts) and time_difference > datetime.timedelta(seconds=90)):
-            time_difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(sorted_hosts[i][1])
-            event = Event(
-                "Flatlined Host", "Host flatlined (heartbeat lost)", sorted_hosts[i][0])
-            callback(event)
-            self.cache.remove(sorted_hosts[i][0])
-            i += 1
+        logged_hosts = self.cache.items()
 
+        for host, logged_time in logged_hosts:
+            difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(logged_time)
+
+            if difference > datetime.timedelta(seconds=90):
+                event = Event(
+                    "Flatlined Host",
+                    "Host flatlined (heartbeat lost)",
+                    host,
+                )
+
+                callback(event)
+                self.cache.remove(host)
 
         self.saveCache()
 
