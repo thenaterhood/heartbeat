@@ -137,7 +137,7 @@ class PulseMonitor(Plugin):
             Cache cache (optional)
         """
         if cache is None:
-            self.cache = Cache('known-heartbeats')
+            self.cache = Cache('known-pulses')
         else:
             self.cache = cache
 
