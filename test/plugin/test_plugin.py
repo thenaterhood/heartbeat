@@ -64,7 +64,6 @@ class TestPluginRegistry(unittest.TestCase):
         print(self.settings.heartbeat.plugins)
         self.pr.populate_from_settings(self.settings)
 
-        self.assertTrue('foo.foo' in self.pr.whitelist)
-        self.assertTrue('bar.bar' in self.pr.whitelist)
-        self.assertTrue('baz.baz' in self.pr.whitelist)
-
+        self.assertTrue('foo.foo' in self.pr._PluginRegistry__whitelist)
+        self.assertTrue('bar.bar' in self.pr._PluginRegistry__whitelist)
+        self.assertTrue('baz.baz' in self.pr._PluginRegistry__whitelist)

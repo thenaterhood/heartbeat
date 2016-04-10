@@ -58,7 +58,7 @@ def main():
 
     required_workers = 1
 
-    for plugin in PluginRegistry.active_plugins:
+    for plugin in PluginRegistry.get_active_plugins():
         for t, c in plugin.get_subscriptions().items():
             dispatcher.attach(t, c)
         for t, c in plugin.get_producers().items():

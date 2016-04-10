@@ -50,29 +50,29 @@ class PluginRegistry(type):
     will attempt to only import plugins that are configured.
     """
 
-    plugins = []
-    active_plugins = []
-    whitelist = []
-    available_services = []
-    logger = logging.getLogger(
+    __plugins = []
+    __active_plugins = []
+    __whitelist = []
+    __available_services = []
+    __logger = logging.getLogger(
         __name__ + ".PluginRegistry"
         )
 
     def __init__(cls, name, bases, attrs):
         full_class = cls.__module__ + "." + name
-        if name != 'Plugin' and full_class in PluginRegistry.whitelist:
-            PluginRegistry.logger.debug(
+        if name != 'Plugin' and full_class in PluginRegistry.__whitelist:
+            PluginRegistry.__logger.debug(
                 "Discovered plugin %s.%s;",
                 cls.__module__,
                 name
             )
-            PluginRegistry.plugins.append(cls)
+            PluginRegistry.__plugins.append(cls)
 
     def activate_plugins():
         """
         Instantiates all the plugins in the plugin registry
         """
-        waiting_plugins = PluginRegistry.plugins
+        waiting_plugins = PluginRegistry.__plugins
         i = 0
         tries = 0
 
@@ -84,19 +84,19 @@ class PluginRegistry(type):
 
             try:
                 plugin = waiting_plugins[i]()
-                if plugin.requirements_satisfied(PluginRegistry.available_services):
-                    PluginRegistry.active_plugins.append(plugin)
-                    PluginRegistry.logger.debug(
+                if plugin.requirements_satisfied(PluginRegistry.__available_services):
+                    PluginRegistry.__active_plugins.append(plugin)
+                    PluginRegistry.__logger.debug(
                             "Activated plugin %s",
                             str(waiting_plugins[i])
                             )
-                    PluginRegistry.available_services += plugin.get_services()
+                    PluginRegistry.__available_services += plugin.get_services()
                     del(waiting_plugins[i])
                 else:
                     i += 1
             except Exception as err:
                 summary = traceback.extract_tb(err.__traceback__)[-1]
-                PluginRegistry.logger.error(
+                PluginRegistry.__logger.error(
                         "Failed to activate %s: %s at %s:%d",
                         str(waiting_plugins[i]),
                         str(err),
@@ -106,7 +106,7 @@ class PluginRegistry(type):
                 i += 1
 
         for i in waiting_plugins:
-            PluginRegistry.logger.error(
+            PluginRegistry.__logger.error(
                     "Failed to activate %s, %s",
                     str(i),
                     "Requirements could not be satisfied"
@@ -119,8 +119,8 @@ class PluginRegistry(type):
         Parameters:
             Array[str] allowed_plugins
         """
-        if PluginRegistry.whitelist == []:
-            PluginRegistry.whitelist = allowed_plugins
+        if PluginRegistry.__whitelist == []:
+            PluginRegistry.__whitelist = allowed_plugins
         else:
             raise Exception("The PluginRegistry whitelist has already been configured")
 
@@ -143,7 +143,10 @@ class PluginRegistry(type):
             try:
                 ModuleLoader.load(p, full_classpath=True)
             except ImportError:
-                PluginRegistry.logger.warning("Failed to import plugin %s", p)
+                PluginRegistry.__logger.warning("Failed to import plugin %s", p)
+
+    def get_active_plugins():
+        return PluginRegistry.__active_plugins
 
 
 class Plugin(object, metaclass=PluginRegistry):

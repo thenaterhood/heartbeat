@@ -6,20 +6,20 @@ from heartbeat.plugin import Plugin, PluginRegistry
 class TestPluginRegistry(unittest.TestCase):
 
     def setUp(self):
-        PluginRegistry.whitelist = []
+        PluginRegistry._PluginRegistry__whitelist = []
 
     def tearDown(self):
-        PluginRegistry.whitelist = []
-        PluginRegistry.plugins = []
-        PluginRegistry.active_plugins = []
-        PluginRegistry.available_services = []
+        PluginRegistry._PluginRegistry__whitelist = []
+        PluginRegistry._PluginRegistry__plugins = []
+        PluginRegistry._PluginRegistry__active_plugins = []
+        PluginRegistry._PluginRegistry__available_services = []
 
     def test_auto_register(self):
         """
         Class inheriting from Plugin is correctly registered
         """
 
-        PluginRegistry.whitelist.append("plugin.test_pluginregistry.MockPlugin")
+        PluginRegistry._PluginRegistry__whitelist.append("plugin.test_pluginregistry.MockPlugin")
         class MockPlugin(Plugin):
             """
             Fake plugin class to make sure importing operates
@@ -27,7 +27,7 @@ class TestPluginRegistry(unittest.TestCase):
             """
             pass
 
-        self.assertTrue(MockPlugin in PluginRegistry.plugins)
+        self.assertTrue(MockPlugin in PluginRegistry._PluginRegistry__plugins)
 
     def test_auto_register_not_whitelisted(self):
         """
@@ -40,7 +40,7 @@ class TestPluginRegistry(unittest.TestCase):
             """
             pass
 
-        self.assertFalse(MockPlugin in PluginRegistry.plugins)
+        self.assertFalse(MockPlugin in PluginRegistry._PluginRegistry__plugins)
 
     def test_populate_whitelist(self):
         """
@@ -50,7 +50,7 @@ class TestPluginRegistry(unittest.TestCase):
         whitelist = ["plugin.test_pluginregistry.MockPlugin"]
         PluginRegistry.populate_whitelist(whitelist)
 
-        self.assertEqual(whitelist, PluginRegistry.whitelist)
+        self.assertEqual(whitelist, PluginRegistry._PluginRegistry__whitelist)
 
         self.assertRaises(Exception, lambda: PluginRegistry.populate_whitelist(whitelist))
 
@@ -60,7 +60,7 @@ class TestPluginRegistry(unittest.TestCase):
             """
             pass
 
-        self.assertTrue(MockPlugin in PluginRegistry.plugins)
+        self.assertTrue(MockPlugin in PluginRegistry._PluginRegistry__plugins)
 
     def test_simple_activate_plugins(self):
 
@@ -79,12 +79,11 @@ class TestPluginRegistry(unittest.TestCase):
             pass
 
         PluginRegistry.activate_plugins()
-        print(PluginRegistry.active_plugins)
-        self.assertTrue(len(PluginRegistry.active_plugins) == 2)
+        self.assertTrue(len(PluginRegistry._PluginRegistry__active_plugins) == 2)
 
     def test_activate_with_deps(self):
 
-        PluginRegistry.whitelist = []
+        PluginRegistry._PluginRegistry__whitelist = []
         whitelist = [
                 'plugin.test_pluginregistry.MockPluginDeps1',
                 'plugin.test_pluginregistry.MockPluginDeps2'
@@ -101,11 +100,11 @@ class TestPluginRegistry(unittest.TestCase):
                 return ['foobar']
 
         PluginRegistry.activate_plugins()
-        self.assertTrue(len(PluginRegistry.active_plugins) == 2)
+        self.assertTrue(len(PluginRegistry._PluginRegistry__active_plugins) == 2)
 
     def test_activate_with_deps_out_of_order(self):
 
-        PluginRegistry.whitelist = []
+        PluginRegistry._PluginRegistry__whitelist = []
         whitelist = [
                 'plugin.test_pluginregistry.MockPluginDeps1',
                 'plugin.test_pluginregistry.MockPluginDeps2'
@@ -122,7 +121,7 @@ class TestPluginRegistry(unittest.TestCase):
                 return ['foobar']
 
         PluginRegistry.activate_plugins()
-        self.assertTrue(len(PluginRegistry.active_plugins) == 2)
+        self.assertTrue(len(PluginRegistry._PluginRegistry__active_plugins) == 2)
 
     def test_activate_with_bad_deps(self):
 
@@ -143,6 +142,4 @@ class TestPluginRegistry(unittest.TestCase):
 
         PluginRegistry.activate_plugins()
 
-        self.assertEqual(len(PluginRegistry.active_plugins), 1)
-
-
+        self.assertEqual(len(PluginRegistry._PluginRegistry__active_plugins), 1)
