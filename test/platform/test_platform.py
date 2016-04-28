@@ -12,7 +12,7 @@ class EventTest(unittest.TestCase):
         self.event.source = 'test'
 
     def test_basic_instantiate(self):
-        event = Event()
+        event = Event("", "")
         self.assertEqual('', event.title)
         self.assertEqual('', event.message)
         self.assertEqual('localhost', event.host)
@@ -30,7 +30,7 @@ class EventTest(unittest.TestCase):
 
     def test_hash(self):
         self.assertEqual(self.event.__hash__(), self.event.__hash__())
-        e = Event()
+        e = Event("", "")
         self.assertNotEqual(e.__hash__(), self.event.__hash__())
 
 

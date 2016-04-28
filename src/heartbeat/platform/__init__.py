@@ -31,7 +31,7 @@ class Event(object):
     __slots__ = ('title', 'message', 'timestamp', 'host',
                  'one_time', 'source', 'payload', 'type', 'when')
 
-    def __init__(self, title='', message='', host="localhost", type=None):
+    def __init__(self, title, message, host="localhost", type=None):
         """
         Constructor
 
@@ -79,17 +79,19 @@ class Event(object):
     def from_json(jsonString):
         dictionary = json.loads(jsonString)
 
-        e = Event()
-        e.title = dictionary['title']
-        e.message = dictionary['message']
-        e.host = dictionary['host']
+        e = Event(
+            title=dictionary['title'],
+            message=dictionary['message'],
+            host=dictionary['host'],
+            type=Topics[dictionary['type']]
+            )
         e.one_time = dictionary['one_time']
         e.source = dictionary['source']
+
         if ('payload' in dictionary):
             e.payload = dictionary['payload']
         else:
             e.payload = {}
-        e.type = Topics[dictionary['type']]
 
         return e
 
