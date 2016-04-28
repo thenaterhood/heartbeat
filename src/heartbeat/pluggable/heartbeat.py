@@ -81,9 +81,6 @@ class Pulse(Plugin):
         if netinfo is None:
             netinfo = NetworkInfo()
 
-        if settings is None:
-            settings = get_config_manager()
-
         self.settings = settings
 
         self.fqdn = netinfo.get_fqdn()
@@ -270,6 +267,9 @@ class Heartbeat(Pulse):
         constructor
         """
         timer = BackgroundTimer(5*randint(1,5), True, self._legacy_beat)
+
+        if settings is None:
+            settings = get_config_manager()
 
         super(Heartbeat, self).__init__(timer, None, settings)
 
