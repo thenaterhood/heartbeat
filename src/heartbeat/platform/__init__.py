@@ -143,7 +143,8 @@ def get_config_manager(path = None):
     _default_config = {
         'heartbeat': {
             'monitor_server': None,
-            'plugins': {}
+            'plugins': {},
+            'query_interval': 60
         }
     }
 
