@@ -66,21 +66,28 @@ class Pulse(Plugin):
     which other systems can monitor
     """
 
-    def __init__(self, timer=None, netinfo=None):
+    def __init__(self, timer=None, netinfo=None, settings=None):
         """
         Constructor
 
         Params:
             BackgroundTimer timer (optional)
         """
-        self.timer = timer
         if timer is None:
-            self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
+            timer = BackgroundTimer(5*randint(1,5), True, self._beat)
+
+        self.timer = timer
 
         if netinfo is None:
             netinfo = NetworkInfo()
 
+        if settings is None:
+            settings = get_config_manager()
+
+        self.settings = settings
+
         self.fqdn = netinfo.get_fqdn()
+        self.callback = None
 
     def get_producers(self):
         """
@@ -110,7 +117,19 @@ class Pulse(Plugin):
                 host=self.fqdn
             )
 
-        self.callback(e)
+        if self.callback is not None:
+            self.callback(e)
+
+    def _legacy_beat(self, bcaster=None):
+
+        if bcaster is None:
+            bcaster = SocketBroadcaster(
+                self.settings.heartbeat.port,
+                self.settings.heartbeat.monitor_server
+            )
+
+        data = self.settings.heartbeat.secret_key.encode("UTF-8") + self.fqdn.encode("UTF-8")
+        bcaster.push(data)
 
     def run(self, callback):
         """ Starts the heartbeat """
@@ -238,7 +257,7 @@ class PulseMonitor(Plugin):
         self.saveCache()
 
 
-class Heartbeat(Plugin):
+class Heartbeat(Pulse):
 
     """
     Defines a heartbeat thread which will send a broadcast
@@ -249,61 +268,13 @@ class Heartbeat(Plugin):
     def __init__(self, bcaster=None, timer=None, settings=None):
         """
         constructor
-
-        Params:
-            int    port:     the port number to broadcast on
-            int    interval: the base interval to use for beats
-            string secret:   a secret string to identify the heartbeat
         """
-        if settings is None:
-            settings = get_config_manager()
+        timer = BackgroundTimer(5*randint(1,5), True, self._legacy_beat)
 
-        self.secret = bytes(settings.heartbeat.secret_key.encode("UTF-8"))
+        super(Heartbeat, self).__init__(timer, None, settings)
 
-        self.bcaster = bcaster
-        if (bcaster is None):
-            self.bcaster = SocketBroadcaster(
-                settings.heartbeat.port,
-                settings.heartbeat.monitor_server
-            )
-
-        self.timer = timer
-        if (timer is None):
-            self.timer = BackgroundTimer(5*randint(1,5), True, self._beat)
-
-        super(Heartbeat, self).__init__()
-
-    def get_producers(self):
-        """
-        Overrides Plugin.get_producers
-        """
-
-        prods = {
-            MonitorType.REALTIME: self.start
-        }
-
-        return prods
-
-    def terminate(self):
-        """
-        Shuts down the thread cleanly
-        """
-        self.timer.stop()
-
-    def _beat(self):
-        """
-        Broadcasts a single beat
-        """
-        netinfo = NetworkInfo()
-        data = self.secret + bytes(netinfo.fqdn.encode("UTF-8"))
-        self.bcaster.push(data)
-
-    def start(self, callback):
-        """
-        Runs the heartbeat (typically started by the thread start() call)
-        """
-        self.callback = callback
-        self.timer.start()
+    def get_required_services(self):
+        return []
 
 
 class Monitor(Plugin):

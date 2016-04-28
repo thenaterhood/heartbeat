@@ -52,9 +52,10 @@ def main():
     dispatcher = EventRouter(notifyPool)
 
     hwmon = MonitorHandler(
-        dispatcher.put_event,
-        settings.heartbeat.query_interval,
-        logger
+        event_callback=dispatcher.put_event,
+        interval=settings.heartbeat.query_interval,
+        threadpool=None,
+        logger=logger
     )
 
     required_workers = 1
