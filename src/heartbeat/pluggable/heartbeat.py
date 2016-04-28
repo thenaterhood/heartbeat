@@ -218,6 +218,19 @@ class PulseMonitor(Plugin):
         if not self._bcastIsOwn(event.host):
             self._log_host(event.host)
 
+    def receive_legacy(self, data, addr):
+        """
+        Receives the data and address from a broadcast. Used for the
+        SocketListener to call back to when it receives something.
+
+        Params:
+            binary data: the undecoded data from the broadcast
+            binary addr:
+        """
+        if data.startswith(self.secret) and not self._bcastIsOwn(data[len(self.secret):].decode("UTF-8")):
+            host = data[len(self.secret):].decode("UTF-8")
+            self._log_host(host)
+
     def _log_host(self, host):
         """
         Notifies of and adds a newly discovered heartbeat on the network
@@ -277,7 +290,7 @@ class Heartbeat(Pulse):
         return []
 
 
-class Monitor(Plugin):
+class Monitor(PulseMonitor):
 
     """
     A monitor class to listen for and handle the known heartbeats on the
@@ -302,23 +315,15 @@ class Monitor(Plugin):
             settings = settings
         secret = settings.heartbeat.secret_key
 
-        if cache is None:
-            self.cache = Cache('known-heartbeats')
-        else:
-            self.cache = cache
-
-        self.cache.resetValuesTo(time())
         self.port = settings.heartbeat.port
         self.secret = bytes(secret.encode("UTF-8"))
+
         if listener is None:
-            self.listener = SocketListener(self.port, self.receive)
+            self.listener = SocketListener(self.port, self.receive_legacy)
         else:
             self.listener = listener
-        self.shutdown = False
 
-        super(Monitor, self).__init__()
-
-        self.realtime = True
+        super(Monitor, self).__init__(cache=cache)
 
     def get_producers(self):
         """
@@ -326,87 +331,13 @@ class Monitor(Plugin):
         """
 
         prods = {
-                MonitorType.REALTIME: self.run,
+                MonitorType.REALTIME: self.run_legacy,
                 MonitorType.PERIODIC: self.cleanup_hosts
             }
 
         return prods
 
-    def terminate(self):
-        """
-        Shuts down the thread cleanly
-        """
-        self.listener.shutdown = True
-        self.saveCache()
-
-    def saveCache(self):
-        """
-        Saves the cache out to disk
-        """
-        self.cache.writeToDisk()
-
-    def _bcastIsOwn(self, host):
-        """
-        Determines if a received broadcast is from the same machine
-
-        Params:
-            string host: the host the broadcast originated from (fqdn)
-        Returns:
-            boolean: whether the broadcast originated from ourselves
-        """
-        netinfo = NetworkInfo()
-        return host == netinfo.fqdn
-
-    def receive(self, data, addr):
-        """
-        Receives the data and address from a broadcast. Used for the
-        SocketListener to call back to when it receives something.
-
-        Params:
-            binary data: the undecoded data from the broadcast
-            binary addr:
-        """
-        if data.startswith(self.secret) and not self._bcastIsOwn(data[len(self.secret):].decode("UTF-8")):
-            host = data[len(self.secret):].decode("UTF-8")
-            self._log_host(host)
-
-    def _log_host(self, host):
-        """
-        Notifies of and adds a newly discovered heartbeat on the network
-
-        Params:
-            string host: the host the broadcast originated from
-        """
-        if (host not in self.cache.keys()):
-            event = Event("New Heartbeat", "New heartbeat discovered", host)
-            self.callback(event)
-
-        self.cache.write(host, time())
-
-    def cleanup_hosts(self, callback):
-        """
-        Cleans up the known heartbeats and notifies of any that haven't
-        been heard for a while, then dumps them.
-        """
-
-        logged_hosts = self.cache.items()
-
-        for host, logged_time in logged_hosts:
-            difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(logged_time)
-
-            if difference > datetime.timedelta(seconds=90):
-                event = Event(
-                    "Flatlined Host",
-                    "Host flatlined (heartbeat lost)",
-                    host,
-                )
-
-                callback(event)
-                self.cache.remove(host)
-
-        self.saveCache()
-
-    def run(self, callback):
+    def run_legacy(self, callback):
         """
         Runs the monitor. Usually called by the parent start()
         """

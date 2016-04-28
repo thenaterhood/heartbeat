@@ -95,7 +95,7 @@ class TestMonitor(unittest.TestCase):
     def test_get_producers(self):
         prods = self.monitor.get_producers()
         correct = {
-                MonitorType.REALTIME: self.monitor.run,
+                MonitorType.REALTIME: self.monitor.run_legacy,
                 MonitorType.PERIODIC: self.monitor.cleanup_hosts
                 }
 
