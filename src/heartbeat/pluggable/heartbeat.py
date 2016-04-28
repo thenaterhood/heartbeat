@@ -66,13 +66,15 @@ class Pulse(Plugin):
     which other systems can monitor
     """
 
-    def __init__(self, timer=None, netinfo=None, settings=None):
+    def __init__(self, timer=None, netinfo=None, settings=None, bcaster=None):
         """
         Constructor
 
         Params:
             BackgroundTimer timer (optional)
         """
+        self.bcaster = bcaster
+
         if timer is None:
             timer = BackgroundTimer(5*randint(1,5), True, self._beat)
 
@@ -117,16 +119,10 @@ class Pulse(Plugin):
         if self.callback is not None:
             self.callback(e)
 
-    def _legacy_beat(self, bcaster=None):
-
-        if bcaster is None:
-            bcaster = SocketBroadcaster(
-                self.settings.heartbeat.port,
-                self.settings.heartbeat.monitor_server
-            )
+    def _legacy_beat(self):
 
         data = self.settings.heartbeat.secret_key.encode("UTF-8") + self.fqdn.encode("UTF-8")
-        bcaster.push(data)
+        self.bcaster.push(data)
 
     def run(self, callback):
         """ Starts the heartbeat """
@@ -284,7 +280,14 @@ class Heartbeat(Pulse):
         if settings is None:
             settings = get_config_manager()
 
-        super(Heartbeat, self).__init__(timer, None, settings)
+        if bcaster is None:
+            bcaster = SocketBroadcaster(
+                settings.heartbeat.port,
+                settings.heartbeat.monitor_server
+            )
+
+
+        super(Heartbeat, self).__init__(timer, bcaster=bcaster, settings=settings)
 
     def get_required_services(self):
         return []

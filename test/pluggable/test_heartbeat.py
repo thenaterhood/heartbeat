@@ -31,8 +31,10 @@ class TestHeartbeat(unittest.TestCase):
         self.settings = Mock(name='settings', spec=ConfigManager)
         self.settings.heartbeat = Mock(name='hbnamespace', spec=ConfigManager)
         self.settings.heartbeat.secret_key = 'heartbeat3477'
+        self.settings.heartbeat.port = "999999"
+        self.settings.heartbeat.monitor_server = None
         self.bcaster.push = MagicMock(return_value=None)
-        self.hb = Heartbeat(None, None, self.settings)
+        self.hb = Heartbeat(self.bcaster, None, self.settings)
 
     def test_instantiate(self):
         interval = 2
@@ -41,11 +43,9 @@ class TestHeartbeat(unittest.TestCase):
         hb = Heartbeat(bcaster, None, self.settings)
 
     def test_beat(self):
-        bcaster = Mock(name='bcaster', spec=SocketBroadcaster)
+        self.hb._legacy_beat()
 
-        self.hb._legacy_beat(bcaster)
-
-        bcaster.push.assert_called_once_with(ANY)
+        self.bcaster.push.assert_called_once_with(ANY)
 
 
 class TestPulse(unittest.TestCase):

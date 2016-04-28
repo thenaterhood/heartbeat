@@ -72,7 +72,7 @@ class PluginRegistry(type):
         """
         Instantiates all the plugins in the plugin registry
         """
-        waiting_plugins = PluginRegistry.__plugins
+        waiting_plugins = [x() for x in PluginRegistry.__plugins]
         i = 0
         tries = 0
 
@@ -83,7 +83,7 @@ class PluginRegistry(type):
                 shuffle(waiting_plugins)
 
             try:
-                plugin = waiting_plugins[i]()
+                plugin = waiting_plugins[i]
                 if plugin.requirements_satisfied(PluginRegistry.__available_services):
                     PluginRegistry.__active_plugins.append(plugin)
                     PluginRegistry.__logger.debug(
