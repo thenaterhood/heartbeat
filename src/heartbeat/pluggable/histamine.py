@@ -114,7 +114,7 @@ class Listener(Plugin):
                 if r.upper() in Topics:
                     self.topics.append(Topics[r.upper()])
         else:
-            subs = [
+            self.topics = [
                 Topics.INFO,
                 Topics.WARNING,
                 Topics.DEBUG,
