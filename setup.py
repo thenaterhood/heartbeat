@@ -29,7 +29,7 @@ if (sys.version_info < (3, 3)):
     install_requires.append("pymlconf <= 0.3.20")
 
 setup(name='heartbeat',
-    version='3.9.2',
+    version='3.10.0',
     description='Minimalist network monitoring tool',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
