@@ -30,7 +30,7 @@ if (sys.version_info < (3, 3)):
 
 setup(name='heartbeat',
     version='3.10.0',
-    description='Minimalist network monitoring tool',
+    description='Minimalist system monitoring utility',
     author='Nate Levesque',
     author_email='public@thenaterhood.com',
     url='https://github.com/thenaterhood/heartbeat/archive/master.zip',
