@@ -20,7 +20,7 @@ class MonitorHandler(object):
     an interval
     """
 
-    def __init__(self, event_callback, threadpool, logger=None, timer=None):
+    def __init__(self, event_callback, threadpool, interval=60, logger=None, timer=None):
         """
         Constructor
 
@@ -45,7 +45,7 @@ class MonitorHandler(object):
         self.logger.debug("Bringing up threadpool")
         self.threadpool = threadpool
         if (timer is None):
-            self.timer = BackgroundTimer(60, True, self.scan)
+            self.timer = BackgroundTimer(interval, True, self.scan)
         else:
             self.timer = timer
 

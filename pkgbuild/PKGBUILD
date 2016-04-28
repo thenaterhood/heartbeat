@@ -1,15 +1,15 @@
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=3.9.2
+pkgver=3.10.0
 pkgrel=1
 epoch=
-pkgdesc=""
+pkgdesc="Minimalist system monitoring utility"
 arch=('any')
 url=""
 license=('BSD')
 groups=()
 depends=("python3")
-makedepends=("unzip")
+makedepends=()
 checkdepends=()
 optdepends=()
 provides=()
@@ -22,12 +22,12 @@ backup=("etc/heartbeat/heartbeat.conf"
 options=()
 install=
 changelog=
-source=("https://github.com/thenaterhood/heartbeat/archive/v$pkgver.zip")
-noextract=("master.zip")
+source=("https://github.com/thenaterhood/heartbeat/archive/v$pkgver.tar.gz")
+noextract=()
 md5sums=('SKIP') #generate with 'makepkg -g'
 
 prepare() {
-        unzip $srcdir/v$pkgver.zip
+        cd $srcdir/$pkgname-$pkgver
 }
 
 build() {

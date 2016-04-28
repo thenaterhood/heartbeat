@@ -33,7 +33,7 @@ class TestMonitorHandler(unittest.TestCase):
         self.monitor_handler = MonitorHandler(
                 self.notifyHandler.put_event,
                 pool,
-                MagicMock(name="logger", spec=logging.Logger)
+                timer=MagicMock(name="logger", spec=logging.Logger)
                 )
 
         self.monitor_handler.hwmonitors = self.hwmonitors

@@ -68,7 +68,7 @@ class PluginRegistry(type):
             )
             PluginRegistry.__plugins.append(cls)
 
-    def activate_plugins():
+    def activate_plugins(self=None):
         """
         Instantiates all the plugins in the plugin registry
         """
@@ -145,7 +145,7 @@ class PluginRegistry(type):
             except ImportError:
                 PluginRegistry.__logger.warning("Failed to import plugin %s", p)
 
-    def get_active_plugins():
+    def get_active_plugins(self=None):
         return PluginRegistry.__active_plugins
 
 

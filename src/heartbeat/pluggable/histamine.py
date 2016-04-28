@@ -27,10 +27,26 @@ class Sender(Plugin):
     def __init__(self):
 
         settings = get_config_manager()
+        self.topics = {}
         self.monitor_server = settings.heartbeat.monitor_server
         self.secret_key = settings.heartbeat.secret_key
         self.use_encryption = settings.heartbeat.use_encryption
         self.enc_password = settings.heartbeat.enc_password
+
+        if "histamine" in settings.notifying and "topics" in settings.notifying.histamine:
+            send_topics = settings.notifying.histamine.topics
+            for s in send_topics:
+                if s.upper() in Topics:
+                    self.topics[Topics[s.upper()]] = self.send_event
+        else:
+            self.subs = {
+                Topics.INFO: self.send_event,
+                Topics.WARNING: self.send_event,
+                Topics.DEBUG: self.send_event,
+                Topics.VIRT: self.send_event,
+                Topics.HEARTBEAT: self.send_event,
+                Topics.STARTUP: self.send_event
+                }
 
         super(Sender, self).__init__()
 
@@ -39,16 +55,7 @@ class Sender(Plugin):
         Overrides Plugin.get_subcriptions
         """
 
-        subs = {
-            Topics.INFO: self.send_event,
-            Topics.WARNING: self.send_event,
-            Topics.DEBUG: self.send_event,
-            Topics.VIRT: self.send_event,
-            Topics.HEARTBEAT: self.send_event,
-            Topics.STARTUP: self.send_event
-            }
-
-        return subs
+        return self.topics
 
     def get_services(self):
         """ Overrides Plugin.get_services """
@@ -89,6 +96,7 @@ class Listener(Plugin):
                match that of the heartbeats this is intended to watch
             Notificationhandler notifyHandler: notification handler
         """
+        self.topics = []
         self.settings = get_config_manager()
         secret = self.settings.heartbeat.secret_key
 
@@ -98,6 +106,22 @@ class Listener(Plugin):
         super(Listener, self).__init__()
         self.realtime = True
         self.shutdown = False
+
+        if "histamine" in self.settings.monitoring and "topics" in self.settings.monitoring.histamine:
+
+            recv_topics = self.settings.monitoring.histamine.topics
+            for r in recv_topics:
+                if r.upper() in Topics:
+                    self.topics.append(Topics[r.upper()])
+        else:
+            self.topics = [
+                Topics.INFO,
+                Topics.WARNING,
+                Topics.DEBUG,
+                Topics.VIRT,
+                Topics.HEARTBEAT,
+                Topics.STARTUP
+                ]
 
     def get_producers(self):
         """
@@ -159,7 +183,7 @@ class Listener(Plugin):
                 except Exception:
                     pass
 
-            if (event_loaded):
+            if (event_loaded and event.type in self.topics):
                 self.callback(event)
 
     def terminate(self):

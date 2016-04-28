@@ -50,10 +50,12 @@ def main():
     notifyPool = concurrent.futures.ThreadPoolExecutor(max_workers=5)
 
     dispatcher = EventRouter(notifyPool)
+
     hwmon = MonitorHandler(
-        dispatcher.put_event,
-        None,
-        logger
+        event_callback=dispatcher.put_event,
+        interval=settings.heartbeat.query_interval,
+        threadpool=None,
+        logger=logger
     )
 
     required_workers = 1

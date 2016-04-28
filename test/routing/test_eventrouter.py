@@ -26,7 +26,7 @@ class TestDispatcher(unittest.TestCase):
                 spec=concurrent.futures.ThreadPoolExecutor,
                 logger=Mock(name='logger', spec=logging.Logger)
                 )
-        self.event = Event()
+        self.event = Event("", "")
         self.notifier = Mock(name="n1", spec=Plugin)
         self.event.type = Topics.DEBUG
         self.ran_compare = False
@@ -86,7 +86,7 @@ class RateLimitHandlerTest(unittest.TestCase):
                 )
 
     def test_event_delay_passed(self):
-        e = Event()
+        e = Event("", "")
 
         self.limiter.time_cache.exists = MagicMock(return_value=True)
         self.limiter.time_cache.read = MagicMock(return_value=e.when)
@@ -98,5 +98,3 @@ class RateLimitHandlerTest(unittest.TestCase):
                 return_value=hours_ago.timestamp()
                 )
         self.assertTrue(self.limiter.event_delay_passed(e))
-
-

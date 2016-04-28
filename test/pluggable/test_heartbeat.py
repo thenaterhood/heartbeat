@@ -32,7 +32,7 @@ class TestHeartbeat(unittest.TestCase):
         self.settings.heartbeat = Mock(name='hbnamespace', spec=ConfigManager)
         self.settings.heartbeat.secret_key = 'heartbeat3477'
         self.bcaster.push = MagicMock(return_value=None)
-        self.hb = Heartbeat(self.bcaster, None, self.settings)
+        self.hb = Heartbeat(None, None, self.settings)
 
     def test_instantiate(self):
         interval = 2
@@ -40,13 +40,12 @@ class TestHeartbeat(unittest.TestCase):
         bcaster = Mock(name='bcaster', spec=SocketBroadcaster)
         hb = Heartbeat(bcaster, None, self.settings)
 
-        self.assertEqual(b'heartbeat3477', hb.secret)
-        self.assertEqual(bcaster, hb.bcaster)
-
     def test_beat(self):
-        self.hb._beat()
+        bcaster = Mock(name='bcaster', spec=SocketBroadcaster)
 
-        self.hb.bcaster.push.assert_called_once_with(ANY)
+        self.hb._legacy_beat(bcaster)
+
+        bcaster.push.assert_called_once_with(ANY)
 
 
 class TestPulse(unittest.TestCase):
@@ -96,7 +95,7 @@ class TestMonitor(unittest.TestCase):
     def test_get_producers(self):
         prods = self.monitor.get_producers()
         correct = {
-                MonitorType.REALTIME: self.monitor.run,
+                MonitorType.REALTIME: self.monitor.run_legacy,
                 MonitorType.PERIODIC: self.monitor.cleanup_hosts
                 }
 
@@ -203,5 +202,3 @@ class TestPulseMonitor(unittest.TestCase):
 
         cb = MagicMock(return_value=None)
         self.monitor.cleanup_hosts(cb)
-
-
