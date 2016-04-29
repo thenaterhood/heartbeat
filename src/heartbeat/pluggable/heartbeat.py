@@ -340,6 +340,9 @@ class Monitor(PulseMonitor):
 
         return prods
 
+    def get_required_services(self):
+        return []
+
     def run_legacy(self, callback):
         """
         Runs the monitor. Usually called by the parent start()
