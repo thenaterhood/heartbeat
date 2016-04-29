@@ -155,7 +155,8 @@ class TestPulseMonitor(unittest.TestCase):
     def test_get_producers(self):
         prods = self.monitor.get_producers()
         correct = {
-                MonitorType.PERIODIC: self.monitor.cleanup_hosts
+                MonitorType.PERIODIC: self.monitor.cleanup_hosts,
+                MonitorType.REALTIME: self.monitor.set_callback
                 }
 
         self.assertEqual(correct, prods)

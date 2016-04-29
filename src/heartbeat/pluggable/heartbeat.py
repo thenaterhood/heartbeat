@@ -174,10 +174,22 @@ class PulseMonitor(Plugin):
         """
 
         prods = {
-                MonitorType.PERIODIC: self.cleanup_hosts
+                MonitorType.PERIODIC: self.cleanup_hosts,
+                # There's a limitation where we'll only be given a callback
+                # we can keep for a realtime monitor. This is just a method
+                # to capture the callback, since PulseMonitor doesn't
+                # need to run continuously.
+                MonitorType.REALTIME: self.set_callback
             }
 
         return prods
+
+    def set_callback(self, callback):
+        # There's a limitation where we'll only be given a callback
+        # we can keep for a realtime monitor. This is just a method
+        # to capture the callback, since PulseMonitor doesn't
+        # need to run continuously.
+        self.callback = callback
 
     def get_required_services(self):
         """ Overrides Plugin.get_required_services """

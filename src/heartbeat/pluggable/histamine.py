@@ -39,7 +39,7 @@ class Sender(Plugin):
                 if s.upper() in Topics:
                     self.topics[Topics[s.upper()]] = self.send_event
         else:
-            self.subs = {
+            self.topics = {
                 Topics.INFO: self.send_event,
                 Topics.WARNING: self.send_event,
                 Topics.DEBUG: self.send_event,
@@ -111,8 +111,10 @@ class Listener(Plugin):
 
             recv_topics = self.settings.monitoring.histamine.topics
             for r in recv_topics:
-                if r.upper() in Topics:
+                try:
                     self.topics.append(Topics[r.upper()])
+                except KeyError:
+                    pass
         else:
             self.topics = [
                 Topics.INFO,
@@ -168,16 +170,16 @@ class Listener(Plugin):
             if (self._bcastIsOwn(event.host)):
                 return
 
-            if (self.settings.accept_plaintext or not self.settings.use_encryption):
+            if (self.settings.heartbeat.accept_plaintext or not self.settings.heartbeat.use_encryption):
                 try:
                     event = Event.from_json(eventJson)
                     event_loaded = True
                 except Exception:
                     pass
 
-            if (not event_loaded and self.settings.use_encryption):
+            if (not event_loaded and self.settings.heartbeat.use_encryption):
                 try:
-                    encryptor = Encryptor(self.settings.enc_password)
+                    encryptor = Encryptor(self.settings.heartbeat.enc_password)
                     event = Event.from_json(encryptor.decrypt(eventJson))
                     event_loaded = True
                 except Exception:
