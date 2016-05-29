@@ -103,7 +103,7 @@ class Pulse(Plugin):
         """ Overrides Plugin.get_required_services """
         return ['5be95170-2279-4db4-9c07-862ad3c9dfb3']
 
-    def terminate(self):
+    def halt(self):
         """ Terminates the heartbeat """
         self.timer.stop()
 
@@ -195,10 +195,11 @@ class PulseMonitor(Plugin):
         """ Overrides Plugin.get_required_services """
         return ['dbb651d2-bce4-466b-9c01-2c5df2ead863']
 
-    def terminate(self):
+    def halt(self):
         """
         Shuts down the thread cleanly
         """
+        self.shutdown = True
         self.saveCache()
 
     def saveCache(self):
@@ -363,6 +364,4 @@ class Monitor(PulseMonitor):
         self.callback = callback
 
         while not self.shutdown:
-            sleep(10)
-
-        self.terminate()
+            sleep(5)

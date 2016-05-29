@@ -13,6 +13,8 @@ from heartbeat.network import SocketBroadcaster, SocketListener, NetworkInfo
 from heartbeat.security import Encryptor
 from heartbeat.monitoring import MonitorType
 from time import sleep
+import os
+import socket
 
 
 class Sender(Plugin):
@@ -101,7 +103,6 @@ class Listener(Plugin):
         secret = self.settings.heartbeat.secret_key
 
         self.secret = bytes(secret.encode("UTF-8"))
-        self.listener = SocketListener(22000, self.receive)
         self.callback = None
         super(Listener, self).__init__()
         self.realtime = True
@@ -199,9 +200,67 @@ class Listener(Plugin):
         Runs the monitor. Usually called by the parent start()
         """
         self.callback = callback
+        self.listener = SocketListener(22000, self.receive)
         self.listener.start()
 
         while not self.shutdown:
             sleep(4)
 
         self.terminate()
+
+class LocalSocket(Listener):
+
+    def __init__(self, settings=None):
+        """
+        constructor
+        """
+        super(LocalSocket, self).__init__()
+
+        self.sock_address = "/tmp/heartbeat.sock"
+        try:
+            os.unlink(self.sock_address)
+        except OSError:
+            if os.path.exists(self.sock_address):
+                raise
+
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+
+        self.callback = None
+        self.shutdown = False
+
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+
+        prods = {
+            MonitorType.REALTIME: self.run
+            }
+
+        return prods
+
+    def get_services(self):
+        """ Overrides Plugin.get_services """
+        return []
+
+    def halt(self):
+        """ Overrides Plugin.halt """
+        self.shutdown = True
+        self.socket.close()
+        os.unlink(self.sock_address)
+
+    def run(self, callback):
+        self.socket.bind(self.sock_address)
+        self.socket.listen(1)
+        self.callback = callback
+
+        while not self.shutdown:
+            connection, from_addr = self.socket.accept()
+            try:
+                data = connection.recv(1024)
+                self.receive(data, from_addr)
+            except Exception as e:
+                # Hope for the best
+                pass
+            finally:
+                connection.close()

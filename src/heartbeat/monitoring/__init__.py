@@ -102,7 +102,6 @@ class MonitorHandler(object):
         Shuts down the thread cleanly
         """
         self.timer.stop()
-        self.threadpool.terminate()
 
     def _check_call_status(self, f):
         """

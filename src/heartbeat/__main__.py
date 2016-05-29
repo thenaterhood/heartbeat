@@ -11,6 +11,7 @@ from heartbeat.plugin import PluginRegistry
 import time
 import logging, logging.handlers
 import concurrent.futures
+import signal
 
 logger = logging.getLogger("heartbeat")
 logger.setLevel(logging.DEBUG)
@@ -33,9 +34,36 @@ termhandler = logging.StreamHandler(sys.stdout)
 termhandler.setLevel(logging.INFO)
 logger.addHandler(termhandler)
 
+class SignalHandling(object):
+    """
+    Does graceful signal handling for heartbeat.
+    """
+    def __enter__(self):
+        signal.signal(signal.SIGQUIT, exit_heartbeat)
+        signal.signal(signal.SIGTERM, exit_heartbeat)
+        signal.signal(signal.SIGINT, exit_heartbeat)
+
+    def __exit__(self, type, value, traceback):
+        # Ideally this would restore the original
+        # signal handlers, but that isn't functionality
+        # that's needed right now, so we'll do nothing.
+        pass
+
+
+def exit_heartbeat(signal, frame):
+    logger.debug("Received signal " + str(signal) + ". Exiting gracefully.")
+    for p in PluginRegistry.get_active_plugins():
+        logger.debug("Calling halt() on " + str(p))
+        p.halt()
+
+    logger.info("Waiting 5 seconds for plugins to halt, then exiting...")
+    time.sleep(5)
+
+    os._exit(0)
+
 def main():
     if (sys.version_info < (3, 3)):
-        logger.info("Support for Python 3.2 will be dropped soon!")
+        logger.error("Your Python version is older than 3.3. It is no longer officially supported!")
 
     threads = []
 
@@ -77,18 +105,10 @@ def main():
     hwmon.start()
     threads.append(hwmon)
 
-    try:
+    with SignalHandling() as sh:
+        hwmon.start()
         while 1:
             time.sleep(1)
-    except KeyboardInterrupt:
-        for t in threads:
-            t.shutdown = True
-
-        print("Shutting down heartbeat...")
-        time.sleep(5)
-        os._exit(1)
-
 
 if __name__ == "__main__":
-
     main()

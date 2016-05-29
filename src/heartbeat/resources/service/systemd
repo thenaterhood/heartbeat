@@ -5,6 +5,8 @@ After=network.target
 [Service]
 ExecStart=/bin/startheart
 Restart=always
+ExecStop=/bin/kill -s QUIT $MAINPID
+TimeoutStopSec=6
 
 [Install]
 Alias=heartbeat.service

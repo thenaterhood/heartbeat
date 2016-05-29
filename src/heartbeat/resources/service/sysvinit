@@ -25,7 +25,9 @@ starthb(){
 stophb(){
     if [ -e /tmp/heartbeat.pid ]; then
         pid=`cat /tmp/heartbeat.pid`
-        kill $pid
+        kill -s QUIT $pid
+        echo "Waiting for heartbeat to exit..."
+        sleep 5
         rm -f /tmp/heartbeat.pid
     else
         echo "No PID file exists, heartbeat may not be running"

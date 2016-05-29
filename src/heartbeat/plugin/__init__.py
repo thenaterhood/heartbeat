@@ -165,6 +165,8 @@ class Plugin(object, metaclass=PluginRegistry):
         The default at this level is an empty
         dictionary.
 
+        @since v3.0.0
+
         Returns:
             dict(Topic: Callback)
         """
@@ -176,6 +178,8 @@ class Plugin(object, metaclass=PluginRegistry):
         (realtime and otherwise) that will produce
         Events that heartbeat will dispatch. The default
         at this level is an empty dictionary.
+
+        @since v3.0.0
 
         Returns:
             dict(MonitorType: Callback)
@@ -192,6 +196,8 @@ class Plugin(object, metaclass=PluginRegistry):
         Service names are arbitrary and only observed for
         matching plugin dependencies with the providers.
 
+        @since v3.7.1
+
         Returns:
             String[] services
         """
@@ -205,6 +211,8 @@ class Plugin(object, metaclass=PluginRegistry):
         for their specific needs (such as considering
         their requirements fulfilled by multiple services
         or optional requirements).
+
+        @since v3.7.1
 
         Params:
             String[] avail_services: services available
@@ -242,7 +250,31 @@ class Plugin(object, metaclass=PluginRegistry):
         requiring a plugin that will listen to network
         heartbeats.
 
+        @since v3.7.1
+
         Returns:
             String[] services
         """
         return []
+
+    def halt(self):
+        """
+        Signal the plugin to shut down immediately. This is intended
+        to be used to terminate the Plugin gracefully by performing any
+        necessary cleanup prior to terminating and to stop any running
+        things. However, this method is NOT guaranteed to be called
+        every time the Plugin is forced to stop, so the Plugin should be
+        resilient enough to come back up even if not shut down cleanly.
+
+        This method is optional. The default implementation will set
+        self.shutdown to True but will do nothing else.
+
+        If you choose to implement support for this method, your plugin
+        MUST detect and handle a halt request in under 5 seconds. When
+        heartbeat's main script is told to terminate, it will call halt
+        on all the Plugins, wait 5 seconds, then will forcibly exit regardless
+        of whether all the Plugins have finished shutting down.
+
+        @since v3.11.0
+        """
+        self.shutdown = True
