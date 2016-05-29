@@ -1,4 +1,8 @@
 var searchData=
 [
-  ['terminate',['terminate',['../classheartbeat_1_1monitoring_1_1MonitorHandler.html#a567edab9efc5102e9458555122b5b35a',1,'heartbeat.monitoring.MonitorHandler.terminate()'],['../classheartbeat_1_1pluggable_1_1heartbeat_1_1Pulse.html#a048fbe140946dc24152ff897a3cdc0c5',1,'heartbeat.pluggable.heartbeat.Pulse.terminate()'],['../classheartbeat_1_1pluggable_1_1heartbeat_1_1PulseMonitor.html#a263c368d0201d354166d96c5aa2c5a6f',1,'heartbeat.pluggable.heartbeat.PulseMonitor.terminate()'],['../classheartbeat_1_1pluggable_1_1heartbeat_1_1Heartbeat.html#a76a64db8a22f94c14626d604d30b4c74',1,'heartbeat.pluggable.heartbeat.Heartbeat.terminate()'],['../classheartbeat_1_1pluggable_1_1heartbeat_1_1Monitor.html#a8fab74c3437be2407d8eadb9cdde598e',1,'heartbeat.pluggable.heartbeat.Monitor.terminate()'],['../classheartbeat_1_1pluggable_1_1histamine_1_1Listener.html#a2c4507d2f434f6c66893fbce75a5680e',1,'heartbeat.pluggable.histamine.Listener.terminate()']]]
+  ['savecache',['saveCache',['../classheartbeat_1_1pluggable_1_1heartbeat_1_1PulseMonitor.html#a47835083fbcf6769897ffbf145036eb6',1,'heartbeat::pluggable::heartbeat::PulseMonitor']]],
+  ['scan',['scan',['../classheartbeat_1_1monitoring_1_1MonitorHandler.html#a13bb0df5ce969b0ff27bc0beafe20ba0',1,'heartbeat::monitoring::MonitorHandler']]],
+  ['send_5fevent',['send_event',['../classheartbeat_1_1pluggable_1_1histamine_1_1Sender.html#a63a3ca17593bc89c0550b5807ac1a56e',1,'heartbeat::pluggable::histamine::Sender']]],
+  ['start',['start',['../classheartbeat_1_1monitoring_1_1MonitorHandler.html#a243ff66a64c8061fdb2acd535f3cfd35',1,'heartbeat.monitoring.MonitorHandler.start()'],['../classheartbeat_1_1multiprocessing_1_1BackgroundTimer.html#ae84bf89453466bd9f7c54443bb00906d',1,'heartbeat.multiprocessing.BackgroundTimer.start()']]],
+  ['stop',['stop',['../classheartbeat_1_1multiprocessing_1_1BackgroundTimer.html#a1d85523361dbf99b7827327edee473a5',1,'heartbeat::multiprocessing::BackgroundTimer']]]
 ];
