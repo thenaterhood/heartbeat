@@ -93,7 +93,7 @@ class MonitorHandler(object):
         """
         self.logger.debug("Starting periodic query to monitors")
         for m in self.periodic_plugins:
-            self.logger.debug("Querying " + str(m))
+            self.logger.debug("Querying %s", str(m))
             f = self.threadpool.submit(m, self.event_callback)
             f.add_done_callback(self._check_call_status)
 
@@ -123,4 +123,4 @@ class MonitorHandler(object):
                 location = "{:s}:{:d}".format(framesummary.filename, framesummary.lineno)
             except (AttributeError, IndexError):
                 location = " -- "
-            self.logger.error("Producer: " + str(error) + " at " + location)
+            self.logger.error("Producer: %s at %s", str(error), location)

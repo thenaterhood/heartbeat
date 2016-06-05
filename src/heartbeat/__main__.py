@@ -51,9 +51,9 @@ class SignalHandling(object):
 
 
 def exit_heartbeat(signal, frame):
-    logger.debug("Received signal " + str(signal) + ". Exiting gracefully.")
+    logger.debug("Received signal %i. Exiting gracefully.", signal)
     for p in PluginRegistry.get_active_plugins():
-        logger.debug("Calling halt() on " + str(p))
+        logger.debug("Calling halt() on %s", str(p))
         p.halt()
 
     logger.info("Waiting 5 seconds for plugins to halt, then exiting...")

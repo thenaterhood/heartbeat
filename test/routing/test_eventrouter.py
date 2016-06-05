@@ -67,7 +67,7 @@ class TestDispatcher(unittest.TestCase):
         e = Exception("test exception")
         f.set_exception(e)
         self.eventserver._check_call_status(f)
-        self.eventserver.logger.error.assert_called_once_with("Handler: " + str(e) + " at " + " -- ")
+        self.eventserver.logger.error.assert_called_once_with("Handler: %s at %s", str(e), " -- ")
 
     def _compare_event_from_sig(self, e):
         self.ran_compare = True

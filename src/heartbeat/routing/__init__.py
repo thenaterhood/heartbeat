@@ -152,7 +152,7 @@ class EventRouter(object):
             Callable callback: Method to call when a new event of the topic
                 is received
         """
-        self.logger.debug(str(callback) + " has subscribed to " + str(topic))
+        self.logger.debug("%s has subscribed to %s", str(callback), str(topic))
         self.topics[topic].append(callback)
 
     def put_event(self, event):
@@ -162,7 +162,7 @@ class EventRouter(object):
         Params:
             Event event: The event to notify of
         """
-        self.logger.info("Event Generated: " + str(event))
+        self.logger.info("Event Generated: %s", event.__str__())
         if (self.limiter.allow_event(event)):
             self.logger.debug("Dispatching Event")
             self._forward_event(event)
@@ -199,7 +199,7 @@ class EventRouter(object):
                 location = "{:s}:{:d}".format(framesummary.filename, framesummary.lineno)
             except (AttributeError, IndexError):
                 location = " -- "
-            self.logger.error("Handler: " + str(error) + " at " + location)
+            self.logger.error("Handler: %s at %s", str(error), location)
 
 
 if __name__ == "__main__":

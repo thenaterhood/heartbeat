@@ -187,6 +187,11 @@ class Listener(Plugin):
                     pass
 
             if (event_loaded and event.type in self.topics):
+                try:
+                    event.host = str(socket.gethostbyaddr(addr[0])[0])
+                except socket.herror:
+                    event.host = str(addr[0])
+
                 self.callback(event)
 
     def terminate(self):
