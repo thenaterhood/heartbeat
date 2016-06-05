@@ -21,6 +21,8 @@ class Topics(Enum):
     VIRT = "virtual"
     HEARTBEAT = "heartbeat"
     STARTUP = "startup"
+    # @since v3.12.0
+    ACK = "acknowledge"
 
 
 class Event(object):
