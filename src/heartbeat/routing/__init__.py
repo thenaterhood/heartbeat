@@ -29,7 +29,8 @@ class RateLimitHandler(object):
                 Topics.DEBUG: self.event_different_from_previous,
                 Topics.VIRT: self.event_different_from_previous,
                 Topics.HEARTBEAT: self.always_allow,
-                Topics.STARTUP: self.always_allow
+                Topics.STARTUP: self.always_allow,
+                Topics.ACK: self.always_allow
             }
 
         self.topic_strategies = topic_strategies
