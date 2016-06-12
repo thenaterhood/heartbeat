@@ -84,9 +84,8 @@ class Sender(Plugin):
         return ['5be95170-2279-4db4-9c07-862ad3c9dfb3']
 
     def run_acking(self, callback):
-        print("WUT")
         self.callback = callback
-        self.timer = BackgroundTimer(1, True, self.resend_unacked)
+        self.timer = BackgroundTimer(5*randint(1,5), True, self.resend_unacked)
         self.timer.start()
 
     def send_event(self, event):
