@@ -90,7 +90,10 @@ class Sender(Plugin):
         """
         Sends an event
         """
-        if (event.type != Topics.ACK):
+        if (event.type == Topics.ACK):
+            broadcaster = SocketBroadcaster(
+                    22000, event.payload['dest'])
+        else:
             if (event.id not in self.unacked):
                 event.payload["histamine_attempt"] = 1
             else:
@@ -98,8 +101,9 @@ class Sender(Plugin):
 
             self.unacked[event.id] = event
 
-        broadcaster = SocketBroadcaster(
-                22000, self.monitor_server)
+            broadcaster = SocketBroadcaster(
+                    22000, self.monitor_server)
+
         data = self.secret_key
         if (self.use_encryption):
             encryptor = Encryptor(self.enc_password)
@@ -262,6 +266,7 @@ class Listener(Plugin):
                 if (self.acking and 'histamine_acking' not in event.payload):
                     ack_e = Event('ACK', 'ACK', type=Topics.ACK)
                     ack_e.payload['histamine_acking'] = event.id
+                    ack_e.payload['dest'] = event.host
                     self.callback(ack_e)
 
                 self.callback(event)
