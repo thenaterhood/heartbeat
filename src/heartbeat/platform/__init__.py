@@ -8,6 +8,7 @@ import logging
 from pymlconf import ConfigManager
 from time import time
 import hashlib
+import uuid
 
 
 class Topics(Enum):
@@ -31,7 +32,7 @@ class Event(object):
     An event to notify of. Contains a title, message, and timestamp
     """
     __slots__ = ('title', 'message', 'timestamp', 'host',
-                 'one_time', 'source', 'payload', 'type', 'when')
+                 'one_time', 'source', 'payload', 'type', 'when', 'id')
 
     def __init__(self, title, message, host="localhost", type=None):
         """
@@ -48,6 +49,7 @@ class Event(object):
         self.host = host
         self.payload = {}
         self.one_time = False
+        self.id = str(uuid.uuid4())
         if (type is None):
             self.type = Topics.INFO
         else:
@@ -75,6 +77,7 @@ class Event(object):
         dictionary['source'] = self.source
         dictionary['payload'] = self.payload
         dictionary['type'] = self.type.name
+        dictionary['id'] = self.id
 
         return json.dumps(dictionary)
 
@@ -94,6 +97,12 @@ class Event(object):
             e.payload = dictionary['payload']
         else:
             e.payload = {}
+
+        # legacy support
+        if ('id' in dictionary):
+            e.id = dictionary['id']
+        else:
+            e.id = str(uuid.uuid4())
 
         return e
 
