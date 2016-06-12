@@ -12,7 +12,8 @@ from heartbeat.platform import get_config_manager, Topics, Event
 from heartbeat.network import SocketBroadcaster, SocketListener, NetworkInfo
 from heartbeat.security import Encryptor
 from heartbeat.monitoring import MonitorType
-from time import sleep
+from heartbeat.multiprocessing import BackgroundTimer
+from time import sleep, time
 import os
 import socket
 
@@ -42,8 +43,9 @@ class Sender(Plugin):
         if "histamine" in settings.notifying and "topics" in settings.notifying.histamine:
             send_topics = settings.notifying.histamine.topics
             for s in send_topics:
-                if s.upper() in Topics:
+                if s.upper() in Topics.__members__.keys():
                     self.topics[Topics[s.upper()]] = self.send_event
+
         else:
             self.topics = {
                 Topics.INFO: self.send_event,
@@ -82,14 +84,19 @@ class Sender(Plugin):
         return ['5be95170-2279-4db4-9c07-862ad3c9dfb3']
 
     def run_acking(self, callback):
+        print("WUT")
         self.callback = callback
-        self.timer = BackgroundTimer(5*randint(1,5), True, self.resend_unacked)
+        self.timer = BackgroundTimer(1, True, self.resend_unacked)
         self.timer.start()
 
     def send_event(self, event):
         """
         Sends an event
         """
+        if ("histamine_rxtime" in event.payload):
+            # Don't forward things sent to us
+            return
+
         if (event.type == Topics.ACK):
             broadcaster = SocketBroadcaster(
                     22000, event.payload['dest'])
@@ -117,22 +124,23 @@ class Sender(Plugin):
         """
         Resend unacked events
         """
-        for eid in self.unacked.keys():
+        unacked_keys = list(self.unacked.keys())
+        for eid in unacked_keys:
             event = self.unacked[eid]
             if event.payload["histamine_attempt"] < 4:
                 self.send_event(event)
             else:
-                self.unacked.pop(acked_id, None)
+                self.unacked.pop(eid, None)
 
     def handle_ack(self, event):
         """
         Receives an acknowledgement
         """
-        if ("histamine_acking" in event.payload):
+        if ("histamine_rxtime" in event.payload):
             acked_id = event.payload['histamine_acking']
             self.unacked.pop(acked_id, None)
 
-        if (event.host == "localhost"):
+        else:
             self.send_event(event)
 
 
@@ -263,13 +271,15 @@ class Listener(Plugin):
                 except socket.herror:
                     event.host = str(addr[0])
 
+
+                event.payload['histamine_rxtime'] = time()
+                self.callback(event)
+
                 if (self.acking and 'histamine_acking' not in event.payload):
-                    ack_e = Event('ACK', 'ACK', type=Topics.ACK)
+                    ack_e = Event('ACKing ' + event.id + "/" + event.host, 'ACK', type=Topics.ACK)
                     ack_e.payload['histamine_acking'] = event.id
                     ack_e.payload['dest'] = event.host
                     self.callback(ack_e)
-
-                self.callback(event)
 
     def terminate(self):
         """
