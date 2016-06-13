@@ -12,7 +12,8 @@ from heartbeat.platform import get_config_manager, Topics, Event
 from heartbeat.network import SocketBroadcaster, SocketListener, NetworkInfo
 from heartbeat.security import Encryptor
 from heartbeat.monitoring import MonitorType
-from time import sleep
+from heartbeat.multiprocessing import BackgroundTimer
+from time import sleep, time
 import os
 import socket
 
@@ -30,16 +31,21 @@ class Sender(Plugin):
 
         settings = get_config_manager()
         self.topics = {}
+        self.unacked = {}
         self.monitor_server = settings.heartbeat.monitor_server
         self.secret_key = settings.heartbeat.secret_key
         self.use_encryption = settings.heartbeat.use_encryption
         self.enc_password = settings.heartbeat.enc_password
+        self.acking = False
+        if ("enable_acking" in settings.notifying.histamine):
+            self.acking = settings.notifying.histamine.enable_acking
 
         if "histamine" in settings.notifying and "topics" in settings.notifying.histamine:
             send_topics = settings.notifying.histamine.topics
             for s in send_topics:
-                if s.upper() in Topics:
+                if s.upper() in Topics.__members__.keys():
                     self.topics[Topics[s.upper()]] = self.send_event
+
         else:
             self.topics = {
                 Topics.INFO: self.send_event,
@@ -47,8 +53,11 @@ class Sender(Plugin):
                 Topics.DEBUG: self.send_event,
                 Topics.VIRT: self.send_event,
                 Topics.HEARTBEAT: self.send_event,
-                Topics.STARTUP: self.send_event
+                Topics.STARTUP: self.send_event,
                 }
+
+        if (self.acking):
+            self.topics[Topics.ACK] = self.handle_ack
 
         super(Sender, self).__init__()
 
@@ -59,17 +68,48 @@ class Sender(Plugin):
 
         return self.topics
 
+    def get_producers(self):
+        """
+        Overrides Plugin.get_producers
+        """
+        if (self.acking):
+            return {
+                MonitorType.REALTIME: self.run_acking
+                }
+        else:
+            return {}
+
     def get_services(self):
         """ Overrides Plugin.get_services """
         return ['5be95170-2279-4db4-9c07-862ad3c9dfb3']
+
+    def run_acking(self, callback):
+        self.callback = callback
+        self.timer = BackgroundTimer(5*randint(1,5), True, self.resend_unacked)
+        self.timer.start()
 
     def send_event(self, event):
         """
         Sends an event
         """
+        if ("histamine_rxtime" in event.payload):
+            # Don't forward things sent to us
+            return
 
-        broadcaster = SocketBroadcaster(
-                22000, self.monitor_server)
+        if (event.type == Topics.ACK):
+            broadcaster = SocketBroadcaster(
+                    22000, event.payload['dest'])
+        else:
+            if (event.id not in self.unacked):
+                event.payload["histamine_attempt"] = 1
+            else:
+                event.payload["histamine_attempt"] += 1
+
+            self.unacked[event.id] = event
+
+            broadcaster = SocketBroadcaster(
+                    22000, self.monitor_server)
+
         data = self.secret_key
         if (self.use_encryption):
             encryptor = Encryptor(self.enc_password)
@@ -78,6 +118,29 @@ class Sender(Plugin):
             data += event.to_json()
 
         broadcaster.push(bytes(data.encode("UTF-8")))
+
+    def resend_unacked(self):
+        """
+        Resend unacked events
+        """
+        unacked_keys = list(self.unacked.keys())
+        for eid in unacked_keys:
+            event = self.unacked[eid]
+            if event.payload["histamine_attempt"] < 4:
+                self.send_event(event)
+            else:
+                self.unacked.pop(eid, None)
+
+    def handle_ack(self, event):
+        """
+        Receives an acknowledgement
+        """
+        if ("histamine_rxtime" in event.payload):
+            acked_id = event.payload['histamine_acking']
+            self.unacked.pop(acked_id, None)
+
+        else:
+            self.send_event(event)
 
 
 class Listener(Plugin):
@@ -107,6 +170,10 @@ class Listener(Plugin):
         super(Listener, self).__init__()
         self.realtime = True
         self.shutdown = False
+        self.acking = False
+
+        if ("enable_acking" in self.settings.monitoring.histamine):
+            self.acking = self.settings.monitoring.histamine.enable_acking
 
         if "histamine" in self.settings.monitoring and "topics" in self.settings.monitoring.histamine:
 
@@ -123,8 +190,11 @@ class Listener(Plugin):
                 Topics.DEBUG,
                 Topics.VIRT,
                 Topics.HEARTBEAT,
-                Topics.STARTUP
+                Topics.STARTUP,
                 ]
+
+        if self.acking:
+            self.topics.append(Topics.ACK)
 
     def get_producers(self):
         """
@@ -140,6 +210,14 @@ class Listener(Plugin):
     def get_services(self):
         """ Overrides Plugin.get_services """
         return ['dbb651d2-bce4-466b-9c01-2c5df2ead863']
+
+    def get_required_services(self):
+        """ Overrides Plugin.get_required_services """
+        if (self.acking):
+            # Sending acks requires the histamine sender
+            return ["5be95170-2279-4db4-9c07-862ad3c9dfb3"]
+        else:
+            return []
 
     def _bcastIsOwn(self, host):
         """
@@ -187,7 +265,20 @@ class Listener(Plugin):
                     pass
 
             if (event_loaded and event.type in self.topics):
+                try:
+                    event.host = str(socket.gethostbyaddr(addr[0])[0])
+                except socket.herror:
+                    event.host = str(addr[0])
+
+
+                event.payload['histamine_rxtime'] = time()
                 self.callback(event)
+
+                if (self.acking and 'histamine_acking' not in event.payload):
+                    ack_e = Event('ACKing ' + event.id + "/" + event.host, 'ACK', type=Topics.ACK)
+                    ack_e.payload['histamine_acking'] = event.id
+                    ack_e.payload['dest'] = event.host
+                    self.callback(ack_e)
 
     def terminate(self):
         """

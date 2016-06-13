@@ -56,4 +56,4 @@ class TestMonitorHandler(unittest.TestCase):
         e = Exception("test exception")
         f.set_exception(e)
         self.monitor_handler._check_call_status(f)
-        self.monitor_handler.logger.error.assert_called_once_with("Producer: " + str(e) + " at " + " -- ")
+        self.monitor_handler.logger.error.assert_called_once_with("Producer: %s at %s", str(e), " -- ")

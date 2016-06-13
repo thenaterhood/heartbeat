@@ -1,6 +1,6 @@
 # Maintainer: Nate Levesque <public@thenaterhood.com>
 pkgname=heartbeat
-pkgver=3.11.0
+pkgver=3.12.0
 pkgrel=1
 epoch=
 pkgdesc="Minimalist system monitoring utility"

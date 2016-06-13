@@ -56,4 +56,4 @@ class NotePush(Plugin):
 
         for key in self.api_keys:
             pb = PushBullet(key)
-            success, push = pb.push_note(title, message)
+            pb.push_note(title, message)
