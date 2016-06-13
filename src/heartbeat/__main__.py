@@ -102,9 +102,6 @@ def main():
             max_workers = required_workers
             )
 
-    hwmon.start()
-    threads.append(hwmon)
-
     with SignalHandling() as sh:
         hwmon.start()
         while 1:
