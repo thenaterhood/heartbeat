@@ -65,8 +65,6 @@ def main():
     if (sys.version_info < (3, 3)):
         logger.error("Your Python version is older than 3.3. It is no longer officially supported!")
 
-    threads = []
-
     logger.debug("Loading configuration")
     settings = get_config_manager()
 
@@ -101,9 +99,6 @@ def main():
     hwmon.threadpool = concurrent.futures.ThreadPoolExecutor(
             max_workers = required_workers
             )
-
-    hwmon.start()
-    threads.append(hwmon)
 
     with SignalHandling() as sh:
         hwmon.start()

@@ -720,3 +720,30 @@ Application
 * Add optional halt() method to Plugin
 * Add histamine plugin for local socket to send events to heartbeat (unstable)
 * Update service files for proper signaling
+
+v3.12.0
+==============
+
+Build
+--------------
+* No changes
+
+Application
+--------------
+* Add ACKing support to histamine (and assoc. event types and architecture)
+* Misc bugfixes for histamine
+* Add changelog
+* Fix issue in pushbullet plugin ("too many values")
+* Security improvement: Make it harder to spoof event source in histamine
+* Use string formatting, not concatonation for log strings
+
+v3.12.1
+==============
+
+Build
+--------------
+* No changes
+
+Application
+--------------
+* Fix issue with starting plugins twice
