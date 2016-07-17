@@ -119,11 +119,6 @@ class Pulse(Plugin):
         if self.callback is not None:
             self.callback(e)
 
-    def _legacy_beat(self):
-
-        data = self.settings.heartbeat.secret_key.encode("UTF-8") + self.fqdn.encode("UTF-8")
-        self.bcaster.push(data)
-
     def run(self, callback):
         """ Starts the heartbeat """
 
@@ -208,37 +203,11 @@ class PulseMonitor(Plugin):
         """
         self.cache.writeToDisk()
 
-    def _bcastIsOwn(self, host):
-        """
-        Determines if a received broadcast is from the same machine
-
-        Params:
-            string host: the host the broadcast originated from (fqdn)
-        Returns:
-            boolean: whether the broadcast originated from ourselves
-        """
-        netinfo = NetworkInfo()
-        return host == netinfo.fqdn
-
     def receive(self, event):
         """
         Receives a heartbeat event
         """
-        if not self._bcastIsOwn(event.host):
-            self._log_host(event.host)
-
-    def receive_legacy(self, data, addr):
-        """
-        Receives the data and address from a broadcast. Used for the
-        SocketListener to call back to when it receives something.
-
-        Params:
-            binary data: the undecoded data from the broadcast
-            binary addr:
-        """
-        if data.startswith(self.secret) and not self._bcastIsOwn(data[len(self.secret):].decode("UTF-8")):
-            host = data[len(self.secret):].decode("UTF-8")
-            self._log_host(host)
+        self._log_host(event.host)
 
     def _log_host(self, host):
         """
@@ -274,94 +243,3 @@ class PulseMonitor(Plugin):
                 self.cache.remove(host)
 
         self.saveCache()
-
-
-class Heartbeat(Pulse):
-
-    """
-    Defines a heartbeat thread which will send a broadcast
-    over the network every given interval (plus a small random margin
-    so as to avoid flooding the network)
-    """
-
-    def __init__(self, bcaster=None, timer=None, settings=None):
-        """
-        constructor
-        """
-        timer = BackgroundTimer(5*randint(1,5), True, self._legacy_beat)
-
-        if settings is None:
-            settings = get_config_manager()
-
-        if bcaster is None:
-            bcaster = SocketBroadcaster(
-                settings.heartbeat.port,
-                settings.heartbeat.monitor_server
-            )
-
-
-        super(Heartbeat, self).__init__(timer, bcaster=bcaster, settings=settings)
-
-    def get_required_services(self):
-        return []
-
-
-class Monitor(PulseMonitor):
-
-    """
-    A monitor class to listen for and handle the known heartbeats on the
-    network.
-    """
-
-    def __init__(self, cache=None, settings=None, listener=None):
-        """
-        constructor
-
-        Params:
-            int port: the port to listen on. Must match that of the heartbeats
-               this is intended to watch
-            string secret: a secret string to identify the heartbeat. Must
-               match that of the heartbeats this is intended to watch
-            NotificationHandler notifyHandler: an array of notifier classes to call to send
-                notifications of events
-        """
-        if settings is None:
-            settings = get_config_manager()
-        else:
-            settings = settings
-        secret = settings.heartbeat.secret_key
-
-        self.port = settings.heartbeat.port
-        self.secret = bytes(secret.encode("UTF-8"))
-
-        if listener is None:
-            self.listener = SocketListener(self.port, self.receive_legacy)
-        else:
-            self.listener = listener
-
-        super(Monitor, self).__init__(cache=cache)
-
-    def get_producers(self):
-        """
-        Overrides Plugin.get_producers
-        """
-
-        prods = {
-                MonitorType.REALTIME: self.run_legacy,
-                MonitorType.PERIODIC: self.cleanup_hosts
-            }
-
-        return prods
-
-    def get_required_services(self):
-        return []
-
-    def run_legacy(self, callback):
-        """
-        Runs the monitor. Usually called by the parent start()
-        """
-        self.listener.start()
-        self.callback = callback
-
-        while not self.shutdown:
-            sleep(5)
