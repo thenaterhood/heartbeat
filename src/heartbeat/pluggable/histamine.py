@@ -245,9 +245,6 @@ class Listener(Plugin):
             eventData = data[len(self.secret):].decode("UTF-8")
             event_loaded = False
 
-            if (self._bcastIsOwn(event.host)):
-                return
-
             if (self.settings.heartbeat.accept_plaintext or not self.settings.heartbeat.use_encryption):
                 try:
                     event = Event.from_json(eventData)
