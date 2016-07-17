@@ -242,9 +242,7 @@ class Listener(Plugin):
             binary addr:
         """
         if data.startswith(self.secret):
-            eventJson = data[len(self.secret):].decode("UTF-8")
-            event = Event.from_json(eventJson)
-
+            eventData = data[len(self.secret):].decode("UTF-8")
             event_loaded = False
 
             if (self._bcastIsOwn(event.host)):
@@ -252,7 +250,7 @@ class Listener(Plugin):
 
             if (self.settings.heartbeat.accept_plaintext or not self.settings.heartbeat.use_encryption):
                 try:
-                    event = Event.from_json(eventJson)
+                    event = Event.from_json(eventData)
                     event_loaded = True
                 except Exception:
                     pass
@@ -260,7 +258,7 @@ class Listener(Plugin):
             if (not event_loaded and self.settings.heartbeat.use_encryption):
                 try:
                     encryptor = Encryptor(self.settings.heartbeat.enc_password)
-                    event = Event.from_json(encryptor.decrypt(eventJson))
+                    event = Event.from_json(encryptor.decrypt(eventData))
                     event_loaded = True
                 except Exception:
                     pass
@@ -271,6 +269,8 @@ class Listener(Plugin):
                 except socket.herror:
                     event.host = str(addr[0])
 
+                if (self._bcastIsOwn(event.host)):
+                    return
 
                 event.payload['histamine_rxtime'] = time()
                 self.callback(event)
