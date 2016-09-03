@@ -40,6 +40,7 @@ class Color(Plugin):
         self.alert = config.notifying.blinkstick.alert_color
 
         super(Color, self).__init__()
+        self._set_color(self.okay)
 
     def get_subscriptions(self):
         """
