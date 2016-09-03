@@ -157,7 +157,8 @@ def get_config_manager(path = None):
         'heartbeat': {
             'monitor_server': None,
             'plugins': {},
-            'query_interval': 60
+            'query_interval': 60,
+            'log_dir': '/var/log'
         }
     }
 

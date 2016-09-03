@@ -13,11 +13,14 @@ import logging, logging.handlers
 import concurrent.futures
 import signal
 
+
+settings = get_config_manager()
+
 logger = logging.getLogger("heartbeat")
 logger.setLevel(logging.DEBUG)
 try:
     filehandler = logging.handlers.TimedRotatingFileHandler(
-            filename='/var/log/heartbeat.log',
+            filename=settings.heartbeat.log_dir+"/heartbeat.log",
             when='W0'
             )
 except Exception:
