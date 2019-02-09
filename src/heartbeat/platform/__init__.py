@@ -5,10 +5,13 @@ import os
 import sys
 from enum import Enum
 import logging
-from pymlconf import ConfigManager
 from time import time
 import hashlib
 import uuid
+import yaml
+from pathlib import Path
+
+__config_manager = None
 
 
 class Topics(Enum):
@@ -109,6 +112,36 @@ class Event(object):
     def __str__(self):
         return self.title + ": " + self.host + ": " + self.message
 
+class ConfigManager:
+    __slots__ = ('__config', '__finalized')
+
+    def __init__(self, entries):
+        self.__config = entries
+        self.__finalized = False
+
+    def __getattr__(self, prop):
+        try:
+            if isinstance(self.__config[prop], dict):
+                cfg_manager = ConfigManager(self.__config[prop])
+                cfg_manager.finalize()
+                return cfg_manager
+            else:
+                return self.__config[prop]
+        except:
+            return None
+
+    def __contains__(self, prop):
+        return prop in self.__config
+
+    def add_item(self, prop, value):
+        if self.__finalized:
+            raise Exception("Adding items to a finalized configuration is not allowed")
+        else:
+            self.__config[prop] = value
+
+    def finalize(self):
+        self.__finalized = True
+
 def _get_config_path(path = None):
     if (path is not None):
         return path
@@ -151,20 +184,33 @@ def get_cache_path(settings=None):
 
 def get_config_manager(path = None):
 
-    config_dir = _get_config_path(path)
+    global __config_manager
 
-    _default_config = {
+    if __config_manager is not None:
+        return __config_manager
+
+    print("Getting config manager")
+    config_dir = _get_config_path(path)
+    cfg_manager = ConfigManager({
         'heartbeat': {
             'monitor_server': None,
             'plugins': {},
             'query_interval': 60,
             'log_dir': '/var/log'
         }
-    }
+    })
 
     if not os.path.exists(config_dir) or  not os.path.exists(os.path.join(config_dir, "heartbeat.conf")):
         raise Exception("Configuration data could not be found. You can install the base configuration for Heartbeat using `heartbeat-install --install-cfg`")
 
-    cfg = ConfigManager(_default_config, [config_dir])
+    confdir = Path(config_dir)
+    conf_list = [f for f in confdir.resolve().glob('**/*') if f.is_file()]
+    for conffile in conf_list:
+        with open(conffile) as f:
+            conf_key = os.path.splitext(os.path.basename(conffile))[0]
+            cfg_manager.add_item(conf_key, yaml.safe_load(f))
 
-    return cfg
+    cfg_manager.finalize()
+    __config_manager = cfg_manager
+
+    return cfg_manager
