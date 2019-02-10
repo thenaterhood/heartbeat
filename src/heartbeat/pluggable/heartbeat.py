@@ -30,7 +30,7 @@ class Startup(Plugin):
         if netinfo is None:
             netinfo = NetworkInfo()
 
-        self.fqdn = netinfo.get_fqdn()
+        self.fqdn = netinfo.get_hostname()
 
         super(Startup, self).__init__()
 
@@ -76,7 +76,7 @@ class Pulse(Plugin):
         self.bcaster = bcaster
 
         if timer is None:
-            timer = BackgroundTimer(5*randint(1,5), True, self._beat)
+            timer = BackgroundTimer(20*randint(1,5), True, self._beat)
 
         self.timer = timer
 
@@ -292,7 +292,7 @@ class Heartbeat(Pulse):
         """
         constructor
         """
-        timer = BackgroundTimer(5*randint(1,5), True, self._legacy_beat)
+        timer = BackgroundTimer(20*randint(1,5), True, self._legacy_beat)
 
         if settings is None:
             settings = get_config_manager()
