@@ -30,7 +30,7 @@ class Startup(Plugin):
         if netinfo is None:
             netinfo = NetworkInfo()
 
-        self.fqdn = netinfo.get_fqdn()
+        self.fqdn = netinfo.get_hostname()
 
         super(Startup, self).__init__()
 
@@ -76,7 +76,7 @@ class Pulse(Plugin):
         self.bcaster = bcaster
 
         if timer is None:
-            timer = BackgroundTimer(5*randint(1,5), True, self._beat)
+            timer = BackgroundTimer(20*randint(1,5), True, self._beat)
 
         self.timer = timer
 
@@ -85,7 +85,7 @@ class Pulse(Plugin):
 
         self.settings = settings
 
-        self.fqdn = netinfo.get_fqdn()
+        self.fqdn = netinfo.get_hostname()
         self.callback = None
 
     def get_producers(self):
@@ -259,11 +259,12 @@ class PulseMonitor(Plugin):
         been heard for a while, then dumps them.
         """
         logged_hosts = self.cache.items()
+        remove_hosts = []
 
         for host, logged_time in logged_hosts:
             difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(logged_time)
 
-            if difference > datetime.timedelta(seconds=90):
+            if difference > datetime.timedelta(seconds=300):
                 event = Event(
                     "Flatlined Host",
                     "Host flatlined (heartbeat lost)",
@@ -271,7 +272,10 @@ class PulseMonitor(Plugin):
                 )
 
                 callback(event)
-                self.cache.remove(host)
+                remove_hosts.append(host)
+
+        for host in remove_hosts:
+            self.cache.remove(host)
 
         self.saveCache()
 
@@ -288,7 +292,7 @@ class Heartbeat(Pulse):
         """
         constructor
         """
-        timer = BackgroundTimer(5*randint(1,5), True, self._legacy_beat)
+        timer = BackgroundTimer(20*randint(1,5), True, self._legacy_beat)
 
         if settings is None:
             settings = get_config_manager()
