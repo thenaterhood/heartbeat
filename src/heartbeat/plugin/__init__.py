@@ -142,8 +142,8 @@ class PluginRegistry(type):
         for p in settings.heartbeat.plugins:
             try:
                 ModuleLoader.load(p, full_classpath=True)
-            except ImportError:
-                PluginRegistry.__logger.warning("Failed to import plugin %s", p)
+            except ImportError as e:
+                PluginRegistry.__logger.warning("Failed to import plugin %s: %s", p, str(e))
 
     def get_active_plugins(self=None):
         return PluginRegistry.__active_plugins
