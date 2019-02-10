@@ -18,21 +18,28 @@ settings = get_config_manager()
 
 logger = logging.getLogger("heartbeat")
 logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(name)s;%(message)s",
+                              "%Y-%m-%d %H:%M:%S")
 try:
     filehandler = logging.handlers.TimedRotatingFileHandler(
             filename=settings.heartbeat.log_dir+"/heartbeat.log",
             when='W0'
             )
+    filehandler.setFormatter(formatter)
+    logger.addHandler(filehandler)
+
 except Exception:
-    print("No write permissions to log directory. Using current directory")
-    filehandler = logging.handlers.TimedRotatingFileHandler(
-            filename="./heartbeat.log",
-            when="W0"
-            )
-formatter = logging.Formatter("%(asctime)s;%(levelname)s;%(name)s;%(message)s",
-                              "%Y-%m-%d %H:%M:%S")
-filehandler.setFormatter(formatter)
-logger.addHandler(filehandler)
+    print("No write permissions to log directory. Trying current directory")
+    try:
+        filehandler = logging.handlers.TimedRotatingFileHandler(
+                filename="./heartbeat.log",
+                when="W0"
+                )
+        filehandler.setFormatter(formatter)
+        logger.addHandler(filehandler)
+    except Exception:
+        print("Unable to write a log file. Proceeding without one.")
+
 termhandler = logging.StreamHandler(sys.stdout)
 termhandler.setLevel(logging.INFO)
 logger.addHandler(termhandler)
