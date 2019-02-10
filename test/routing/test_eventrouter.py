@@ -56,7 +56,7 @@ class TestDispatcher(unittest.TestCase):
        self.assertTrue(self._compare_event_from_sig in topics[Topics.DEBUG])
 
        self.eventserver.put_event(self.event)
-       self.tp.submit.assert_called_once_with(self.eventserver.topics[Topics.DEBUG][0], self.event)
+       self.tp.submit.assert_called_once_with(self.eventserver._event_queue_worker)
 
     def test__check_call_status(self):
         f = concurrent.futures.Future()

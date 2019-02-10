@@ -12,7 +12,7 @@ else:
     from unittest.mock import patch
 from heartbeat.multiprocessing import LockingDictionary, Cache
 from heartbeat.security import Encryptor
-from pymlconf import ConfigManager
+from heartbeat.platform import ConfigManager
 from queue import Queue
 
 patch('__main__.open', mock_open)

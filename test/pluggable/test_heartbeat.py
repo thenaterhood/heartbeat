@@ -12,10 +12,9 @@ else:
 from heartbeat.pluggable.heartbeat import Heartbeat, Monitor
 from heartbeat.pluggable.heartbeat import Pulse, PulseMonitor
 from heartbeat.network import SocketBroadcaster, SocketListener, NetworkInfo
-from heartbeat.platform import Event, Topics
+from heartbeat.platform import Event, Topics, ConfigManager
 from heartbeat.monitoring import MonitorHandler, MonitorType
 from heartbeat.multiprocessing import Cache, BackgroundTimer
-from pymlconf import ConfigManager
 
 import datetime
 from time import time

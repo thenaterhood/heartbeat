@@ -4,6 +4,8 @@ from heartbeat.multiprocessing import Cache
 import logging
 import traceback
 from enum import Enum
+from queue import Queue
+from time import sleep
 
 
 class RateLimitHandler(object):
@@ -140,6 +142,8 @@ class EventRouter(object):
             limiter = RateLimitHandler()
 
         self.limiter = limiter
+        self.queue = Queue()
+        self.worker_running = False
 
         self.threadpool = threadpool
 
@@ -166,7 +170,8 @@ class EventRouter(object):
         self.logger.info("Event Generated: %s", event.__str__())
         if (self.limiter.allow_event(event)):
             self.logger.debug("Dispatching Event")
-            self._forward_event(event)
+            self.queue.put(event)
+            self._start_worker()
         else:
             self.logger.debug(
                 "Skipping dispatch per limit strategy")
@@ -179,6 +184,24 @@ class EventRouter(object):
         for t in self.topics[event.type]:
             f = self.threadpool.submit(t, event)
             f.add_done_callback(self._check_call_status)
+
+    def _event_queue_worker(self):
+        """
+        Worker method to be run in a thread to process the event queue
+        """
+        while not self.queue.empty():
+            item = self.queue.get()
+            self._forward_event(item)
+            self.queue.task_done()
+            sleep(3)
+        self.logger.debug("Event queue is empty, router worker shutting down")
+        self.worker_running = False
+
+    def _start_worker(self):
+        if self.worker_running is not True:
+            self.worker_running = True
+            self.logger.debug("Starting event router worker")
+            self.threadpool.submit(self._event_queue_worker)
 
     def _check_call_status(self, f):
         """
