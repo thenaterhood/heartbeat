@@ -264,9 +264,9 @@ class Listener(Plugin):
 
             if (event_loaded and event.type in self.topics):
                 try:
-                    event.host = str(socket.gethostbyaddr(addr[0])[0]) + "-" + str(event.host)
+                    event.host = str(socket.gethostbyaddr(addr[0])[0])
                 except socket.herror:
-                    event.host = str(addr[0]) + "-" + str(event.host)
+                    event.host = str(addr[0])
 
                 if (self._bcastIsOwn(event.host)):
                     return
