@@ -259,11 +259,12 @@ class PulseMonitor(Plugin):
         been heard for a while, then dumps them.
         """
         logged_hosts = self.cache.items()
+        remove_hosts = []
 
         for host, logged_time in logged_hosts:
             difference = datetime.datetime.now() - datetime.datetime.fromtimestamp(logged_time)
 
-            if difference > datetime.timedelta(seconds=90):
+            if difference > datetime.timedelta(seconds=300):
                 event = Event(
                     "Flatlined Host",
                     "Host flatlined (heartbeat lost)",
@@ -271,7 +272,10 @@ class PulseMonitor(Plugin):
                 )
 
                 callback(event)
-                self.cache.remove(host)
+                remove_hosts.append(host)
+
+        for host in remove_hosts:
+            self.cache.remove(host)
 
         self.saveCache()
 
