@@ -206,8 +206,10 @@ def get_config_manager(path = None):
     confdir = Path(config_dir)
     conf_list = [f for f in confdir.resolve().glob('**/*') if f.is_file()]
     for conffile in conf_list:
-        with open(conffile) as f:
-            conf_key = os.path.splitext(os.path.basename(conffile))[0]
+        # In Python < 3.6, the Path objects need to be converted to str
+        # or Python gets upset.
+        with open(str(conffile)) as f:
+            conf_key = os.path.splitext(os.path.basename(str(conffile)))[0]
             cfg_manager.add_item(conf_key, yaml.safe_load(f))
 
     cfg_manager.finalize()
