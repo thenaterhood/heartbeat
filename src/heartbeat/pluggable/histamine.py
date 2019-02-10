@@ -242,6 +242,7 @@ class Listener(Plugin):
             binary data: the undecoded data from the broadcast
             binary addr:
         """
+        print(data)
         if data.startswith(self.secret):
             eventData = data[len(self.secret):].decode("UTF-8")
             event_loaded = False
@@ -263,9 +264,9 @@ class Listener(Plugin):
 
             if (event_loaded and event.type in self.topics):
                 try:
-                    event.host = str(socket.gethostbyaddr(addr[0])[0])
+                    event.host = str(socket.gethostbyaddr(addr[0])[0]) + "-" + str(event.host)
                 except socket.herror:
-                    event.host = str(addr[0])
+                    event.host = str(addr[0]) + "-" + str(event.host)
 
                 if (self._bcastIsOwn(event.host)):
                     return
