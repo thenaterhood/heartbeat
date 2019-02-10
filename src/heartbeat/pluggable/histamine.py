@@ -230,7 +230,8 @@ class Listener(Plugin):
             boolean: whether the broadcast originated from ourselves
         """
         netinfo = NetworkInfo()
-        return (host == netinfo.fqdn) or (host == "localhost")
+        local_addresses = [netinfo.fqdn, "localhost", netinfo.ip_lan]
+        return host in local_addresses
 
     def receive(self, data, addr):
         """

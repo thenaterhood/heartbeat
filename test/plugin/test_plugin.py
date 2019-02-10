@@ -6,7 +6,7 @@ else:
     from unittest.mock import Mock, MagicMock
 
 from heartbeat.plugin import Plugin, PluginRegistry
-from pymlconf import ConfigManager
+from heartbeat.platform import ConfigManager
 
 class TestPlugin(unittest.TestCase):
 
