@@ -111,14 +111,15 @@ class Sender(Plugin):
             broadcaster = SocketBroadcaster(
                     22000, self.monitor_server)
 
-        data = self.secret_key
         if (self.use_encryption):
+            data = bytes(self.secret_key.encode("UTF-8"))
             encryptor = Encryptor(self.enc_password)
             data += encryptor.encrypt(event.to_json())
+            broadcaster.push(data)
         else:
+            data = self.secret_key
             data += event.to_json()
-
-        broadcaster.push(bytes(data.encode("UTF-8")))
+            broadcaster.push(bytes(data.encode("UTF-8")))
 
     def resend_unacked(self):
         """
@@ -242,7 +243,6 @@ class Listener(Plugin):
             binary data: the undecoded data from the broadcast
             binary addr:
         """
-        print(data)
         if data.startswith(self.secret):
             eventData = data[len(self.secret):].decode("UTF-8")
             event_loaded = False
