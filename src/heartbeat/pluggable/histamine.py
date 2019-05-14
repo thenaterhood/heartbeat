@@ -264,7 +264,12 @@ class Listener(Plugin):
 
             if (event_loaded and event.type in self.topics):
                 try:
-                    event.host = str(socket.gethostbyaddr(addr[0])[0]) + "-" + str(event.host)
+                    # Sanitize the source to an IP. Using a hostname is
+                    # sketchy because in some network environments or VPS
+                    # setups, gethostbyaddr to get a hostname doesn't
+                    # provide stable information (sometimes IP, sometimes hostname)
+                    # This should also prevent the exception below.
+                    event.host = str(socket.gethostbyname(addr[0])) + "-" + str(event.host)
                 except socket.herror:
                     event.host = str(addr[0]) + "-" + str(event.host)
 
