@@ -110,7 +110,7 @@ class Event(object):
         return e
 
     def __str__(self):
-        return self.title + ": " + self.host + ": " + self.message
+        return (self.title + ": " + self.host) + ((": " + self.message) if self.message else "")
 
 class ConfigManager:
     __slots__ = ('__config', '__finalized')
