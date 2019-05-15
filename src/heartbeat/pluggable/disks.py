@@ -36,7 +36,8 @@ class SMARTMonitor(Plugin):
     def __init__(self):
         settings = get_config_manager()
         self.check_drives = settings.monitoring.smartctl.drives
-        self.threw_warning = False
+        self.problem_drives = []
+        self.sent_warning = False
         super(SMARTMonitor, self).__init__()
 
     def get_producers(self):
@@ -55,32 +56,37 @@ class SMARTMonitor(Plugin):
         Runs a SMART check on all the configured drives
         """
 
-        foundProblem = False
-        problemDrive = "Problem in "
+        problemDrives = []
+        net = NetworkInfo()
 
         for d in self.check_drives:
-            result = self._call_smartctl(d)
-            if (not result):
-                foundProblem = True
-                problemDrive = problemDrive + d + ', '
+            if not self._check_drive_health(d):
+                problemDrives.append(d)
+                event = Event('SMART Alert',
+                        'Problem in %s' % d,
+                        net.fqdn,
+                        Topics.WARNING
+                        )
+                self.problem_drives.append(d)
+                self.sent_warning = True
+                callback(event)
+            else:
+                try:
+                    self.problem_drives.remove(d)
+                except ValueError:
+                    # It's not in there
+                    pass
 
-        if (foundProblem):
-            net = NetworkInfo()
-            event = Event("SMART Alert", problemDrive, net.fqdn)
-            event.type = Topics.WARNING
-            callback(event)
-
-        if (not foundProblem and self.threw_warning):
-            net = NetworkInfo()
-            self.threw_warning = False
+        if len(self.problem_drives) == 0 and self.sent_warning:
             event = Event("SMART Message",
-                          "A previous alert did not reoccur",
+                          "SMART alerts have cleared",
                           net.fqdn,
                           Topics.INFO
-                          )
+                        )
             callback(event)
+            self.sent_warning = False
 
-    def _call_smartctl(self, drive):
+    def _check_drive_health(self, drive):
         try:
             smartctl_out = subprocess.check_output(
                 ['smartctl', '--health', drive])

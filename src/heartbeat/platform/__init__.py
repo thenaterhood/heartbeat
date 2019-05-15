@@ -158,20 +158,22 @@ class ConfigManager:
 def _get_config_path(path = None):
     if (path is not None):
         return path
-    elif (sys.platform == 'win32'):
-        return os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat', 'etc', 'heartbeat')
-    else:
-        linux_paths = [
-                os.path.join(os.path.expanduser('~'), '.heartbeat'),
-                os.path.join('/', 'usr', 'local', 'etc', 'heartbeat'),
-                os.path.join('/', 'etc', 'heartbeat')
-                ]
 
-        for p in linux_paths:
-            if os.path.exists(p):
-                return p
+    root_path = '/'
+    if 'PROGRAMDATA' in os.environ:
+        root_path = os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat')
 
-        return os.path.join('/', 'etc', 'heartbeat')
+    paths = [
+            os.path.join(os.path.expanduser('~'), '.heartbeat'),
+            os.path.join(root_path, 'usr', 'local', 'etc', 'heartbeat'),
+            os.path.join(root_path, 'etc', 'heartbeat')
+            ]
+
+    for p in paths:
+        if os.path.exists(p):
+            return p
+
+    raise Exception("No configuration path found. Have you run `heartbeat-install`?")
 
 def get_cache_path(settings=None):
     if settings is None:

@@ -200,12 +200,6 @@ class PulseMonitor(Plugin):
         Shuts down the thread cleanly
         """
         self.shutdown = True
-        self.saveCache()
-
-    def saveCache(self):
-        """
-        Saves the cache out to disk
-        """
         self.cache.writeToDisk()
 
     def _bcastIsOwn(self, host):
@@ -277,7 +271,7 @@ class PulseMonitor(Plugin):
         for host in remove_hosts:
             self.cache.remove(host)
 
-        self.saveCache()
+        self.cache.writeToDisk()
 
 
 class Heartbeat(Pulse):
@@ -303,11 +297,7 @@ class Heartbeat(Pulse):
                 settings.heartbeat.monitor_server
             )
 
-
         super(Heartbeat, self).__init__(timer, bcaster=bcaster, settings=settings)
-
-    def get_required_services(self):
-        return []
 
 
 class Monitor(PulseMonitor):
@@ -350,15 +340,10 @@ class Monitor(PulseMonitor):
         Overrides Plugin.get_producers
         """
 
-        prods = {
+        return {
                 MonitorType.REALTIME: self.run_legacy,
                 MonitorType.PERIODIC: self.cleanup_hosts
             }
-
-        return prods
-
-    def get_required_services(self):
-        return []
 
     def run_legacy(self, callback):
         """
