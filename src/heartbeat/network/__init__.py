@@ -24,6 +24,22 @@ class NetworkInfo(object):
             self.hostname = None
             self.fqdn = None
 
+    def get_local_addresses(self):
+        wan_ip = self.ip_wan if self.ip_wan is not None else self.get_public_ip()
+        hostname = self.hostname if self.hostname is not None else self.get_hostname()
+        lan_ip = self.ip_lan if self.ip_lan is not None else self.get_local_ip()
+
+        return [
+                hostname,
+                self.get_fqdn() if self.fqdn is None else self.fqdn,
+                lan_ip,
+                wan_ip,
+                wan_ip + "-" + hostname,
+                lan_ip + "-" + hostname,
+                "localhost",
+                "127.0.0.1"
+                ]
+
     def get_hostname(self, strategy=socket.gethostname):
         return strategy()
 
