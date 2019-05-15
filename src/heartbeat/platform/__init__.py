@@ -85,16 +85,29 @@ class Event(object):
         return json.dumps(dictionary)
 
     def from_json(jsonString):
-        dictionary = json.loads(jsonString)
+        try:
+            dictionary = json.loads(jsonString)
+        except Exception:
+            raise Exception('Malformed event JSON')
+
+        if not 'title' in dictionary or \
+            not 'message' in dictionary or \
+            not 'type' in dictionary:
+                raise Exception('Event missing required fields')
+
+        try:
+            Topics[dictionary['type']]
+        except KeyError:
+            raise Exception('Unsupported event type')
 
         e = Event(
             title=dictionary['title'],
             message=dictionary['message'],
-            host=dictionary['host'],
+            host=dictionary['host'] if 'host' in dictionary else 'localhost',
             type=Topics[dictionary['type']]
             )
-        e.one_time = dictionary['one_time']
-        e.source = dictionary['source']
+        e.one_time = dictionary['one_time'] if 'one_time' in dictionary else False
+        e.source = dictionary['source'] if 'source' in dictionary else 'Unknown'
 
         if ('payload' in dictionary):
             e.payload = dictionary['payload']

@@ -304,7 +304,7 @@ class Listener(Plugin):
 
         self.terminate()
 
-class LocalSocket(Listener):
+class LocalSocket(Plugin):
 
     def __init__(self, settings=None):
         """
@@ -344,6 +344,14 @@ class LocalSocket(Listener):
         self.shutdown = True
         self.socket.close()
         os.unlink(self.sock_address)
+
+    def receive(self, data, from_addr):
+        eventData = data.decode("UTF-8")
+        try:
+            event = Event.from_json(eventData)
+            self.callback(event)
+        except:
+            pass
 
     def run(self, callback):
         self.socket.bind(self.sock_address)
