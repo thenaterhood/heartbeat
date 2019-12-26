@@ -31,33 +31,33 @@ class Sender(Plugin):
     def __init__(self):
 
         settings = get_config_manager()
-        self.topics = {}
         self.unacked = {}
         self.monitor_server = settings.heartbeat.monitor_server
         self.secret_key = settings.heartbeat.secret_key
         self.use_encryption = settings.heartbeat.use_encryption
         self.enc_password = settings.heartbeat.enc_password
         self.acking = False
-        if ("enable_acking" in settings.notifying.histamine):
-            self.acking = settings.notifying.histamine.enable_acking
 
-        if "histamine" in settings.notifying and "topics" in settings.notifying.histamine:
-            send_topics = settings.notifying.histamine.topics
-            for s in send_topics:
-                if s.upper() in Topics.__members__.keys():
-                    self.topics[Topics[s.upper()]] = self.send_event
+        self.topics = {
+            Topics.INFO: self.send_event,
+            Topics.WARNING: self.send_event,
+            Topics.DEBUG: self.send_event,
+            Topics.VIRT: self.send_event,
+            Topics.HEARTBEAT: self.send_event,
+            Topics.STARTUP: self.send_event,
+            }
 
-        else:
-            self.topics = {
-                Topics.INFO: self.send_event,
-                Topics.WARNING: self.send_event,
-                Topics.DEBUG: self.send_event,
-                Topics.VIRT: self.send_event,
-                Topics.HEARTBEAT: self.send_event,
-                Topics.STARTUP: self.send_event,
-                }
+        if 'histamine' in settings.notifying:
+            if 'enable_acking' in settings.notifying.histamine:
+                self.acking = settings.notifying.histamine.enable_acking
 
-        if (self.acking):
+            if 'topics' in settings.notifying.histamine:
+                self.topics = {}
+                for s in settings.notifying.histamine.topics:
+                    if s.upper() in Topics.__members__.keys():
+                        self.topics[Topics[s.upper()]] = self.send_event
+
+        if self.acking:
             self.topics[Topics.ACK] = self.handle_ack
 
         super(Sender, self).__init__()
@@ -163,7 +163,6 @@ class Listener(Plugin):
                match that of the heartbeats this is intended to watch
             Notificationhandler notifyHandler: notification handler
         """
-        self.topics = []
         self.settings = get_config_manager()
         secret = self.settings.heartbeat.secret_key
 
@@ -174,19 +173,7 @@ class Listener(Plugin):
         self.shutdown = False
         self.acking = False
 
-        if ("enable_acking" in self.settings.monitoring.histamine):
-            self.acking = self.settings.monitoring.histamine.enable_acking
-
-        if "histamine" in self.settings.monitoring and "topics" in self.settings.monitoring.histamine:
-
-            recv_topics = self.settings.monitoring.histamine.topics
-            for r in recv_topics:
-                try:
-                    self.topics.append(Topics[r.upper()])
-                except KeyError:
-                    pass
-        else:
-            self.topics = [
+        self.topics = [
                 Topics.INFO,
                 Topics.WARNING,
                 Topics.DEBUG,
@@ -194,6 +181,18 @@ class Listener(Plugin):
                 Topics.HEARTBEAT,
                 Topics.STARTUP,
                 ]
+
+        if 'histamine' in self.settings.monitoring:
+            if 'enable_acking' in self.settings.monitoring.histamine:
+                self.acking = self.settings.monitoring.histamine.enable_acking
+
+            if 'topics' in self.settings.monitoring.histamine:
+                self.topics = []
+                for r in self.settings.monitoring.histamine.topics:
+                    try:
+                        self.topics.append(Topics[r.upper()])
+                    except KeyError:
+                        print("Unrecognized topic %s, skipping" % r)
 
         if self.acking:
             self.topics.append(Topics.ACK)
@@ -231,7 +230,7 @@ class Listener(Plugin):
             boolean: whether the broadcast originated from ourselves
         """
         netinfo = NetworkInfo()
-        local_addresses = [netinfo.fqdn, "localhost", netinfo.ip_lan]
+        local_addresses = netinfo.get_local_addresses()
         return host in local_addresses
 
     def receive(self, data, addr):
@@ -245,26 +244,29 @@ class Listener(Plugin):
         """
         if data.startswith(self.secret):
             eventData = data[len(self.secret):].decode("UTF-8")
-            event_loaded = False
+            event = None
 
-            if (self.settings.heartbeat.accept_plaintext or not self.settings.heartbeat.use_encryption):
-                try:
-                    event = Event.from_json(eventData)
-                    event_loaded = True
-                except Exception:
-                    pass
-
-            if (not event_loaded and self.settings.heartbeat.use_encryption):
+            if self.settings.heartbeat.use_encryption:
                 try:
                     encryptor = Encryptor(self.settings.heartbeat.enc_password)
                     event = Event.from_json(encryptor.decrypt(eventData))
-                    event_loaded = True
+                except:
+                    pass
+
+            if event is None and self.settings.accept_plaintext:
+                try:
+                    event = Event.from_json(eventData)
                 except Exception:
                     pass
 
-            if (event_loaded and event.type in self.topics):
+            if (event is not None and event.type in self.topics):
                 try:
-                    event.host = str(socket.gethostbyaddr(addr[0])[0]) + "-" + str(event.host)
+                    # Sanitize the source to an IP. Using a hostname is
+                    # sketchy because in some network environments or VPS
+                    # setups, gethostbyaddr to get a hostname doesn't
+                    # provide stable information (sometimes IP, sometimes hostname)
+                    # This should also prevent the exception below.
+                    event.host = str(socket.gethostbyname(addr[0])) + "-" + str(event.host)
                 except socket.herror:
                     event.host = str(addr[0]) + "-" + str(event.host)
 
@@ -299,7 +301,7 @@ class Listener(Plugin):
 
         self.terminate()
 
-class LocalSocket(Listener):
+class LocalSocket(Plugin):
 
     def __init__(self, settings=None):
         """
@@ -339,6 +341,14 @@ class LocalSocket(Listener):
         self.shutdown = True
         self.socket.close()
         os.unlink(self.sock_address)
+
+    def receive(self, data, from_addr):
+        eventData = data.decode("UTF-8")
+        try:
+            event = Event.from_json(eventData)
+            self.callback(event)
+        except:
+            pass
 
     def run(self, callback):
         self.socket.bind(self.sock_address)

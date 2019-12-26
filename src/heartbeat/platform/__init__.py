@@ -85,16 +85,29 @@ class Event(object):
         return json.dumps(dictionary)
 
     def from_json(jsonString):
-        dictionary = json.loads(jsonString)
+        try:
+            dictionary = json.loads(jsonString)
+        except Exception:
+            raise Exception('Malformed event JSON')
+
+        if not 'title' in dictionary or \
+            not 'message' in dictionary or \
+            not 'type' in dictionary:
+                raise Exception('Event missing required fields')
+
+        try:
+            Topics[dictionary['type']]
+        except KeyError:
+            raise Exception('Unsupported event type')
 
         e = Event(
             title=dictionary['title'],
             message=dictionary['message'],
-            host=dictionary['host'],
+            host=dictionary['host'] if 'host' in dictionary else 'localhost',
             type=Topics[dictionary['type']]
             )
-        e.one_time = dictionary['one_time']
-        e.source = dictionary['source']
+        e.one_time = dictionary['one_time'] if 'one_time' in dictionary else False
+        e.source = dictionary['source'] if 'source' in dictionary else 'Unknown'
 
         if ('payload' in dictionary):
             e.payload = dictionary['payload']
@@ -110,7 +123,7 @@ class Event(object):
         return e
 
     def __str__(self):
-        return self.title + ": " + self.host + ": " + self.message
+        return (self.title + ": " + self.host) + ((": " + self.message) if self.message else "")
 
 class ConfigManager:
     __slots__ = ('__config', '__finalized')
@@ -145,20 +158,22 @@ class ConfigManager:
 def _get_config_path(path = None):
     if (path is not None):
         return path
-    elif (sys.platform == 'win32'):
-        return os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat', 'etc', 'heartbeat')
-    else:
-        linux_paths = [
-                os.path.join(os.path.expanduser('~'), '.heartbeat'),
-                os.path.join('/', 'usr', 'local', 'etc', 'heartbeat'),
-                os.path.join('/', 'etc', 'heartbeat')
-                ]
 
-        for p in linux_paths:
-            if os.path.exists(p):
-                return p
+    root_path = '/'
+    if 'PROGRAMDATA' in os.environ:
+        root_path = os.path.join(os.environ['PROGRAMDATA'], 'Heartbeat')
 
-        return os.path.join('/', 'etc', 'heartbeat')
+    paths = [
+            os.path.join(os.path.expanduser('~'), '.heartbeat'),
+            os.path.join(root_path, 'usr', 'local', 'etc', 'heartbeat'),
+            os.path.join(root_path, 'etc', 'heartbeat')
+            ]
+
+    for p in paths:
+        if os.path.exists(p):
+            return p
+
+    raise Exception("No configuration path found. Have you run `heartbeat-install`?")
 
 def get_cache_path(settings=None):
     if settings is None:
@@ -206,8 +221,10 @@ def get_config_manager(path = None):
     confdir = Path(config_dir)
     conf_list = [f for f in confdir.resolve().glob('**/*') if f.is_file()]
     for conffile in conf_list:
-        with open(conffile) as f:
-            conf_key = os.path.splitext(os.path.basename(conffile))[0]
+        # In Python < 3.6, the Path objects need to be converted to str
+        # or Python gets upset.
+        with open(str(conffile)) as f:
+            conf_key = os.path.splitext(os.path.basename(str(conffile)))[0]
             cfg_manager.add_item(conf_key, yaml.safe_load(f))
 
     cfg_manager.finalize()
