@@ -47,12 +47,18 @@ class TestMonitorHandler(unittest.TestCase):
             self.hwmonitors[1].get_producers, self.notifyHandler.put_event
         )
 
-    def test__check_call_status(self):
+    def test__check_call_status_ok(self):
         f = concurrent.futures.Future()
         f.set_exception(None)
         self.monitor_handler.logger.error = MagicMock(return_value=None)
 
         self.monitor_handler._check_call_status(f)
+        assert not self.monitor_handler.logger.error.called
+
+    def test__check_call_status_err(self):
+        f = concurrent.futures.Future()
+        self.monitor_handler.logger.error = MagicMock(return_value=None)
+
         e = Exception("test exception")
         f.set_exception(e)
         self.monitor_handler._check_call_status(f)

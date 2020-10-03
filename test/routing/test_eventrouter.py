@@ -58,14 +58,20 @@ class TestDispatcher(unittest.TestCase):
        self.eventserver.put_event(self.event)
        self.tp.submit.assert_called_once_with(self.eventserver._event_queue_worker)
 
-    def test__check_call_status(self):
+    def test__check_call_status_ok(self):
         f = concurrent.futures.Future()
         f.set_exception(None)
         self.eventserver.logger.error = MagicMock(return_value=None)
 
         self.eventserver._check_call_status(f)
+        assert not self.eventserver.logger.error.called
+
+    def test__check_call_status_err(self):
+        f = concurrent.futures.Future()
         e = Exception("test exception")
         f.set_exception(e)
+        self.eventserver.logger.error = MagicMock(return_value=None)
+
         self.eventserver._check_call_status(f)
         self.eventserver.logger.error.assert_called_once_with("Handler: %s at %s", str(e), " -- ")
 
