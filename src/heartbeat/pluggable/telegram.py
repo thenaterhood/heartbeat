@@ -26,6 +26,7 @@ class Telegram(Plugin):
         self.config = get_config_manager()
         self._chatid = self.config.notifying.telegram.chat_id
         self._token = self.config.notifying.telegram.token
+        self._updater = None
 
         super(Telegram, self).__init__()
 
