@@ -54,7 +54,7 @@ class Telegram(Plugin):
         """
         Sends a telegram message to a telegram group
         """
-        msg = "%s: %s from %s" % (event.title, event.message, event.host)
+        msg = "%s: %s (sent by %s)" % (event.title, event.message, event.host)
 
         if self._updater is None:
             self._updater = Updater(token=self._token, use_context=True)
