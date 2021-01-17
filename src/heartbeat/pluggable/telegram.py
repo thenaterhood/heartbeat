@@ -5,6 +5,8 @@ This plugin will send messages for events received from heartbeat.
 You will need to create a telegram bot and configure its token and provide
 a chat ID for it to send messages to.
 
+Based on https://python-telegram-bot.readthedocs.io/en/latest/
+
 """
 from telegram.ext import Updater
 
